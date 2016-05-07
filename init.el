@@ -302,8 +302,10 @@
   (cider-load-current-buffer)
   (let ((ns (cider-current-ns)))
     (cider-repl-set-ns ns)
-    (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
-    (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+    (cider-interactive-eval
+     (format "(println '(def server (%s/start))) (println 'server)" ns))
+    (cider-interactive-eval
+     (format "(def server (%s/start)) (println server)" ns))))
 
 
 (defun cider-refresh ()
