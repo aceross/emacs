@@ -44,6 +44,7 @@
 		      powerline
 		      py-autopep8
 		      rainbow-delimiters
+		      seq
 		      smex
 		      sml-mode
 		      smooth-scrolling
@@ -72,7 +73,6 @@
 
 ;; powerline
 (require 'powerline)
-;; (powerline-default-theme)
 
 ;; airline modeline theme
 (require 'airline-themes)
@@ -143,15 +143,6 @@
 ;; show git diff in the buffer
 (require 'git-gutter-fringe)
 (global-git-gutter-mode t)
-
-(defadvice vc-git-mode-line-string (after plus-minus (file) compile activate)
-  (setq ad-return-value
-    (concat ad-return-value
-            (let ((plus-minus (vc-git--run-command-string
-                               file "diff" "--numstat" "--")))
-              (and plus-minus
-                   (string-match "^\\([0-9]+\\)\t\\([0-9]+\\)\t" plus-minus)
-                   (format " +%s-%s" (match-string 1 plus-minus) (match-string 2 plus-minus)))))))
 
 ;;; Editing customisations ------------------------------------------------------
 
@@ -240,7 +231,7 @@
 (setq TeX-parse-self t) ; Enable parse on load.
 (setq TeX-auto-save t)  ; Enable parse on save.
 
-;; init.el ends here
+;;; Custom set variables -------------------------------------------------------
 	   
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -271,3 +262,5 @@
 (diminish 'git-gutter-mode)
 (diminish 'abbrev-mode)
 (diminish 'highlight-indentation-mode)
+
+;; init.el ends here
