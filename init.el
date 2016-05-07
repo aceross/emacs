@@ -15,9 +15,9 @@
 (defvar my-packages '(ac-slime
                       airline-themes
                       autopair
-		      cider
+                      cider
                       clojure-mode
-		      clojure-mode-extra-font-locking
+                      clojure-mode-extra-font-locking
                       company-auctex
                       company-inf-ruby
                       company-irony
@@ -29,8 +29,8 @@
                       elpy
                       fill-column-indicator
                       flycheck
-		      flycheck-flow
-		      flycheck-google-cpplint
+                      flycheck-flow
+                      flycheck-google-cpplint
                       git-gutter-fringe
                       haskell-mode
                       js2-mode
@@ -38,7 +38,7 @@
                       ido-ubiquitous
                       ido-vertical-mode
                       indent-guide
-		      irony
+                      irony
                       latex-preview-pane
                       magit
                       markdown-mode
@@ -46,6 +46,7 @@
                       material-theme
                       nodejs-repl
                       org
+                      pandoc-mode
                       paredit
                       powerline
                       py-autopep8
@@ -56,6 +57,7 @@
                       smooth-scrolling
                       web-mode
                       writegood-mode
+                      ws-butler
                       yaml-mode
                       ztree)
   "default packages")
