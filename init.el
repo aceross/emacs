@@ -257,7 +257,24 @@
  '(airline-shortened-directory-length 20)
  '(package-selected-packages
    (quote
-    (minimap yaml-mode writegood-mode web-mode sml-mode smex paredit nodejs-repl material-theme marmalade markdown-mode magit haskell-mode flycheck elpy deft clojure-mode autopair ac-slime))))
+    (minimap
+     yaml-mode
+     writegood-mode
+     web-mode
+     sml-mode
+     smex paredit
+     nodejs-repl
+     material-theme
+     marmalade
+     markdown-mode
+     magit
+     haskell-mode
+     flycheck
+     elpy
+     deft
+     clojure-mode
+     autopair
+     ac-slime))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
