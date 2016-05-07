@@ -1,4 +1,4 @@
-;;;; init.el
+;;; init.el
 
 (setq user-full-name "Aaron Ceross")
 (require 'cl)
@@ -15,7 +15,9 @@
 (defvar my-packages '(ac-slime
                       airline-themes
                       autopair
+		      cider
                       clojure-mode
+		      clojure-mode-extra-font-locking
                       company-auctex
                       company-inf-ruby
                       company-irony
@@ -27,6 +29,8 @@
                       elpy
                       fill-column-indicator
                       flycheck
+		      flycheck-flow
+		      flycheck-google-cpplint
                       git-gutter-fringe
                       haskell-mode
                       js2-mode
@@ -34,6 +38,7 @@
                       ido-ubiquitous
                       ido-vertical-mode
                       indent-guide
+		      irony
                       latex-preview-pane
                       magit
                       markdown-mode
@@ -148,16 +153,16 @@
 ;; show the 80-column line
 (require 'fill-column-indicator)
 (setq-default fci-rule-column 80)
-(setq fci-handle-truncate-lines nil)
-(define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
-(global-fci-mode 1)
-(defun auto-fci-mode (&optional unused)
-  (if (> (window-width) fci-rule-column)
-      (fci-mode 1)
-   (fci-mode 0))
-  )
-(add-hook 'after-change-major-mode-hook 'auto-fci-mode)
-(add-hook 'window-configuration-change-hook 'auto-fci-mode)
+;; (setq fci-handle-truncate-lines nil)
+;; (define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
+;; (global-fci-mode 1)
+;; (defun auto-fci-mode (&optional unused)
+;;   (if (> (window-width) fci-rule-column)
+;;       (fci-mode 1)
+;;    (fci-mode 0))
+;;   )
+;; (add-hook 'after-change-major-mode-hook 'auto-fci-mode)
+;; (add-hook 'window-configuration-change-hook 'auto-fci-mode)
 
 ;;; Editing customisations -----------------------------------------------------
 
@@ -203,7 +208,7 @@
 (require 'autopair)
 (autopair-global-mode)
 
-;;;; Language specific settings ------------------------------------------------
+;;;; Language settings ---------------------------------------------------------
 
 ;;; company-mode autocomplete
 (add-hook 'after-init-hook 'global-company-mode)
@@ -215,6 +220,21 @@
                                     company-inf-ruby
                                     company-web-html)))
 
+;;; flycheck linting
+(require 'flycheck)
+(global-flycheck-mode)
+(eval-after-load 'flycheck
+  '(progn
+     (require 'flycheck-google-cpplint)
+     ;; Add Google C++ Style checker.
+     ;; In default, syntax checked by Clang and Cppcheck.
+     (flycheck-add-next-checker 'c/c++-clang
+                                'c/c++-googlelint 'append)))
+
+(require 'flycheck-flow)
+(add-hook 'javascript-mode-hook 'flycheck-mode)
+(flycheck-add-next-checker 'javascript-gjslint 'javascript-flow)
+
 ;;; Lisp and clojure
 (setq lisp-modes '(lisp-mode
                    emacs-lisp-mode
@@ -222,11 +242,105 @@
                    scheme-mode
                    clojure-mode))
 
+;; Enable paredit for Clojure
+(add-hook 'clojure-mode-hook 'enable-paredit-mode)
+
+;; This is useful for working with camel-case tokens, like names of
+;; Java classes (e.g. JavaClassName)
+(add-hook 'clojure-mode-hook 'subword-mode)
+
+;; A little more syntax highlighting
+(require 'clojure-mode-extra-font-locking)
+
+;; syntax hilighting for midje
+(add-hook 'clojure-mode-hook
+          (lambda ()
+            (setq inferior-lisp-program "lein repl")
+            (font-lock-add-keywords
+             nil
+             '(("(\\(facts?\\)"
+                (1 font-lock-keyword-face))
+               ("(\\(background?\\)"
+                (1 font-lock-keyword-face))))
+            (define-clojure-indent (fact 1))
+            (define-clojure-indent (facts 1))))
+
+;;;;
+;; Cider
+;;;;
+
+;; provides minibuffer documentation for the code you're typing into the repl
+(add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+
+;; go right to the REPL buffer when it's finished connecting
+(setq cider-repl-pop-to-buffer-on-connect t)
+
+;; When there's a cider error, show its buffer and switch to it
+(setq cider-show-error-buffer t)
+(setq cider-auto-select-error-buffer t)
+
+;; Where to store the cider history.
+(setq cider-repl-history-file "~/.emacs.d/cider-history")
+
+;; Wrap when navigating history.
+(setq cider-repl-wrap-history t)
+
+;; enable paredit in your REPL
+(add-hook 'cider-repl-mode-hook 'paredit-mode)
+
+;; Use clojure mode for other extensions
+(add-to-list 'auto-mode-alist '("\\.edn$" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.boot$" . clojure-mode))
+(add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
+(add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
+
+
+;; key bindings
+;; these help me out with the way I usually develop web apps
+(defun cider-start-http-server ()
+  (interactive)
+  (cider-load-current-buffer)
+  (let ((ns (cider-current-ns)))
+    (cider-repl-set-ns ns)
+    (cider-interactive-eval (format "(println '(def server (%s/start))) (println 'server)" ns))
+    (cider-interactive-eval (format "(def server (%s/start)) (println server)" ns))))
+
+
+(defun cider-refresh ()
+  (interactive)
+  (cider-interactive-eval (format "(user/reset)")))
+
+(defun cider-user-ns ()
+  (interactive)
+  (cider-repl-set-ns "user"))
+
+(eval-after-load 'cider
+  '(progn
+     (define-key clojure-mode-map (kbd "C-c C-v") 'cider-start-http-server)
+     (define-key clojure-mode-map (kbd "C-M-r") 'cider-refresh)
+     (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
+     (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
+
 ;;; C/C++
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+
+;; replace the `completion-at-point' and `complete-symbol' bindings in
+;; irony-mode's buffers by irony-mode's function
+(defun my-irony-mode-hook ()
+  (define-key irony-mode-map [remap completion-at-point]
+    'irony-completion-at-point-async)
+  (define-key irony-mode-map [remap complete-symbol]
+    'irony-completion-at-point-async))
+(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
 (require 'company-irony-c-headers)
 
 ;;; Python
 (elpy-enable)
+(setq elpy-rpc-backend "jedi")  
 (elpy-use-ipython)
 
 ;; use flycheck and not flymake
@@ -239,12 +353,28 @@
 (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save)
 
 ;;; Javascript
+(add-hook 'js-mode-hook (lambda () (tern-mode t)))
 
 ;;; LaTex
 (require 'company-auctex)
 (company-auctex-init)
-(setq TeX-parse-self t) ; Enable parse on load.
-(setq TeX-auto-save t)  ; Enable parse on save.
+(setq TeX-parse-self t) ; enable parse on load.
+(setq TeX-auto-save t)  ; enable parse on save.
+
+(add-hook 'LaTeX-mode-hook 'flyspell-mode)
+(add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)
+(setq reftex-plug-into-AUCTeX t)
+
+; add the tilde when using \cite
+(setq reftex-format-cite-function 
+      '(lambda (key fmt)
+	 (let ((cite (replace-regexp-in-string "%l" key fmt)))
+	   (if (or (= ?~ (string-to-char fmt))
+		   (member (preceding-char) '(?\ ?\t ?\n ?~)))
+	       cite
+	     (concat "~" cite)))))
+
 
 ;;; Custom set variables -------------------------------------------------------
 	   
@@ -295,4 +425,4 @@
 (diminish 'abbrev-mode)
 (diminish 'highlight-indentation-mode)
 
-;; init.el ends here
+;;; init.el ends here
