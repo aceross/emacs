@@ -13,45 +13,46 @@
 (setq package-archive-enable-alist '(("melpa" deft magit)))
 
 (defvar my-packages '(ac-slime
-		      airline-themes
-		      autopair
-		      clojure-mode
-		      company-auctex
-		      company-inf-ruby
-		      company-irony
-		      company-irony-c-headers
-		      company-tern
-		      deft
-		      diminish
-		      ein
-		      elpy
-		      flycheck
-		      git-gutter-fringe
-		      haskell-mode
-		      js2-mode
-		      highlight-indentation
-		      ido-ubiquitous
-		      ido-vertical-mode
-		      indent-guide
-		      latex-preview-pane
-		      magit
-		      markdown-mode
-		      marmalade
-		      material-theme
-		      nodejs-repl
-		      org
-		      paredit
-		      powerline
-		      py-autopep8
-		      rainbow-delimiters
-		      seq
-		      smex
-		      sml-mode
-		      smooth-scrolling
-		      web-mode
-		      writegood-mode
-		      yaml-mode
-		      ztree)
+                      airline-themes
+                      autopair
+                      clojure-mode
+                      company-auctex
+                      company-inf-ruby
+                      company-irony
+                      company-irony-c-headers
+                      company-tern
+                      deft
+                      diminish
+                      ein
+                      elpy
+                      fill-column-indicator
+                      flycheck
+                      git-gutter-fringe
+                      haskell-mode
+                      js2-mode
+                      highlight-indentation
+                      ido-ubiquitous
+                      ido-vertical-mode
+                      indent-guide
+                      latex-preview-pane
+                      magit
+                      markdown-mode
+                      marmalade
+                      material-theme
+                      nodejs-repl
+                      org
+                      paredit
+                      powerline
+                      py-autopep8
+                      rainbow-delimiters
+                      seq
+                      smex
+                      sml-mode
+                      smooth-scrolling
+                      web-mode
+                      writegood-mode
+                      yaml-mode
+                      ztree)
   "default packages")
 
 (defun my-packages-installed-p ()
@@ -66,7 +67,7 @@
     (when (not (package-installed-p pkg))
       (package-install pkg))))
 
-;;; UI Customisations -----------------------------------------------------------
+;;; UI Customisations ----------------------------------------------------------
 
 ;; load themes
 (load-theme 'material t)
@@ -144,7 +145,21 @@
 (require 'git-gutter-fringe)
 (global-git-gutter-mode t)
 
-;;; Editing customisations ------------------------------------------------------
+;; show the 80-column line
+(require 'fill-column-indicator)
+(setq-default fci-rule-column 80)
+(setq fci-handle-truncate-lines nil)
+(define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
+(global-fci-mode 1)
+(defun auto-fci-mode (&optional unused)
+  (if (> (window-width) fci-rule-column)
+      (fci-mode 1)
+   (fci-mode 0))
+  )
+(add-hook 'after-change-major-mode-hook 'auto-fci-mode)
+(add-hook 'window-configuration-change-hook 'auto-fci-mode)
+
+;;; Editing customisations -----------------------------------------------------
 
 ;; comments
 (defun toggle-comment-on-line ()
@@ -188,7 +203,7 @@
 (require 'autopair)
 (autopair-global-mode)
 
-;;;; Language specific settings -------------------------------------------------
+;;;; Language specific settings ------------------------------------------------
 
 ;;; company-mode autocomplete
 (add-hook 'after-init-hook 'global-company-mode)
