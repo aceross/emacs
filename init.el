@@ -44,7 +44,7 @@
                       markdown-mode
                       marmalade
                       material-theme
-                      nodejs-repl
+		      nodejs-repl
                       org
                       pandoc-mode
                       paredit
@@ -309,7 +309,6 @@
     (cider-interactive-eval
      (format "(def server (%s/start)) (println server)" ns))))
 
-
 (defun cider-refresh ()
   (interactive)
   (cider-interactive-eval (format "(user/reset)")))
@@ -389,6 +388,9 @@
  ;; If there is more than one, they won't work right.
  '(airline-display-directory (quote airline-directory-shortened))
  '(airline-shortened-directory-length 20)
+ '(minimap-major-modes (quote (prog-mode)))
+ '(minimap-mode t)
+ '(minimap-window-location (quote right))
  '(package-selected-packages
    (quote
     (minimap
@@ -396,7 +398,8 @@
      writegood-mode
      web-mode
      sml-mode
-     smex paredit
+     smex
+     paredit
      nodejs-repl
      material-theme
      marmalade
