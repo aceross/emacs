@@ -380,7 +380,7 @@
 
 
 ;;; Custom set variables -------------------------------------------------------
-	   
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -388,8 +388,13 @@
  ;; If there is more than one, they won't work right.
  '(airline-display-directory (quote airline-directory-shortened))
  '(airline-shortened-directory-length 20)
+ '(custom-safe-themes
+   (quote
+    ("15835b9d167f29341a0ef018ee05a888621a192588ce31b2b2e9a677252c014c"
+     "67ca766b07ce92be5c0a0111930378d724e9927c890675d4847a774daabc8eaa"
+     default)))
  '(minimap-major-modes (quote (prog-mode)))
- '(minimap-mode t)
+ '(minimap-mode f)
  '(minimap-window-location (quote right))
  '(package-selected-packages
    (quote
@@ -417,7 +422,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(minimap-active-region-background ((t (:background "dark slate gray")))))
 
 ;;; diminish -------------------------------------------------------------------
 
