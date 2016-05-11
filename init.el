@@ -22,6 +22,7 @@
                       company-inf-ruby
                       company-irony
                       company-irony-c-headers
+		      company-jedi
                       company-tern
                       deft
                       diminish
@@ -46,6 +47,7 @@
                       material-theme
 		      nodejs-repl
                       org
+		      org-bullets
                       pandoc-mode
                       paredit
                       powerline
@@ -152,10 +154,13 @@
 (require 'git-gutter-fringe)
 (global-git-gutter-mode t)
 
+;; kill blinking cursor
+(blink-cursor-mode 0)
+
 ;; show the 80-column line
 (require 'fill-column-indicator)
 (setq-default fci-rule-column 80)
-;; (setq fci-handle-truncate-lines nil)
+(setq fci-handle-truncate-lines nil)
 ;; (define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
 ;; (global-fci-mode 1)
 ;; (defun auto-fci-mode (&optional unused)
@@ -209,6 +214,40 @@
 
 (require 'autopair)
 (autopair-global-mode)
+
+;;;; org-mode settings ---------------------------------------------------------
+
+(require 'org)
+(setq org-startup-indented t)
+(setq org-hide-leading-stars t)
+(setq org-odd-level-only nil)
+(setq org-completion-use-ido t)
+(setq org-indent-mode t)
+(setq org-startup-folded nil)
+(setq org-startup-truncated nil)
+(setq auto-fill-mode -1)
+(setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
+(setq org-log-done t
+      org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE"))
+      org-todo-keyword-faces '(("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))))
+(add-hook 'org-mode-hook
+          (lambda ()
+            (flyspell-mode)))
+(add-hook 'org-mode-hook
+          (lambda ()
+            (writegood-mode)))
+
+(require 'org-bullets)
+(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+
+(require 'org-install)
+(require 'org-habit)
+(add-to-list 'org-modules "org-habit")
+(setq org-habit-preceding-days 7
+      org-habit-following-days 1
+      org-habit-graph-column 80
+      org-habit-show-habits-only-for-today t
+      org-habit-show-all-today t)
 
 ;;;; Language settings ---------------------------------------------------------
 
@@ -394,7 +433,6 @@
      "67ca766b07ce92be5c0a0111930378d724e9927c890675d4847a774daabc8eaa"
      default)))
  '(minimap-major-modes (quote (prog-mode)))
- '(minimap-mode f)
  '(minimap-window-location (quote right))
  '(package-selected-packages
    (quote
