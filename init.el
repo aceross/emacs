@@ -195,6 +195,7 @@
 (setq tab-width 2
       indent-tabs-mode nil)
 
+;; turn off creation of backup files
 (setq make-backup-files nil)
 
 ;; change all the yes-or-no answers to simple y or p
@@ -212,6 +213,10 @@
       ido-use-virtual-buffers t)
 ; only try to match within the work directory
 (setq ido-auto-merge-work-directories-length -1)
+(ido-ubiquitous-mode 1)
+
+;; see all the buffers
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (require 'autopair)
 (autopair-global-mode)
