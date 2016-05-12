@@ -1,3 +1,4 @@
+
 ;;; init.el
 
 (setq user-full-name "Aaron Ceross")
@@ -230,6 +231,7 @@
 (setq org-log-done t
       org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE"))
       org-todo-keyword-faces '(("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))))
+      
 (add-hook 'org-mode-hook
           (lambda ()
             (flyspell-mode)))
