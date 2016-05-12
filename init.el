@@ -2,7 +2,7 @@
 ;;; init.el
 
 (setq user-full-name "Aaron Ceross")
-(require 'cl)
+(require 'cl-lib)
 
 (load "package")
 (package-initialize)
@@ -234,8 +234,12 @@
 (setq auto-fill-mode -1)
 (setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
 (setq org-log-done t
-      org-todo-keywords '((sequence "TODO" "IN PROGRESS" "DONE"))
-      org-todo-keyword-faces '(("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))))
+      org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
+      org-todo-keyword-faces
+      (quote
+       (("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))
+        ("OVERDUE" . (:foreground "yellow2" :background "goldenrod3" :weight bold)))))
+
       
 (add-hook 'org-mode-hook
           (lambda ()
@@ -259,6 +263,7 @@
 ;;;; Language settings ---------------------------------------------------------
 
 ;;; company-mode autocomplete
+(defvar company-backends)
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
   '(add-to-list 'company-backends '(company-irony-c-headers
@@ -423,7 +428,6 @@
 		   (member (preceding-char) '(?\ ?\t ?\n ?~)))
 	       cite
 	     (concat "~" cite)))))
-
 
 ;;; Custom set variables -------------------------------------------------------
 
