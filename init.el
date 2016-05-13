@@ -25,6 +25,7 @@
                       company-irony-c-headers
 		      company-jedi
                       company-tern
+		      company-web
                       deft
                       diminish
                       ein
@@ -221,6 +222,24 @@
 (require 'autopair)
 (autopair-global-mode)
 
+;; Windmove configuration
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+
+(defun ignore-error-wrapper (fn)
+  "Funtion return new function that ignore errors.
+   The function wraps a function with `ignore-errors' macro."
+  (lexical-let ((fn fn))
+    (lambda ()
+      (interactive)
+      (ignore-errors
+        (funcall fn)))))
+
+(global-set-key [s-left] (ignore-error-wrapper 'windmove-left))
+(global-set-key [s-right] (ignore-error-wrapper 'windmove-right))
+(global-set-key [s-up] (ignore-error-wrapper 'windmove-up))
+(global-set-key [s-down] (ignore-error-wrapper 'windmove-down))
+
 ;;;; org-mode settings ---------------------------------------------------------
 
 (require 'org)
@@ -294,6 +313,20 @@
                    common-lisp-mode
                    scheme-mode
                    clojure-mode))
+
+(autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+(add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+(add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+(add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+(add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+(add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+
+;; eldoc-mode shows documentation in the minibuffer when writing code
+;; http://www.emacswiki.org/emacs/ElDoc
+(add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'lisp-interaction-mode-hook 'turn-on-eldoc-mode)
+(add-hook 'ielm-mode-hook 'turn-on-eldoc-mode)
 
 ;; Enable paredit for Clojure
 (add-hook 'clojure-mode-hook 'enable-paredit-mode)
