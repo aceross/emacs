@@ -16,6 +16,7 @@
 (defvar my-packages '(ac-slime
                       airline-themes
                       autopair
+                      browse-kill-ring
                       cider
                       clojure-mode
                       clojure-mode-extra-font-locking
@@ -23,9 +24,9 @@
                       company-inf-ruby
                       company-irony
                       company-irony-c-headers
-		      company-jedi
+                      company-jedi
                       company-tern
-		      company-web
+                      company-web
                       deft
                       diminish
                       ein
@@ -47,9 +48,9 @@
                       markdown-mode
                       marmalade
                       material-theme
-		      nodejs-repl
+                      nodejs-repl
                       org
-		      org-bullets
+                      org-bullets
                       pandoc-mode
                       paredit
                       powerline
@@ -198,6 +199,9 @@
 
 ;; turn off creation of backup files
 (setq make-backup-files nil)
+
+;; browse-kill-ring key binding
+(browse-kill-ring-default-keybindings)
 
 ;; change all the yes-or-no answers to simple y or p
 (defalias 'yes-or-no-p 'y-or-n-p)
