@@ -1,4 +1,4 @@
-
+;;; Code
 ;;; init.el
 
 (setq user-full-name "Aaron Ceross")
@@ -244,6 +244,12 @@
 (global-set-key [s-up] (ignore-error-wrapper 'windmove-up))
 (global-set-key [s-down] (ignore-error-wrapper 'windmove-down))
 
+;; YASnippets
+(yas-global-mode 1)
+;; (define-key yas-minor-mode-map (kbd "<tab>"))
+;; (define-key yas-minor-mode-map (kbd "TAB"))
+(define-key yas-minor-mode-map (kbd "<tab>") 'yas-expand)
+
 ;;;; org-mode settings ---------------------------------------------------------
 
 (require 'org)
@@ -287,9 +293,11 @@
 
 ;;; company-mode autocomplete
 (defvar company-backends)
+(require 'company-irony-c-headers)
+
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
-  '(add-to-list 'company-backends '(company-irony-c-headers
+  '(add-to-list 'company-backends '(company-c-headers
                                     company-irony
                                     company-tern
                                     company-jedi
@@ -300,12 +308,13 @@
 (require 'flycheck)
 (global-flycheck-mode)
 (eval-after-load 'flycheck
-  '(progn
-     (require 'flycheck-google-cpplint)
-     ;; Add Google C++ Style checker.
-     ;; In default, syntax checked by Clang and Cppcheck.
-     (flycheck-add-next-checker 'c/c++-clang
-                                'c/c++-googlelint 'append)))
+   '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+  ;; '(progn
+  ;;    (require 'flycheck-google-cpplint)
+  ;;    ;; Add Google C++ Style checker.
+  ;;    ;; In default, syntax checked by Clang and Cppcheck.
+  ;;    (flycheck-add-next-checker 'c/c++-clang
+  ;;                               'c/c++-googlelint 'append)))
 
 (require 'flycheck-flow)
 (add-hook 'javascript-mode-hook 'flycheck-mode)
@@ -417,8 +426,8 @@
 (add-hook 'c-mode-hook 'irony-mode)
 (add-hook 'objc-mode-hook 'irony-mode)
 
-;; replace the `completion-at-point' and `complete-symbol' bindings in
-;; irony-mode's buffers by irony-mode's function
+;; ;; replace the `completion-at-point' and `complete-symbol' bindings in
+;; ;; irony-mode's buffers by irony-mode's function
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
     'irony-completion-at-point-async)
@@ -427,7 +436,7 @@
 (add-hook 'irony-mode-hook 'my-irony-mode-hook)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
-(require 'company-irony-c-headers)
+;; (require 'company-irony-c-headers)
 
 ;;; Python
 (elpy-enable)
