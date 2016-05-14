@@ -15,6 +15,7 @@
 
 (defvar my-packages '(ac-slime
                       airline-themes
+                      aggressive-indent
                       autopair
                       browse-kill-ring
                       cider
@@ -59,7 +60,7 @@
                       seq
                       smex
                       sml-mode
-                      smooth-scrolling
+                      smooth-scroll
                       web-mode
                       writegood-mode
                       ws-butler
@@ -160,6 +161,10 @@
 ;; kill blinking cursor
 (blink-cursor-mode 0)
 
+;; smooth scroll
+(smooth-scroll-mode 1)
+(setq smooth-scroll/vscroll-step-size 5)
+
 ;; show the 80-column line
 (require 'fill-column-indicator)
 (setq-default fci-rule-column 80)
@@ -246,9 +251,8 @@
 
 ;; YASnippets
 (yas-global-mode 1)
-;; (define-key yas-minor-mode-map (kbd "<tab>"))
-;; (define-key yas-minor-mode-map (kbd "TAB"))
 (define-key yas-minor-mode-map (kbd "<tab>") 'yas-expand)
+(define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet)
 
 ;;;; org-mode settings ---------------------------------------------------------
 
@@ -268,7 +272,6 @@
       (quote
        (("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))
         ("OVERDUE" . (:foreground "yellow2" :background "goldenrod3" :weight bold)))))
-
       
 (add-hook 'org-mode-hook
           (lambda ()
@@ -393,7 +396,6 @@
 (add-to-list 'auto-mode-alist '("\\.cljs.*$" . clojure-mode))
 (add-to-list 'auto-mode-alist '("lein-env" . enh-ruby-mode))
 
-
 ;; key bindings
 ;; these help me out with the way I usually develop web apps
 (defun cider-start-http-server ()
@@ -484,11 +486,6 @@
  ;; If there is more than one, they won't work right.
  '(airline-display-directory (quote airline-directory-shortened))
  '(airline-shortened-directory-length 20)
- '(custom-safe-themes
-   (quote
-    ("15835b9d167f29341a0ef018ee05a888621a192588ce31b2b2e9a677252c014c"
-     "67ca766b07ce92be5c0a0111930378d724e9927c890675d4847a774daabc8eaa"
-     default)))
  '(minimap-major-modes (quote (prog-mode)))
  '(minimap-window-location (quote right))
  '(package-selected-packages
