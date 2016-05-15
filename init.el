@@ -60,7 +60,7 @@
                       seq
                       smex
                       sml-mode
-                      smooth-scroll
+                      smooth-scrolling
                       web-mode
                       writegood-mode
                       ws-butler
@@ -162,8 +162,8 @@
 (blink-cursor-mode 0)
 
 ;; smooth scroll
-(smooth-scroll-mode 1)
-(setq smooth-scroll/vscroll-step-size 5)
+(require 'smooth-scrolling)
+(smooth-scrolling-mode 1)
 
 ;; show the 80-column line
 (require 'fill-column-indicator)
@@ -180,6 +180,9 @@
 ;; (add-hook 'window-configuration-change-hook 'auto-fci-mode)
 
 ;;; Editing customisations -----------------------------------------------------
+
+;; aggressive indent mode
+(global-aggressive-indent-mode 1)
 
 ;; comments
 (defun toggle-comment-on-line ()
@@ -251,7 +254,6 @@
 
 ;; YASnippets
 (yas-global-mode 1)
-(define-key yas-minor-mode-map (kbd "<tab>") 'yas-expand)
 (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet)
 
 ;;;; org-mode settings ---------------------------------------------------------
