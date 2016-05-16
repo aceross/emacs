@@ -7,9 +7,9 @@
 (load "package")
 (package-initialize)
 (add-to-list 'package-archives
-	     '("marmalade" . "http://marmalade-repo.org/packages/"))
+       '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives
-	     '("melpa" . "http://melpa.milkbox.net/packages/") t)
+       '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 (setq package-archive-enable-alist '(("melpa" deft magit)))
 
@@ -70,8 +70,8 @@
 
 (defun my-packages-installed-p ()
   (loop for pkg in my-packages
-	when (not (package-installed-p pkg)) do (return nil)
-	finally (return t)))
+  when (not (package-installed-p pkg)) do (return nil)
+  finally (return t)))
 
 (unless (my-packages-installed-p)
   (message "%s" "Refreshing package database...")
@@ -184,6 +184,12 @@
 ;; aggressive indent mode
 (global-aggressive-indent-mode 1)
 
+;; ensure EOF newline on save
+(setq require-final-newline t)
+
+;; clean up white space on save
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
 ;; comments
 (defun toggle-comment-on-line ()
   "comment or uncomment current line"
@@ -220,7 +226,7 @@
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 
-;; ido 
+;; ido
 (ido-mode t)
 (setq ido-enable-flex-matching t
       ido-use-virtual-buffers t)
@@ -245,7 +251,7 @@
     (lambda ()
       (interactive)
       (ignore-errors
-        (funcall fn)))))
+  (funcall fn)))))
 
 (global-set-key [s-left] (ignore-error-wrapper 'windmove-left))
 (global-set-key [s-right] (ignore-error-wrapper 'windmove-right))
@@ -274,13 +280,13 @@
       (quote
        (("IN PROGRESS" . (:foreground "deep sky blue" :background "blue" :weight bold))
         ("OVERDUE" . (:foreground "yellow2" :background "goldenrod3" :weight bold)))))
-      
+
 (add-hook 'org-mode-hook
           (lambda ()
             (flyspell-mode)))
 (add-hook 'org-mode-hook
-          (lambda ()
-            (writegood-mode)))
+    (lambda ()
+      (writegood-mode)))
 
 (require 'org-bullets)
 (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
@@ -303,11 +309,11 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
   '(add-to-list 'company-backends '(company-c-headers
-                                    company-irony
-                                    company-tern
-                                    company-jedi
-                                    company-inf-ruby
-                                    company-web-html)))
+            company-irony
+            company-tern
+            company-jedi
+            company-inf-ruby
+            company-web-html)))
 
 ;;; flycheck linting
 (require 'flycheck)
@@ -444,7 +450,7 @@
 
 ;;; Python
 (elpy-enable)
-(setq elpy-rpc-backend "jedi")  
+(setq elpy-rpc-backend "jedi")
 (elpy-use-ipython)
 
 ;; use flycheck and not flymake
@@ -471,13 +477,13 @@
 (setq reftex-plug-into-AUCTeX t)
 
 ; add the tilde when using \cite
-(setq reftex-format-cite-function 
+(setq reftex-format-cite-function
       '(lambda (key fmt)
-	 (let ((cite (replace-regexp-in-string "%l" key fmt)))
-	   (if (or (= ?~ (string-to-char fmt))
-		   (member (preceding-char) '(?\ ?\t ?\n ?~)))
-	       cite
-	     (concat "~" cite)))))
+         (let ((cite (replace-regexp-in-string "%l" key fmt)))
+           (if (or (= ?~ (string-to-char fmt))
+                   (member (preceding-char) '(?\ ?\t ?\n ?~)))
+               cite
+             (concat "~" cite)))))
 
 ;;; Custom set variables -------------------------------------------------------
 
@@ -523,6 +529,7 @@
 ;; remove cruft from modeline
 (require 'diminish)
 (diminish 'projectile-mode)
+(diminish 'aggressive-indent-mode)
 (diminish 'flycheck-mode)
 (diminish 'paredit-mode)
 (diminish 'autopair-mode)
