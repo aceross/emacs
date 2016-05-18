@@ -1,8 +1,7 @@
-;;; Code
-;;; init.el
+;;;; init.el
 
 (setq user-full-name "Aaron Ceross")
-(require 'cl-lib)
+(require 'cl)
 
 (load "package")
 (package-initialize)
@@ -184,11 +183,11 @@
 ;; aggressive indent mode
 (global-aggressive-indent-mode 1)
 
+;; ws-butler
+(ws-butler-global-mode 1)
+
 ;; ensure EOF newline on save
 (setq require-final-newline t)
-
-;; clean up white space on save
-(add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; comments
 (defun toggle-comment-on-line ()
@@ -210,6 +209,9 @@
 
 (setq tab-width 2
       indent-tabs-mode nil)
+
+;; turn tabs to spaces on save
+(add-hook 'before-save-hook (lambda () (untabify (point-min) (point-max))))
 
 ;; turn off creation of backup files
 (setq make-backup-files nil)
@@ -309,11 +311,11 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
   '(add-to-list 'company-backends '(company-c-headers
-            company-irony
-            company-tern
-            company-jedi
-            company-inf-ruby
-            company-web-html)))
+				    company-irony
+				    company-tern
+				    company-jedi
+				    company-inf-ruby
+				    company-web-html)))
 
 ;;; flycheck linting
 (require 'flycheck)
@@ -345,6 +347,13 @@
 (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
 (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+
+;; SLIME
+(require 'slime)
+(add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
+(add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
+(setq slime-contribs '(slime-fancy))
+(setq inferior-lisp-program "sbcl")
 
 ;; eldoc-mode shows documentation in the minibuffer when writing code
 ;; http://www.emacswiki.org/emacs/ElDoc
