@@ -217,6 +217,7 @@
 (setq make-backup-files nil)
 
 ;; browse-kill-ring key binding
+;; use M-y to browse kill ring
 (browse-kill-ring-default-keybindings)
 
 ;; change all the yes-or-no answers to simple y or p
@@ -311,11 +312,11 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
   '(add-to-list 'company-backends '(company-c-headers
-				    company-irony
-				    company-tern
-				    company-jedi
-				    company-inf-ruby
-				    company-web-html)))
+                                    company-irony
+                                    company-tern
+                                    company-jedi
+                                    company-inf-ruby
+                                    company-web-html)))
 
 ;;; flycheck linting
 (require 'flycheck)
