@@ -14,7 +14,9 @@
 
 (defvar my-packages '(ac-slime
                       airline-themes
+                      ag
                       aggressive-indent
+                      auto-complete
                       autopair
                       browse-kill-ring
                       cider
@@ -32,6 +34,7 @@
                       ein
                       elpy
                       fill-column-indicator
+                      flx-ido
                       flycheck
                       flycheck-flow
                       flycheck-google-cpplint
@@ -54,6 +57,7 @@
                       pandoc-mode
                       paredit
                       powerline
+                      projectile
                       py-autopep8
                       rainbow-delimiters
                       seq
@@ -231,15 +235,26 @@
 
 ;; ido
 (ido-mode t)
-(setq ido-enable-flex-matching t
-      ido-use-virtual-buffers t)
-; only try to match within the work directory
-(setq ido-auto-merge-work-directories-length -1)
 (ido-ubiquitous-mode 1)
+(flx-ido-mode t)
+(setq ido-enable-flex-matching t)
+(setq ido-use-virtual-buffers t)
+                                        ; only try to match within the work directory
+(setq ido-auto-merge-work-directories-length -1)
+
 
 ;; see all the buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
+;; projectile
+;; (projectile-global-mode)
+;; (setq projectile-enable-caching t)
+;; ;; Press Super-p for fuzzy find in project
+;; (global-set-key (kbd "C-x p") 'projectile-find-file)
+;; Press Super-b for fuzzy switch buffer
+;; (global-set-key (kbd "C-x bb") 'projectile-switch-to-buffer)
+
+;; close delimiters automatically
 (require 'autopair)
 (autopair-global-mode)
 
@@ -350,11 +365,17 @@
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
 ;; SLIME
+(require 'auto-complete)
 (require 'slime)
 (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
 (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
 (setq slime-contribs '(slime-fancy))
 (setq inferior-lisp-program "sbcl")
+
+(add-hook 'slime-mode-hook 'set-up-slime-ac)
+(add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+(eval-after-load "auto-complete"
+  '(add-to-list 'ac-modes 'slime-repl-mode))
 
 ;; eldoc-mode shows documentation in the minibuffer when writing code
 ;; http://www.emacswiki.org/emacs/ElDoc
