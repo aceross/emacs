@@ -23,6 +23,7 @@
                       clojure-mode
                       clojure-mode-extra-font-locking
                       company-auctex
+                      company-ghci
                       company-inf-ruby
                       company-irony
                       company-irony-c-headers
@@ -371,6 +372,7 @@
 (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
 (setq slime-contribs '(slime-fancy))
 (setq inferior-lisp-program "sbcl")
+;; (load (expand-file-name "~/quicklisp/slime-helper.el"))
 
 (add-hook 'slime-mode-hook 'set-up-slime-ac)
 (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
@@ -495,6 +497,16 @@
 
 ;;; Javascript
 (add-hook 'js-mode-hook (lambda () (tern-mode t)))
+
+;;; Haskell
+(require 'company-ghci)
+(push 'company-ghci company-backends)
+(add-hook 'haskell-mode-hook 'company-mode)
+;;; To get completions in the REPL
+(add-hook 'haskell-interactive-mode-hook 'company-mode)
+
+(eval-after-load 'haskell-mode
+  '(define-key haskell-mode-map [f8] 'haskell-navigate-imports))
 
 ;;; LaTex
 (require 'company-auctex)
