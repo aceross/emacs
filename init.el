@@ -55,6 +55,7 @@
                       nodejs-repl
                       org
                       org-bullets
+                      org-pomodoro
                       pandoc-mode
                       paredit
                       powerline
@@ -580,5 +581,7 @@
 (diminish 'git-gutter-mode)
 (diminish 'abbrev-mode)
 (diminish 'highlight-indentation-mode)
+(diminish 'org-indent-mode)
+(diminish 'flyspell-mode)
 
 ;;; init.el ends here
