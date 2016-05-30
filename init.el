@@ -39,6 +39,7 @@
                       flycheck
                       flycheck-flow
                       flycheck-google-cpplint
+                      flycheck-pyflakes
                       git-gutter-fringe
                       haskell-mode
                       js2-mode
@@ -241,7 +242,7 @@
 (flx-ido-mode t)
 (setq ido-enable-flex-matching t)
 (setq ido-use-virtual-buffers t)
-                                        ; only try to match within the work directory
+; only try to match within the work directory
 (setq ido-auto-merge-work-directories-length -1)
 
 
@@ -323,12 +324,10 @@
 ;;;; Language settings ---------------------------------------------------------
 
 ;;; company-mode autocomplete
-(defvar company-backends)
-(require 'company-irony-c-headers)
-
+;;(require 'company-irony-c-headers)
 (add-hook 'after-init-hook 'global-company-mode)
 (eval-after-load 'company
-  '(add-to-list 'company-backends '(company-c-headers
+  '(add-to-list 'company-backends '(company-irony-c-headers
                                     company-irony
                                     company-tern
                                     company-jedi
@@ -338,14 +337,8 @@
 ;;; flycheck linting
 (require 'flycheck)
 (global-flycheck-mode)
-(eval-after-load 'flycheck
-   '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-  ;; '(progn
-  ;;    (require 'flycheck-google-cpplint)
-  ;;    ;; Add Google C++ Style checker.
-  ;;    ;; In default, syntax checked by Clang and Cppcheck.
-  ;;    (flycheck-add-next-checker 'c/c++-clang
-  ;;                               'c/c++-googlelint 'append)))
+;;(eval-after-load 'flycheck
+  ;;'(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
 
 (require 'flycheck-flow)
 (add-hook 'javascript-mode-hook 'flycheck-mode)
@@ -474,9 +467,9 @@
 ;; ;; irony-mode's buffers by irony-mode's function
 (defun my-irony-mode-hook ()
   (define-key irony-mode-map [remap completion-at-point]
-    'irony-completion-at-point-async)
-  (define-key irony-mode-map [remap complete-symbol]
-    'irony-completion-at-point-async))
+     'irony-completion-at-point-async)
+   (define-key irony-mode-map [remap complete-symbol]
+     'irony-completion-at-point-async))
 (add-hook 'irony-mode-hook 'my-irony-mode-hook)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
 
@@ -491,6 +484,9 @@
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+(require 'flycheck-pyflakes)
+(add-hook 'python-mode-hook 'flycheck-mode)
 
 ;; enable autopep8 formatting on save
 (require 'py-autopep8)
