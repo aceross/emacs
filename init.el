@@ -245,7 +245,6 @@
 ; only try to match within the work directory
 (setq ido-auto-merge-work-directories-length -1)
 
-
 ;; see all the buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
@@ -360,14 +359,17 @@
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
 ;; SLIME
-(require 'auto-complete)
 (require 'slime)
 (add-hook 'lisp-mode-hook (lambda () (slime-mode t)))
 (add-hook 'inferior-lisp-mode-hook (lambda () (inferior-slime-mode t)))
 (setq slime-contribs '(slime-fancy))
-(setq inferior-lisp-program "sbcl")
-;; (load (expand-file-name "~/quicklisp/slime-helper.el"))
+(setq inferior-lisp-program "/usr/bin/sbcl")
+(require 'slime-autoloads)
+(slime-setup '(slime-repl))
 
+;; (load (expand-file-name "~/quicklisp/slime-helper.el"))
+(require 'auto-complete)
+(require 'ac-slime)
 (add-hook 'slime-mode-hook 'set-up-slime-ac)
 (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
 (eval-after-load "auto-complete"
