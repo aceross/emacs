@@ -175,12 +175,12 @@
 (require 'fill-column-indicator)
 (setq-default fci-rule-column 80)
 (setq fci-handle-truncate-lines nil)
+
 ;; (define-globalized-minor-mode global-fci-mode fci-mode (lambda () (fci-mode 1)))
-;; (global-fci-mode 1)
 ;; (defun auto-fci-mode (&optional unused)
 ;;   (if (> (window-width) fci-rule-column)
 ;;       (fci-mode 1)
-;;    (fci-mode 0))
+;;     (fci-mode 0))
 ;;   )
 ;; (add-hook 'after-change-major-mode-hook 'auto-fci-mode)
 ;; (add-hook 'window-configuration-change-hook 'auto-fci-mode)
@@ -188,7 +188,7 @@
 ;;; Editing customisations -----------------------------------------------------
 
 ;; aggressive indent mode
-(global-aggressive-indent-mode 1)
+;; (global-aggressive-indent-mode nil)
 
 ;; ws-butler
 (ws-butler-global-mode 1)
@@ -244,6 +244,9 @@
 (setq ido-use-virtual-buffers t)
 ; only try to match within the work directory
 (setq ido-auto-merge-work-directories-length -1)
+
+;; use up and down to scroll through ido instead of left-right
+(setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
 
 ;; see all the buffers
 (global-set-key (kbd "C-x C-b") 'ibuffer)
