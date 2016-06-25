@@ -115,7 +115,7 @@
 (tool-bar-mode -1)
 
 ;; remove the menu
-(menu-bar-mode -1)
+;(menu-bar-mode -1)
 
 ;; set number lines globally
 (global-linum-mode t)
@@ -539,29 +539,42 @@
  ;; If there is more than one, they won't work right.
  '(airline-display-directory (quote airline-directory-shortened))
  '(airline-shortened-directory-length 20)
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
+ '(custom-safe-themes
+   (quote
+    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "86a731bda96ed5ed69980b4cbafe45614ec3c288da3b773e4585101e7ece40d2" "133222702a3c75d16ea9c50743f66b987a7209fb8b964f2c0938a816a83379a0" default)))
+ '(fci-rule-color "#37474f")
+ '(hl-sexp-background-color "#1c1f26")
  '(minimap-major-modes (quote (prog-mode)))
  '(minimap-window-location (quote right))
  '(package-selected-packages
    (quote
-    (minimap
-     yaml-mode
-     writegood-mode
-     web-mode
-     sml-mode
-     smex
-     paredit
-     nodejs-repl
-     material-theme
-     marmalade
-     markdown-mode
-     magit
-     haskell-mode
-     flycheck
-     elpy
-     deft
-     clojure-mode
-     autopair
-     ac-slime))))
+    (minimap yaml-mode writegood-mode web-mode sml-mode smex paredit nodejs-repl material-theme marmalade markdown-mode magit haskell-mode flycheck elpy deft clojure-mode autopair ac-slime)))
+ '(vc-annotate-background nil)
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#f36c60")
+     (40 . "#ff9800")
+     (60 . "#fff59d")
+     (80 . "#8bc34a")
+     (100 . "#81d4fa")
+     (120 . "#4dd0e1")
+     (140 . "#b39ddb")
+     (160 . "#f36c60")
+     (180 . "#ff9800")
+     (200 . "#fff59d")
+     (220 . "#8bc34a")
+     (240 . "#81d4fa")
+     (260 . "#4dd0e1")
+     (280 . "#b39ddb")
+     (300 . "#f36c60")
+     (320 . "#ff9800")
+     (340 . "#fff59d")
+     (360 . "#8bc34a"))))
+ '(vc-annotate-very-old-color nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
