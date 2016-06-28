@@ -40,6 +40,7 @@
                       flycheck-flow
                       flycheck-google-cpplint
                       flycheck-pyflakes
+                      geiser
                       git-gutter-fringe
                       haskell-mode
                       js2-mode
@@ -124,7 +125,7 @@
 (setq column-number-mode t)
 
 ;; default size of the emacs window
-(setq initial-frame-alist '((top . 0) (left . 0) (width . 110) (height . 40)))
+(setq initial-frame-alist '((top . 0) (left . 0) (width . 85) (height . 35)))
 
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
