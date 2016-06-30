@@ -125,7 +125,7 @@
 (setq column-number-mode t)
 
 ;; default size of the emacs window
-(setq initial-frame-alist '((top . 0) (left . 0) (width . 85) (height . 35)))
+(setq initial-frame-alist '((top . 0) (left . 0) (width . 95) (height . 35)))
 
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
