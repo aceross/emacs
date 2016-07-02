@@ -22,6 +22,7 @@
                       cider
                       clojure-mode
                       clojure-mode-extra-font-locking
+                      common-lisp-snippets
                       company-auctex
                       company-ghci
                       company-inf-ruby
@@ -40,6 +41,7 @@
                       flycheck-flow
                       flycheck-google-cpplint
                       flycheck-pyflakes
+                      fsharp-mode
                       geiser
                       git-gutter-fringe
                       haskell-mode
@@ -68,6 +70,8 @@
                       smex
                       sml-mode
                       smooth-scrolling
+                      stan-mode
+                      stan-snippets
                       web-mode
                       writegood-mode
                       ws-butler
