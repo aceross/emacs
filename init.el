@@ -94,14 +94,16 @@
 ;;; UI Customisations ----------------------------------------------------------
 
 ;; load themes
-(load-theme 'material t)
+; (load-theme 'material t)
+(load-theme 'solarized t)
 
 ;; powerline
 (require 'powerline)
 
 ;; airline modeline theme
 (require 'airline-themes)
-(load-theme 'airline-molokai t)
+;(load-theme 'airline-molokai t)
+
 (setq airline-utf-glyph-separator-left      #xe0b0
       airline-utf-glyph-separator-right     #xe0b2
       airline-utf-glyph-subseparator-left   #xe0b1
@@ -548,16 +550,31 @@
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
- '(custom-safe-themes
-   (quote
-    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "86a731bda96ed5ed69980b4cbafe45614ec3c288da3b773e4585101e7ece40d2" "133222702a3c75d16ea9c50743f66b987a7209fb8b964f2c0938a816a83379a0" default)))
  '(fci-rule-color "#37474f")
+ '(flycheck-javascript-flow-args (quote ("status")))
  '(hl-sexp-background-color "#1c1f26")
  '(minimap-major-modes (quote (prog-mode)))
  '(minimap-window-location (quote right))
  '(package-selected-packages
    (quote
-    (minimap yaml-mode writegood-mode web-mode sml-mode smex paredit nodejs-repl material-theme marmalade markdown-mode magit haskell-mode flycheck elpy deft clojure-mode autopair ac-slime)))
+    (minimap
+     yaml-mode
+     writegood-mode
+     web-mode
+     sml-mode
+     smex
+     paredit
+     nodejs-repl
+     material-theme
+     marmalade markdown-mode
+     magit
+     haskell-mode
+     flycheck
+     elpy
+     deft
+     clojure-mode
+     autopair
+     ac-slime)))
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
    (quote
@@ -592,7 +609,6 @@
 ;; remove cruft from modeline
 (require 'diminish)
 (diminish 'projectile-mode)
-(diminish 'aggressive-indent-mode)
 (diminish 'flycheck-mode)
 (diminish 'paredit-mode)
 (diminish 'autopair-mode)
