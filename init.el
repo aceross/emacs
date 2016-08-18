@@ -94,16 +94,18 @@
 ;;; UI Customisations ----------------------------------------------------------
 
 ;; load themes
-; (load-theme 'material-light t)
+(load-theme 'material-light t)
 ;(load-theme 'material t)
-(load-theme 'solarized t)
+;(load-theme 'solarized t)
+;(load-theme 'subatomic t)
+;(setq subatomic-more-visible-comment-delimiters t)
 
 ;; powerline
 (require 'powerline)
 
 ;; airline modeline theme
 (require 'airline-themes)
-;(load-theme 'airline-wombat t)
+(load-theme 'airline-raven t)
 ;(load-theme 'airline-molokai t)
 (setq airline-utf-glyph-separator-left      #xe0b0
       airline-utf-glyph-separator-right     #xe0b2
@@ -292,6 +294,13 @@
 ;; YASnippets
 (yas-global-mode 1)
 (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet)
+
+;; align with spaces, not tabs
+(defadvice align-regexp (around align-regexp-with-spaces)
+  "Never use tabs for alignment."
+  (let ((indent-tabs-mode nil))
+    ad-do-it))
+(ad-activate 'align-regexp)
 
 ;;;; org-mode settings ---------------------------------------------------------
 
@@ -553,7 +562,7 @@
    (vector "#ffffff" "#f36c60" "#8bc34a" "#fff59d" "#4dd0e1" "#b39ddb" "#81d4fa" "#263238"))
  '(custom-safe-themes
    (quote
-    ("8f0334c430540bf45dbcbc06184a2e8cb01145f0ae1027ce6b1c40876144c0c9" "133222702a3c75d16ea9c50743f66b987a7209fb8b964f2c0938a816a83379a0" "86a731bda96ed5ed69980b4cbafe45614ec3c288da3b773e4585101e7ece40d2" "878e22a7fe00ca4faba87b4f16bc269b8d2be5409d1c513bb7eda025da7c1cf4" "a0bbe4dc3513cbd049eb95f79c467b6f19dc42979fec27a0481bb6980bd8d405" "cadc97db0173a0d0bfc40473cab4da462af0ba8d60befd0a4879b582bcbc092d" "0788bfa0a0d0471984de6d367bb2358c49b25e393344d2a531e779b6cec260c5" "51277c9add74612c7624a276e1ee3c7d89b2f38b1609eed6759965f9d4254369" "8c75217782ccea7e9f3ad2dae831487a5fb636d042263d0a0e0438d551da3224" "b5fe3893c8808466711c1b55bb7e66b9c6aa2a86811783375a43e1beabb1af33" "532769a638787d1196bc22c885e9b85269c3fc650fdecfc45135bb618127034c" "2a5be663818e1e23fd2175cc8dac8a2015dcde6b2e07536712451b14658bbf68" "beeb5ac6b65fcccfe434071d4624ff0308b5968bf2f0c01b567d212bcaf66054" "aab598c4d024d544b4e8b356a95ca693afa9de000b154bd2f86eed68c9e75557" "b61c55259c639a54628f91452b060b99c550a1269eb947e372321b806b68f114" "b869a1353d39ab81b19eb79de40ff3e7bb6eaad705e61f7e4dbdcb183f08c5a6" "e87a2bd5abc8448f8676365692e908b709b93f2d3869c42a4371223aab7d9cf8" "e8586a76a96fd322ccb644ca0c3a1e4f4ca071ccfdb0f19bef90c4040d5d3841" "977513781c8dd86f4f0a04dbf518df5ba496da42b71173368b305478703eea42" "70340909b0f7e75b91e66a02aa3ad61f3106071a1a4e717d5cdabd8087b47ec4" "8e7ca85479dab486e15e0119f2948ba7ffcaa0ef161b3facb8103fb06f93b428" "d9a0d14596e3d0bdb81f052fa9b99741dcd239af402d42e35f80822e05557cb2" "304c03c9cfcd368b4ab0832357788cd48513fe1bd89b9e531dd47886a83405a1" "6998bd3671091820a6930b52aab30b776faea41449b4246fdce14079b3e7d125" "9864c2e956c25b3098fbc935ba0969e333dd74ecd7a1013c8dd39a6c171e1cca" default)))
+    ("fbcdb6b7890d0ec1708fa21ab08eb0cc16a8b7611bb6517b722eba3891dfc9dd" "f9d34593e9dd14b2d798494609aa0fddca618145a5d4b8a1819283bc5b7a2bfd" "8f0334c430540bf45dbcbc06184a2e8cb01145f0ae1027ce6b1c40876144c0c9" "133222702a3c75d16ea9c50743f66b987a7209fb8b964f2c0938a816a83379a0" "86a731bda96ed5ed69980b4cbafe45614ec3c288da3b773e4585101e7ece40d2" "878e22a7fe00ca4faba87b4f16bc269b8d2be5409d1c513bb7eda025da7c1cf4" "a0bbe4dc3513cbd049eb95f79c467b6f19dc42979fec27a0481bb6980bd8d405" "cadc97db0173a0d0bfc40473cab4da462af0ba8d60befd0a4879b582bcbc092d" "0788bfa0a0d0471984de6d367bb2358c49b25e393344d2a531e779b6cec260c5" "51277c9add74612c7624a276e1ee3c7d89b2f38b1609eed6759965f9d4254369" "8c75217782ccea7e9f3ad2dae831487a5fb636d042263d0a0e0438d551da3224" "b5fe3893c8808466711c1b55bb7e66b9c6aa2a86811783375a43e1beabb1af33" "532769a638787d1196bc22c885e9b85269c3fc650fdecfc45135bb618127034c" "2a5be663818e1e23fd2175cc8dac8a2015dcde6b2e07536712451b14658bbf68" "beeb5ac6b65fcccfe434071d4624ff0308b5968bf2f0c01b567d212bcaf66054" "aab598c4d024d544b4e8b356a95ca693afa9de000b154bd2f86eed68c9e75557" "b61c55259c639a54628f91452b060b99c550a1269eb947e372321b806b68f114" "b869a1353d39ab81b19eb79de40ff3e7bb6eaad705e61f7e4dbdcb183f08c5a6" "e87a2bd5abc8448f8676365692e908b709b93f2d3869c42a4371223aab7d9cf8" "e8586a76a96fd322ccb644ca0c3a1e4f4ca071ccfdb0f19bef90c4040d5d3841" "977513781c8dd86f4f0a04dbf518df5ba496da42b71173368b305478703eea42" "70340909b0f7e75b91e66a02aa3ad61f3106071a1a4e717d5cdabd8087b47ec4" "8e7ca85479dab486e15e0119f2948ba7ffcaa0ef161b3facb8103fb06f93b428" "d9a0d14596e3d0bdb81f052fa9b99741dcd239af402d42e35f80822e05557cb2" "304c03c9cfcd368b4ab0832357788cd48513fe1bd89b9e531dd47886a83405a1" "6998bd3671091820a6930b52aab30b776faea41449b4246fdce14079b3e7d125" "9864c2e956c25b3098fbc935ba0969e333dd74ecd7a1013c8dd39a6c171e1cca" default)))
  '(fci-rule-color "#37474f")
  '(flycheck-javascript-flow-args (quote ("status")))
  '(frame-background-mode (quote light))
