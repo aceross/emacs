@@ -3,12 +3,13 @@
 (setq user-full-name "Aaron Ceross")
 (require 'cl)
 
-(load "package")
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+(when (< emacs-major-version 24)
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
-(add-to-list 'package-archives
-       '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives
-       '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
 (setq package-archive-enable-alist '(("melpa" deft magit)))
 
@@ -96,10 +97,6 @@
 
 ;; load themes
 (load-theme 'material-light t)
-;(load-theme 'material t)
-;(load-theme 'solarized t)
-;(load-theme 'subatomic t)
-;(setq subatomic-more-visible-comment-delimiters t)
 
 ;; powerline
 (require 'powerline)
@@ -126,7 +123,7 @@
 (tool-bar-mode -1)
 
 ;; remove the menu
-;(menu-bar-mode -1)
+(menu-bar-mode -1)
 
 ;; set number lines globally
 ;(global-linum-mode t)
@@ -135,7 +132,7 @@
 (setq column-number-mode t)
 
 ;; default size of the emacs window
-(setq initial-frame-alist '((top . 0) (left . 0) (width . 95) (height . 35)))
+(setq initial-frame-alist '((top . 0) (left . 0) (width . 85) (height . 35)))
 
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
