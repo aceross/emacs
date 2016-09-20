@@ -151,14 +151,14 @@
 
 ;; highlight indentation
 (require 'highlight-indentation)
-(add-hook 'c-mode-hook 'highlight-indentation-mode)
-(add-hook 'c++-mode-hook 'highlight-indentation-mode)
-(add-hook 'emacs-lisp-mode 'highlight-indentation-mode)
-(add-hook 'python-mode-hook 'highlight-indentation-mode)
-(add-hook 'java-mode-hook 'highlight-indentation-mode)
+(add-hook 'c-mode-hook       'highlight-indentation-mode)
+(add-hook 'c++-mode-hook     'highlight-indentation-mode)
+(add-hook 'emacs-lisp-mode   'highlight-indentation-mode)
+(add-hook 'python-mode-hook  'highlight-indentation-mode)
+(add-hook 'java-mode-hook    'highlight-indentation-mode)
 (add-hook 'clojure-mode-hook 'highlight-indentation-mode)
-(add-hook 'lisp-mode-hook 'highlight-indentation-mode)
-(add-hook 'js-mode-hook 'highlight-indentation-mode)
+(add-hook 'lisp-mode-hook    'highlight-indentation-mode)
+(add-hook 'js-mode-hook      'highlight-indentation-mode)
 
 ;; delimiters in different colours
 (require 'rainbow-delimiters)
