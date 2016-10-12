@@ -25,34 +25,42 @@
                       clojure-mode
                       clojure-mode-extra-font-locking
                       common-lisp-snippets
-                      company-auctex
+		      company-auctex
+		      company-cabal
                       company-ghci
                       company-inf-ruby
                       company-irony
                       company-irony-c-headers
-                      company-jedi
+		      company-jedi
+		      company-quickhelp
                       company-tern
                       company-web
                       deft
                       diminish
                       ein
-                      elpy
-                      ess
+		      elpy
+		      ess
+		      evil
                       fill-column-indicator
                       flx-ido
                       flycheck
                       flycheck-flow
-                      flycheck-google-cpplint
+		      flycheck-google-cpplint
+		      flycheck-haskell
                       flycheck-pyflakes
-                      fsharp-mode
-                      geiser
+		      fsharp-mode
+		      geiser
+		      ghci-completion
                       git-gutter-fringe
-                      haskell-mode
+		      haskell-mode
+		      hindent
+		      julia-mode
                       js2-mode
                       highlight-indentation
                       ido-ubiquitous
                       ido-vertical-mode
-                      indent-guide
+		      indent-guide
+		      intero
                       irony
                       latex-preview-pane
                       magit
@@ -70,7 +78,8 @@
                       py-autopep8
 		      rainbow-delimiters
 		      reftex
-                      seq
+		      seq
+		      shakespeare-mode
                       smex
                       sml-mode
                       smooth-scrolling
@@ -99,14 +108,13 @@
 
 ;; load themes
 (load-theme 'material-light t)
-
+;(load-theme 'paper t)
 ;; powerline
 (require 'powerline)
 
 ;; airline modeline theme
 (require 'airline-themes)
 (load-theme 'airline-raven t)
-;(load-theme 'airline-molokai t)
 (setq airline-utf-glyph-separator-left      #xe0b0
       airline-utf-glyph-separator-right     #xe0b2
       airline-utf-glyph-subseparator-left   #xe0b1
@@ -186,7 +194,14 @@
 (setq-default fci-rule-column 80)
 (setq fci-handle-truncate-lines nil)
 
+;; Chinese fontset
+(set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
+
 ;;; Editing customisations -----------------------------------------------------
+
+;; evil mode
+;;(require 'evil)
+;; (evil-mode 1)
 
 ;; ws-butler
 (ws-butler-global-mode 1)
@@ -320,11 +335,11 @@
       org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
       org-todo-keyword-faces
       (quote
-       (("IN PROGRESS" . (:foreground "deep sky blue"
-			  :background "blue"
+       (("IN PROGRESS" . (:foreground "blue"
+			  :background "deep sky blue"
 			  :weight bold))
-	("OVERDUE" . (:foreground "yellow2"
-		      :background "goldenrod3"
+	("OVERDUE" . (:foreground "goldenrod3"
+		      :background "yellow2"
 		      :weight bold)))))
 
 (add-hook 'org-mode-hook
@@ -485,7 +500,7 @@
      (define-key clojure-mode-map (kbd "C-c C-v") 'cider-start-http-server)
      (define-key clojure-mode-map (kbd "C-M-r") 'cider-refresh)
      (define-key clojure-mode-map (kbd "C-c u") 'cider-user-ns)
-     (define-key cider-mode-map (kbd "C-c u") 'cider-user-ns)))
+     (define-key cider-mode-map   (kbd "C-c u") 'cider-user-ns)))
 
 ;;; C/C++
 (add-hook 'c++-mode-hook 'irony-mode)
@@ -531,11 +546,22 @@
 (require 'company-ghci)
 (push 'company-ghci company-backends)
 (add-hook 'haskell-mode-hook 'company-mode)
-;;; To get completions in the REPL
+
+;; To get completions in the REPL
 (add-hook 'haskell-interactive-mode-hook 'company-mode)
+
+;(add-hook 'haskell-mode-hook 'intero-mode)
 
 (eval-after-load 'haskell-mode
   '(define-key haskell-mode-map [f8] 'haskell-navigate-imports))
+
+;; properly formatted Haskell
+(require 'hindent)
+(add-hook 'haskell-mode-hook #'hindent-mode)
+
+;; (autoload 'ghc-init "ghc" nil t)
+;; (autoload 'ghc-debug "ghc" nil t)
+;; (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
 ;;; LaTex
 (require 'company-auctex)
@@ -570,16 +596,17 @@
    [default bold shadow italic underline bold bold-italic bold])
  '(ansi-color-names-vector
    (vector "#ffffff"
-	   "#f36c60"
-	   "#8bc34a"
-	   "#fff59d"
-	   "#4dd0e1"
-	   "#b39ddb"
-	   "#81d4fa"
-	   "#263238"))
+     "#f36c60"
+     "#8bc34a"
+     "#fff59d"
+     "#4dd0e1"
+     "#b39ddb"
+     "#81d4fa"
+     "#263238"))
  '(fci-rule-color "#37474f")
  '(flycheck-javascript-flow-args (quote ("status")))
  '(frame-background-mode (quote light))
+ '(haskell-process-type 'stack-ghci)
  '(hl-sexp-background-color "#1c1f26")
  '(minimap-major-modes (quote (prog-mode)))
  '(minimap-window-location (quote right))
