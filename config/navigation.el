@@ -1,79 +1,59 @@
-;;;; navigation.el
-;;; moving around Emacs
+;;; navigation.el --- Navigation module for Emacs configuration ----------------
+;;
+;;
+;;  Copyright (c) 2016 Aaron Ceross
+;;
+;;  URL: https://gitlab.com/awc/emacs
+;;
+;;
+;;; Commentary:
+;;
+;;  Navigation module for Emacs providing convenience in moving around
+;; -----------------------------------------------------------------------------
 
-;; (use-package smex
-;;   :ensure t
-;;   :init (smex-initialize)
-;;   :bind
-;;   ("M-x" . smex)
-;;   ("M-X" . smex-major-mode-commands)
-;;   :config
+;;; Code:
 
-;;   )
-
-(use-package smex
-  :ensure t
-  :bind (("M-x" . smex))
-  :config
-  (smex-initialize)
-  (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
-  )
-
-;; ido
 (use-package ido
   :ensure t
   :config
-  (setq ido-enable-flex-matching t)
-  (setq ido-everywhere)
-  (ido-mode)
-  (setq ido-use-virtual-buffers t) ; only try to match within the work directory
-  (setq ido-max-prospects 50)
-  (setq ido-max-window-height 0.25)
-  (setq ido-auto-merge-work-directories-length -1)
-  ;; see all the buffers
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-  )
+  (setq ido-vertical-define-keys 'C-n-and-C-p-only
+	ido-enable-flex-matching t
+	ido-create-new-buffer 'always
+	ido-use-filename-at-point 'guess
+	ido-max-prospects 10
+	ido-default-file-method 'selected-window
+	ido-everywhere t
+	ido-use-virtual-buffers t  ; only try to match within the work directory
+	ido-max-window-height 0.25
+	ido-auto-merge-work-directories-length -1)
+  (ido-mode t)
+  (use-package ido-vertical-mode
+    :ensure t
+    :config (ido-vertical-mode t))
+  (use-package ido-ubiquitous
+    :ensure t
+    :config (ido-ubiquitous-mode t))
+  (use-package flx-ido
+    :ensure t
+    :init (flx-ido-mode t))
+  (use-package idomenu :ensure t))
 
-(use-package flx-ido
-  :config
-  (flx-ido-mode))
-
-(use-package ido-ubiquitous
+;; Smex - provide recent and most used commands
+(use-package smex
   :ensure t
-  :config (ido-ubiquitous-mode 1))
-
-(use-package ido-vertical-mode
-  :ensure t
+  :bind ("M-x" . smex)
   :config
-  (ido-vertical-mode)
-  ;; use up and down to scroll through ido instead of left-right
-  (setq ido-vertical-define-keys 'C-n-and-C-p-only)
-  )
+  (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory)))
 
 ;; Windmove configuration
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
-(defun ignore-error-wrapper (fn)
-  "Funtion return new function that ignore errors.
-   The function wraps a function with `ignore-errors' macro."
-  (lexical-let ((fn fn))
-    (lambda ()
-      (interactive)
-      (ignore-errors
-  (funcall fn)))))
-
-(global-set-key [s-left]  (ignore-error-wrapper 'windmove-left))
-(global-set-key [s-right] (ignore-error-wrapper 'windmove-right))
-(global-set-key [s-up]    (ignore-error-wrapper 'windmove-up))
-(global-set-key [s-down]  (ignore-error-wrapper 'windmove-down))
-
-;; file structure
+;; ztree - provides a visual file tree
 (use-package ztree
   :ensure t
   :defer t)
 
-
 (provide 'navigation)
 
-;;; navigation.el ends here.
+;;; navigation.el ends here

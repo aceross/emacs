@@ -1,5 +1,8 @@
-;;;; init-lisp.el
-;;; Common Lisp
+;;; init-lisp.el --- Module for Common Lisp customisations
+;;
+;;; Commentary:
+;;
+;;; Code:
 
 (setq lisp-modes '(lisp-mode
 		   emacs-lisp-mode

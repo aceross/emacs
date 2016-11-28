@@ -1,6 +1,9 @@
-;;;; ui.el
-;;; User interface stuff
+;;; ui.el --- User Interface customisations
+;;
+;;; Commentary:
+;;
 
+;;; Code:
 
 ;; customise the window system
 (when window-system
@@ -36,8 +39,7 @@
 	airline-utf-glyph-subseparator-right  #xe0b3
 	airline-utf-glyph-branch              #xe0a0
 	airline-utf-glyph-readonly            #xe0a2
-	airline-utf-glyph-linenumber          #xe0a1)
-  )
+	airline-utf-glyph-linenumber          #xe0a1))
 
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
@@ -67,6 +69,7 @@
 ;; show highlights for indentation
 (use-package highlight-indentation
   :ensure t
+  :diminish highlight-indentation-mode
   :config
   ; (add-hook 'prog-mode-hook #'highlight-indentation-mode)
   (add-hook 'c-mode-hook       'highlight-indentation-mode)
@@ -83,8 +86,7 @@
 (use-package rainbow-delimiters
   :ensure t
   :config
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  )
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 ;; show git diff in the buffer
 (use-package git-gutter-fringe
@@ -100,9 +102,14 @@
   (smooth-scrolling-mode)
   )
 
+(use-package eldoc
+  :ensure nil
+  :diminish eldoc-mode
+  :commands eldoc-mode)
+
 ;; Chinese fontset
 (set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
 
 (provide 'ui)
 
-;;; ui.el ends here.
+;;; ui.el ends here

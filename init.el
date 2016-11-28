@@ -1,9 +1,14 @@
-;;;; init.el
+;;; init.el --- Emacs init file
+;;
+;;; Commentary:
+;;
+
+;;; Code:
 
 (package-initialize)
 
 (setq user-full-name "Aaron Ceross")
-(require 'cl)
+;(require 'cl)
 
 (unless (assoc-default "melpa" package-archives)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
@@ -45,10 +50,11 @@
 (require 'editing)
 
 ;; add language and mode specific customisations.
-(require 'init-lisp)  ; customisations for Common Lisp
-(require 'init-cc)    ; customisations for C/C++
-(require 'init-tex)   ; customisations for Latex/AucTex
-(require 'init-org)   ; customisations for org-mode
+(require 'init-lisp)    ; customisations for Common Lisp
+(require 'init-cc)      ; customisations for C/C++
+(require 'init-tex)     ; customisations for Latex/AucTex
+(require 'init-org)     ; customisations for org-mode
+(require 'init-python)  ; customisations for Python
 
 
-;;; init.el ends here.
+;;; init.el ends here

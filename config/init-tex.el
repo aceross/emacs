@@ -1,13 +1,21 @@
+;;; init-tex.el --- Module for LaTex editing
+;;
+;;; Commentary:
+;;
 
-;;;; init-tex.el
-;;; For LaTex editing
+;;; Code:
+
+(use-package reftex
+  :ensure t)
 
 (use-package tex
   :defer t
   :ensure auctex
   :config
-  (setq TeX-parse-self t) ; enable parse on load.
-  (setq TeX-auto-save t)  ; enable parse on save.
+  (TeX-global-PDF-mode t)
+  (setq TeX-parse-self t
+	TeX-auto-save t
+	TeX-math-close-double-dollar t)
   (add-hook 'LaTeX-mode-hook 'flyspell-mode)
   (add-hook 'LaTeX-mode-hook 'LaTeX-math-mode)
   (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
@@ -28,4 +36,4 @@
 
 (provide 'init-tex)
 
-;;; init-tex.el ends here.
+;;; init-tex.el ends here
