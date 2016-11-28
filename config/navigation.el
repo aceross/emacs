@@ -1,12 +1,21 @@
 ;;;; navigation.el
 ;;; moving around Emacs
 
+;; (use-package smex
+;;   :ensure t
+;;   :init (smex-initialize)
+;;   :bind
+;;   ("M-x" . smex)
+;;   ("M-X" . smex-major-mode-commands)
+;;   :config
+
+;;   )
+
 (use-package smex
-  :init (smex-initialize)
-  :bind
-  ("M-x" . smex)
-  ("M-X" . smex-major-mode-commands)
+  :ensure t
+  :bind (("M-x" . smex))
   :config
+  (smex-initialize)
   (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory))
   )
 
