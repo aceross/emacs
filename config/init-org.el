@@ -1,29 +1,34 @@
-;;;; init-org.el
+;;; init-org.el --- Org-mode customisations
+;;
+;;; Commentary:
+;;
+
+;;; Code:
 
 (use-package org
+  :mode (("\\.org$" . org-mode))
   :ensure t
-  :defer t
   :config
-  (setq org-startup-indented)
-  (setq org-hide-leading-stars)
-  (setq org-odd-level-only nil)
-  (setq org-completion-use-ido)
-  (setq org-indent-mode)
-  (setq org-startup-folded nil)
-  (setq org-startup-truncated nil)
-  (setq auto-fill-mode -1)
+  (setq org-startup-indented t
+	org-hide-leading-stars t
+	org-odd-level-only nil
+	org-completion-use-ido t
+	org-indent-mode t
+	org-startup-folded nil
+	org-startup-truncated nil
+	auto-fill-mode -1
+	)
   (setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (setq org-log-done t
-      org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
-      org-todo-keyword-faces
-      (quote
-       (("IN PROGRESS" . (:foreground "blue"
-		       :background "deep sky blue"
-		       :weight bold))
-     ("OVERDUE" . (:foreground "goldenrod3"
-		   :background "yellow2"
-		   :weight bold)))))
-
+	org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
+	org-todo-keyword-faces
+	  (quote
+	   (("IN PROGRESS" . (:foreground "blue"
+			      :background "deep sky blue"
+			      :weight bold))
+	    ("OVERDUE" . (:foreground "goldenrod3"
+			  :background "yellow2"
+			  :weight bold)))))
   (add-hook 'org-mode-hook
 	  (lambda ()
 	    (flyspell-mode)))
@@ -42,4 +47,4 @@
 
 (provide 'init-org)
 
-;;; init-org.el ends here.
+;;; init-org.el ends here

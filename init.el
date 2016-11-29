@@ -59,3 +59,17 @@
 
 
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (ess py-autopep8 flycheck-pyflakes elpy company-jedi org-bullets company-auctex auctex irony-eldoc company-irony-c-headers flycheck-irony company-irony irony ac-slime auto-complete slime writegood-mode paredit flycheck-pos-tip flycheck company-quickhelp company yasnippet browse-kill-ring undo-tree autopair ws-butler magit ztree projectile smex idomenu flx-ido ido-ubiquitous ido-vertical-mode smooth-scrolling git-gutter-fringe rainbow-delimiters highlight-indentation indent-guide airline-themes powerline material-theme auto-compile use-package))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
