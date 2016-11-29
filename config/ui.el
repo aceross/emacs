@@ -32,6 +32,7 @@
   :ensure t
   :config
   (load-theme 'airline-raven t)
+  (setq airline-shortened-directory-length 20)
   ;; add the glyphs for git-branch, seperators, line numbers, etc
   (setq airline-utf-glyph-separator-left      #xe0b0
 	airline-utf-glyph-separator-right     #xe0b2
@@ -57,7 +58,7 @@
   :config
   (indent-guide-global-mode)
   (setq indent-guide-char "|")
-  (set-face-foreground 'indent-guide-face "grey1")
+  (set-face-foreground 'indent-guide-face "cadet blue")
   )
 
 ;; highlight current line
@@ -71,7 +72,7 @@
   :ensure t
   :diminish highlight-indentation-mode
   :config
-  ; (add-hook 'prog-mode-hook #'highlight-indentation-mode)
+  (add-hook 'prog-mode-hook #'highlight-indentation-mode)
   (add-hook 'c-mode-hook       'highlight-indentation-mode)
   (add-hook 'c++-mode-hook     'highlight-indentation-mode)
   (add-hook 'emacs-lisp-mode   'highlight-indentation-mode)
@@ -86,7 +87,9 @@
 (use-package rainbow-delimiters
   :ensure t
   :config
-  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ess-mode-hook 'rainbow-delimiters-mode)
+  )
 
 ;; show git diff in the buffer
 (use-package git-gutter-fringe

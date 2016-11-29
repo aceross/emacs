@@ -16,7 +16,7 @@
 (use-package ido
   :ensure t
   :config
-  (setq ido-vertical-define-keys 'C-n-and-C-p-only
+  (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right
 	ido-enable-flex-matching t
 	ido-create-new-buffer 'always
 	ido-use-filename-at-point 'guess
@@ -44,6 +44,12 @@
   :bind ("M-x" . smex)
   :config
   (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory)))
+
+(use-package projectile
+  :ensure t
+  :diminish projectile-mode
+  :config (projectile-global-mode))
+
 
 ;; Windmove configuration
 (when (fboundp 'windmove-default-keybindings)

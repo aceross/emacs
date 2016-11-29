@@ -1,6 +1,6 @@
 ;;; editing.el --- Editing module for my Emacs configuration -------------------
 ;;
-;;  Copywrite (c) 2016, Aaron Ceross
+;;  Copyright (c) 2016, Aaron Ceross
 ;;
 ;;; Commentary:
 ;;
@@ -9,6 +9,9 @@
 ;; -----------------------------------------------------------------------------
 
 ;;; Code:
+
+;; set utf-8 as preferred coding system
+(set-language-environment "UTF-8")
 
 ;; magit
 (use-package magit
@@ -24,9 +27,10 @@
   :config
   (ws-butler-global-mode))
 
-(use-package smartparens
+(use-package autopair
   :ensure t
-  :config (show-smartparens-global-mode 1))
+  :diminish autopair-mode
+  :config (autopair-global-mode))
 
 ;; ensure EOF newline on save
 (setq require-final-newline t)
