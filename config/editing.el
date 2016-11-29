@@ -28,12 +28,6 @@
   :ensure t
   :config (show-smartparens-global-mode 1))
 
-;; (use-package autopair
-;;   :ensure t
-;;   :diminish autopair-mode
-;;   :config
-;;   (autopair-global-mode))
-
 ;; ensure EOF newline on save
 (setq require-final-newline t)
 
@@ -92,7 +86,10 @@
   :config
   (add-hook 'prog-mode-hook 'company-mode)
   (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 2))
+  (setq company-minimum-prefix-length 2)
+  (setq company-show-numbers t)
+  (setq company-dabbrev-downcase nil)
+  )
 
 (use-package company-quickhelp  ; Documentation popups for Company
   :ensure t
@@ -158,7 +155,6 @@
   (global-set-key "\C-c\C-gg" 'writegood-grade-level)
   (global-set-key "\C-c\C-ge" 'writegood-reading-ease)
   )
-
 
 (provide 'editing)
 
