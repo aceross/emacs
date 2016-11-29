@@ -55,6 +55,7 @@
 (require 'init-tex)     ; customisations for Latex/AucTex
 (require 'init-org)     ; customisations for org-mode
 (require 'init-python)  ; customisations for Python
+(require 'init-ess)     ; customisations for ESS package
 
 
 ;;; init.el ends here
