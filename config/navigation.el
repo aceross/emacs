@@ -13,6 +13,24 @@
 
 ;;; Code:
 
+(use-package ag
+  :defines my-ag-keymap
+  :bind-keymap ("C-c a" . my-ag-map)
+  :config
+  (setq ag-reuse-buffers t    ; Don't spam buffer list with ag buffers
+	ag-highlight-search t ; A little fanciness
+
+	;; Use Projectile to find the project root
+	ag-project-root-function
+	(lambda (d)
+	  (let ((default-directory d))
+	    (projectile-project-root))))
+  (defvar my-ag-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map (kbd "a") #'ag-regexp)
+      (define-key map (kbd "p") #'ag-project-regexp)
+      map)))
+
 (use-package ido
   :ensure t
   :config
@@ -46,10 +64,12 @@
   (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory)))
 
 (use-package projectile
-  :ensure t
-  :diminish projectile-mode
-  :config (projectile-global-mode))
-
+  :init
+  (projectile-global-mode)
+  :config
+  (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
+  (setq projectile-completion-system 'grizzl)
+  :diminish projectile-mode)
 
 ;; Windmove configuration
 (when (fboundp 'windmove-default-keybindings)

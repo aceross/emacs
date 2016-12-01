@@ -110,6 +110,11 @@
   :diminish eldoc-mode
   :commands eldoc-mode)
 
+;; display modeline search information
+(use-package anzu
+  :init (global-anzu-mode +1)
+  :diminish anzu-mode)
+
 ;; Chinese fontset
 (set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
 
