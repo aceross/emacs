@@ -1,7 +1,7 @@
 ;;; navigation.el --- Navigation module for Emacs configuration ----------------
 ;;
 ;;
-;;  Copyright (c) 2016 Aaron Ceross
+;;  Copyright (c) 2016, Aaron Ceross
 ;;
 ;;  URL: https://gitlab.com/awc/emacs
 ;;
@@ -9,6 +9,7 @@
 ;;; Commentary:
 ;;
 ;;  Navigation module for Emacs providing convenience in moving around
+;;
 ;; -----------------------------------------------------------------------------
 
 ;;; Code:
@@ -65,10 +66,9 @@
 
 (use-package projectile
   :init
-  (projectile-global-mode)
+  (projectile-mode)
   :config
   (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
-  (setq projectile-completion-system 'grizzl)
   :diminish projectile-mode)
 
 ;; Windmove configuration

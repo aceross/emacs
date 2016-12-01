@@ -43,6 +43,13 @@
 	search-ring
 	regexp-search-ring))
 
+;; update packages automatically
+(use-package auto-package-update
+  :ensure t
+  :bind ("C-x P" . auto-package-update-now)
+  :config
+  (setq auto-package-update-delete-old-versions t))
+
 ;; add core customisations for Emacs.
 (add-to-list 'load-path (expand-file-name "config" "~/.emacs.d"))
 (require 'ui)
