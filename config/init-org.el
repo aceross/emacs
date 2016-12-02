@@ -8,6 +8,12 @@
 (use-package org
   :mode (("\\.org$" . org-mode))
   :ensure t
+  :init
+  (font-lock-add-keywords 'org-mode
+			  '(("^ +\\([-*]\\) "
+			     (0 (prog1 ()
+				  (compose-region
+				   (match-beginning 1) (match-end 1) "•"))))))
   :config
   (setq org-startup-indented t
 	org-hide-leading-stars t
