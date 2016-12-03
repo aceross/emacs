@@ -67,7 +67,13 @@
 (use-package projectile
   :init
   (projectile-mode)
-  :config
+    :bind (("C-c p s" . projectile-ag)
+	   ("C-c p g" . projectile-grep)
+	   ("C-c p R" . projectile-regenerate-tags))
+    :config
+    (setq projectile-switch-project-action 'projectile-commander
+	projectile-completion-system 'ido
+	projectile-create-missing-test-files t)
   (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
   :diminish projectile-mode)
 

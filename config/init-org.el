@@ -2,23 +2,20 @@
 ;;
 ;;; Commentary:
 ;;
+;;  A lot of this comes from Howard Abrams' set-up:
+;;  https://github.com/howardabrams/dot-files/blob/master/emacs-org.org
 
 ;;; Code:
 
 (use-package org
-  :mode (("\\.org$" . org-mode))
   :ensure t
   :init
-  (font-lock-add-keywords 'org-mode
-			  '(("^ +\\([-*]\\) "
-			     (0 (prog1 ()
-				  (compose-region
-				   (match-beginning 1) (match-end 1) "•"))))))
-  :config
   (setq org-startup-indented t
 	org-hide-leading-stars t
 	org-use-speed-commands t
 	org-src-fontify-natively t
+	org-src-tab-acts-natively t
+	org-hide-emphasis-markers t
 	org-odd-level-only nil
 	org-completion-use-ido t
 	org-indent-mode t
@@ -38,23 +35,38 @@
 	    ("OVERDUE" . (:foreground "goldenrod3"
 			  :background "yellow2"
 			  :weight bold)))))
-  (add-hook 'org-mode-hook
-	  (lambda ()
-	    (flyspell-mode)))
-  (add-hook 'org-mode-hook
-	    (lambda ()
-	      (writegood-mode)))
+  (add-hook 'org-mode-hook '(flyspell-mode
+			     writegood-mode
+			     yas-minor-mode))
   )
 
 (use-package org-bullets
    :ensure t
    :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
+(use-package ox-tufte)
+
+;; presentations
+
+(use-package ox-reveal
+   :init
+   (setq org-reveal-root (concat "file://" (getenv "HOME") "/Public/js/reveal.js"))
+   (setq org-reveal-postamble "Aaron Ceross"))
+
 (use-package org-tree-slide
    :ensure t
    :init
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))
+
+(eval-after-load 'org-src
+  '(define-key org-src-mode-map
+     (kbd "C-x C-s") #'org-edit-src-exit))
+
+(setq org-confirm-babel-evaluate nil)
+
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
 
 (global-set-key (kbd "<f8>") 'org-tree-slide-mode)
 (global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
