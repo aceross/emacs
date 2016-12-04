@@ -8,10 +8,10 @@
 (package-initialize)
 
 (setq user-full-name "Aaron Ceross")
-;(require 'cl)
 
 (unless (assoc-default "melpa" package-archives)
   (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
   (package-refresh-contents))
 
 (unless (package-installed-p 'use-package)
@@ -25,38 +25,14 @@
 
 (use-package dash)
 
-;; backups
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-(setq delete-old-versions -1)
-(setq version-control t)
-(setq vc-make-backup-files t)
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-
-;; history
-(setq savehist-file "~/.emacs.d/savehist")
-(savehist-mode 1)
-(setq history-length t)
-(setq history-delete-duplicates t)
-(setq savehist-save-minibuffer-history 1)
-(setq savehist-additional-variables
-      '(kill-ring
-	search-ring
-	regexp-search-ring))
-
-;; update packages automatically
-(use-package auto-package-update
-  :ensure t
-  :bind ("C-x P" . auto-package-update-now)
-  :config
-  (setq auto-package-update-delete-old-versions t))
-
-;; add core customisations for Emacs.
+;; Core customisations for Emacs.
 (add-to-list 'load-path (expand-file-name "config" "~/.emacs.d"))
+(require 'init-emacs)
 (require 'ui)
 (require 'navigation)
 (require 'editing)
 
-;; add language and mode specific customisations.
+;; Language and mode specific customisations.
 (require 'init-lisp)    ; customisations for Common Lisp
 (require 'init-cc)      ; customisations for C/C++
 (require 'init-tex)     ; customisations for Latex/AucTex
@@ -66,17 +42,3 @@
 
 
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (ess py-autopep8 flycheck-pyflakes elpy company-jedi org-bullets company-auctex auctex irony-eldoc company-irony-c-headers flycheck-irony company-irony irony ac-slime auto-complete slime writegood-mode paredit flycheck-pos-tip flycheck company-quickhelp company yasnippet browse-kill-ring undo-tree autopair ws-butler magit ztree projectile smex idomenu flx-ido ido-ubiquitous ido-vertical-mode smooth-scrolling git-gutter-fringe rainbow-delimiters highlight-indentation indent-guide airline-themes powerline material-theme auto-compile use-package))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

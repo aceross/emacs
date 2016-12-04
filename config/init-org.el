@@ -7,6 +7,9 @@
 
 ;;; Code:
 
+;; display results in a block instead of prefixed with :
+(setq org-babel-min-lines-for-block-output 1)
+
 (use-package org
   :ensure t
   :init
@@ -35,10 +38,9 @@
 	    ("OVERDUE" . (:foreground "goldenrod3"
 			  :background "yellow2"
 			  :weight bold)))))
-  (add-hook 'org-mode-hook '(flyspell-mode
-			     writegood-mode
-			     yas-minor-mode))
-  )
+  (add-hook 'org-mode-hook
+	  (lambda ()
+	     (add-hook 'flyspell-mode 'writegood-mode))))
 
 (use-package org-bullets
    :ensure t
@@ -59,17 +61,43 @@
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))
 
-(eval-after-load 'org-src
-  '(define-key org-src-mode-map
-     (kbd "C-x C-s") #'org-edit-src-exit))
+;; export options
+;; syntax highlight code blocks
+(setq org-src-fontify-natively t)
+;; put caption below in tables
+(setq org-export-latex-table-caption-above nil)
+(setq org-latex-table-caption-above nil)
+(setq org-latex-listings t)
+;; don't export tags
+(setq org-export-with-tags nil)
+
+(use-package org
+  :config
+  (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
+
+  (org-babel-do-load-languages 'org-babel-load-languages
+			    '((sh         . t)
+			      (js         . t)
+			      (emacs-lisp . t)
+			      (R          . t)
+			      (python     . t)
+			      (dot        . t)
+			      (css        . t)
+			      (plantuml   . t))))
 
 (setq org-confirm-babel-evaluate nil)
 
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
 
-(global-set-key (kbd "<f8>") 'org-tree-slide-mode)
-(global-set-key (kbd "S-<f8>") 'org-tree-slide-skip-done-toggle)
+(setq org-latex-listings 'minted)
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(add-to-list 'org-latex-packages-alist '("" "microtype"))
+
+(setq org-latex-pdf-process
+    '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 (provide 'init-org)
 

@@ -13,6 +13,15 @@
 ;; set utf-8 as preferred coding system
 (set-language-environment "UTF-8")
 
+;; set the language and dictionary
+(setq ispell-dictionary "british")
+(setq ispell-check-comments t)
+(setq ispell-really-hunspell t)
+(setq ispell-program-name "hunspell")
+(setq ispell-local-dictionary-alist
+      `(("british" "[[:alpha:]]" "[^[:alpha:]]" "[']" t ("-d" "en_GB") nil
+utf-8)))
+
 ;; magit
 (use-package magit
   :ensure t

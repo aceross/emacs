@@ -20,7 +20,6 @@
   :config
   (setq ag-reuse-buffers t    ; Don't spam buffer list with ag buffers
 	ag-highlight-search t ; A little fanciness
-
 	;; Use Projectile to find the project root
 	ag-project-root-function
 	(lambda (d)
@@ -80,11 +79,6 @@
 ;; Windmove configuration
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
-
-;; ztree - provides a visual file tree
-(use-package ztree
-  :ensure t
-  :defer t)
 
 (provide 'navigation)
 

@@ -64,6 +64,12 @@
 ;; highlight current line
 (global-hl-line-mode 1)
 
+;; volatile highlights - highlight changes from pasting etc
+(use-package volatile-highlights
+  :diminish volatile-highlights-mode
+  :config
+  (volatile-highlights-mode t))
+
 ;; highlight matching parenthesis
 (show-paren-mode 1)
 
