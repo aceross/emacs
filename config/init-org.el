@@ -61,16 +61,6 @@
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))
 
-;; export options
-;; syntax highlight code blocks
-(setq org-src-fontify-natively t)
-;; put caption below in tables
-(setq org-export-latex-table-caption-above nil)
-(setq org-latex-table-caption-above nil)
-(setq org-latex-listings t)
-;; don't export tags
-(setq org-export-with-tags nil)
-
 (use-package org
   :config
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
@@ -87,7 +77,17 @@
 
 (setq org-confirm-babel-evaluate nil)
 
+;; export options
+
+;; syntax highlight code blocks
 (setq org-src-fontify-natively t)
+;; put caption below in tables
+(setq org-export-latex-table-caption-above nil)
+(setq org-latex-table-caption-above nil)
+(setq org-latex-listings t)
+;; don't export tags
+(setq org-export-with-tags nil)
+
 (setq org-src-tab-acts-natively t)
 
 (setq org-latex-listings 'minted)
