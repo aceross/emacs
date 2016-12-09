@@ -37,7 +37,7 @@
 (require 'init-cc)       ; customisations for C/C++
 (require 'init-tex)      ; customisations for Latex/AucTex
 (require 'init-org)      ; customisations for org-mode
-;(require 'init-python)  ; customisations for Python
+(require 'init-python)   ; customisations for Python
 (require 'init-ess)      ; customisations for ESS package
 (require 'init-markdown) ; customisations for markdown
 
