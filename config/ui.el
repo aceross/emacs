@@ -18,10 +18,10 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
-(use-package material-theme
+(use-package minimal-theme
   :ensure t
   :config
-  (load-theme 'material-light :no-confirm))
+  (load-theme 'minimal-light t :no-confirm))
 
 (use-package powerline
   :ensure t
@@ -123,8 +123,6 @@
 
 ;; Chinese fontset
 (set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
-
-
 
 (provide 'ui)
 

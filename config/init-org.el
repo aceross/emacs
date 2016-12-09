@@ -42,6 +42,8 @@
 	  (lambda ()
 	     (add-hook 'flyspell-mode 'writegood-mode))))
 
+(use-package org-plus-contrib)
+
 (use-package org-bullets
    :ensure t
    :init (add-hook 'org-mode-hook 'org-bullets-mode))
@@ -62,18 +64,17 @@
    (org-tree-slide-simple-profile))
 
 (use-package org
+  :init
   :config
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
 
-  (org-babel-do-load-languages 'org-babel-load-languages
-			    '((sh         . t)
-			      (js         . t)
-			      (emacs-lisp . t)
-			      (R          . t)
-			      (python     . t)
-			      (dot        . t)
-			      (css        . t)
-			      (plantuml   . t))))
+(org-babel-do-load-languages 'org-babel-load-languages
+			       '(
+				 (emacs-lisp . t)
+				 (R          . t)
+				 (python     . t)
+				 (dot        . t)
+				 (plantuml   . t))))
 
 (setq org-confirm-babel-evaluate nil)
 
