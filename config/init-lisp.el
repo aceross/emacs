@@ -28,7 +28,13 @@
      (lambda () (slime-mode t)))
     'inferior-lisp-mode-hook
     (lambda () (inferior-slime-mode t)))
-  (setq slime-contribs '(slime-fancy))
+  (setq slime-contribs '(slime-fancy
+			 slime-indentation
+			 slime-sbcl-exts
+			 slime-scratch
+			 ))
+  (setq slime-complete-symbol*-fancy t)
+  (setq slime-complete-symbol-function 'slime-fuzzy-complete-symbol)
   (setq inferior-lisp-program "/usr/bin/sbcl")
   (slime-setup '(slime-repl))
   )

@@ -106,7 +106,6 @@ utf-8)))
 
 (use-package company-quickhelp  ; Documentation popups for Company
   :ensure t
-  :defer t
   :init (add-hook 'global-company-mode-hook #'company-quickhelp-mode))
 
 ;; error linting

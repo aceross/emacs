@@ -44,6 +44,18 @@
     :ensure t
     :config (add-hook 'irony-mode-hook 'irony-eldoc)))
 
+;; Shows an inline arguments hint for the C/C++ function at point
+;; https://github.com/abo-abo/function-args
+(use-package function-args
+  :ensure t
+  :config
+  (fa-config-default)
+  :bind
+  (:map c-mode-map
+	("M-o" . fa-show))
+  (:map c++-mode-map
+	("M-o" . fa-show)))
+
 (provide 'init-cc)
 
 ;;; init-cc.el ends here
