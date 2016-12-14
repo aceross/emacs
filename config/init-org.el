@@ -50,6 +50,9 @@
 
 (use-package ox-tufte)
 
+;; bibliography
+(use-package org-ref)
+
 ;; presentations
 
 (use-package ox-reveal
@@ -96,9 +99,10 @@
 (add-to-list 'org-latex-packages-alist '("" "microtype"))
 
 (setq org-latex-pdf-process
-    '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-      "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	"bibtex %b"
+	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 (provide 'init-org)
 
