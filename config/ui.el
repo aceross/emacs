@@ -16,6 +16,7 @@
   (scroll-bar-mode -1)            ; remove the scrollbar
   (setq column-number-mode t)     ; display column numbers
   (blink-cursor-mode 0)           ; no blinking cursor
+  (setq visible-bell t)           ; shut up emacs
   )
 
 (use-package minimal-theme

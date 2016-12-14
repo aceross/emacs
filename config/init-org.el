@@ -56,9 +56,14 @@
 ;; presentations
 
 (use-package ox-reveal
-   :init
-   (setq org-reveal-root (concat "file://" (getenv "HOME") "/Public/js/reveal.js"))
-   (setq org-reveal-postamble "Aaron Ceross"))
+  :ensure t
+  :init
+  (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
+  (setq org-reveal-mathjax t)
+  (setq org-reveal-postamble "Aaron Ceross"))
+
+(use-package htmlize
+:ensure t)
 
 (use-package org-tree-slide
    :ensure t
@@ -81,7 +86,7 @@
 
 (setq org-confirm-babel-evaluate nil)
 
-;; export options
+;;; export options
 
 ;; syntax highlight code blocks
 (setq org-src-fontify-natively t)

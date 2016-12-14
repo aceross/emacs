@@ -33,13 +33,14 @@
 (require 'editing)
 
 ;; Language and mode specific customisations.
-(require 'init-lisp)     ; customisations for Common Lisp
-(require 'init-cc)       ; customisations for C/C++
-(require 'init-tex)      ; customisations for Latex/AucTex
-(require 'init-org)      ; customisations for org-mode
-(require 'init-python)   ; customisations for Python
-(require 'init-ess)      ; customisations for ESS package
-(require 'init-markdown) ; customisations for markdown
+(require 'init-lisp)        ; customisations for Common Lisp
+(require 'init-cc)          ; customisations for C/C++
+(require 'init-tex)         ; customisations for Latex/AucTex
+(require 'init-org)         ; customisations for org-mode
+(require 'init-python)      ; customisations for Python
+(require 'init-ess)         ; customisations for ESS package
+(require 'init-markdown)    ; customisations for markdown
+(require 'init-javascript)  ; customisations for javascript
 
 
 ;;; init.el ends here

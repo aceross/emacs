@@ -80,6 +80,11 @@
 (when (fboundp 'windmove-default-keybindings)
   (windmove-default-keybindings))
 
+;; control window placement with C-c <arrow>
+(use-package winner
+  :ensure t
+  :init (winner-mode 1))
+
 (provide 'navigation)
 
 ;;; navigation.el ends here
