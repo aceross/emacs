@@ -117,6 +117,43 @@
 	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
 	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
+;; skeletons
+
+(define-skeleton org-skeleton-header
+  "Insert document headers."
+  "Title: "
+  "#+TITLE: " str | (buffer-name) "\n"
+  "#+AUTHOR: " (user-full-name) "\n"
+  "#+DATE: \n"
+  "#+OPTIONS: ':true *:true toc:nil num:nil" _)
+
+
+;; hugo blog skeleton
+(define-skeleton org-skeleton-blog-frontmatter
+  "Insert hugo frontmatter"
+  "title:"
+  "#+BEGIN_EXPORT md\n"
+  "+++\n"
+  "title = \"" str "\"\n"
+  "description = \""_"\"\n"
+  "date = \n"
+  "tags = []\n"
+  "+++\n"
+  "#+END_EXPORT\n")
+
+(define-skeleton org-skeleton-latex-header
+  "Insert document headers and essential LaTeX header options."
+  "options"
+  '(org-skeleton-header)
+  "\n#+LaTeX_HEADER: \\usepackage{booktabs}\n"
+  "#+LaTeX_HEADER: \\usepackage[style=british]{csquotes}\n"
+  "#+LaTeX_HEADER: \\usepackage[dvipsnames,table,xcdraw]{xcolor}\n"
+  "#+LaTeX_HEADER: \\hypersetup{colorlinks=true,linkcolor=Maroon,citecolor=PineGreen}\n"
+  "#+LaTeX_HEADER: \\usepackage[UKenglish]{babel}\n"
+  "#+LaTeX_HEADER: \\usepackage[UKenglish]{isodate}\n"
+ )
+
+
 (provide 'init-org)
 
 ;;; init-org.el ends here
