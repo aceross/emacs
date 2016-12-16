@@ -53,6 +53,7 @@
    :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
 (use-package ox-tufte)
+(use-package ox-gfm)
 
 ;; bibliography
 (use-package org-ref)
@@ -86,9 +87,12 @@
 				 (R          . t)
 				 (python     . t)
 				 (dot        . t)
+				 (ditaa      . t)
 				 (plantuml   . t))))
 
 (setq org-confirm-babel-evaluate nil)
+(setq org-plantuml-jar-path
+      (expand-file-name "~/src/org/contrib/scripts/plantuml.jar"))
 
 ;;; export options
 
