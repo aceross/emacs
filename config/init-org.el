@@ -40,7 +40,11 @@
 			  :weight bold)))))
   (add-hook 'org-mode-hook
 	  (lambda ()
-	     (add-hook 'flyspell-mode 'writegood-mode))))
+	    (add-hook 'flyspell-mode 'writegood-mode)))
+  (add-hook 'org-shiftup-final-hook    'windmove-up)
+  (add-hook 'org-shiftleft-final-hook  'windmove-left)
+  (add-hook 'org-shiftdown-final-hook  'windmove-down)
+  (add-hook 'org-shiftright-final-hook 'windmove-right))
 
 (use-package org-plus-contrib)
 

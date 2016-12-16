@@ -36,7 +36,19 @@
 (use-package company-auctex
   :defer t
   :ensure t
-  :config (company-auctex-init))
+  :config
+  (progn
+    (push 'company-auctex-labels company-backends-LaTeX-mode)
+    (push 'company-auctex-bibs company-backends-LaTeX-mode)
+    (push '(company-auctex-macros
+	    company-auctex-symbols
+	    company-auctex-environments) company-backends-LaTeX-mode))
+  (company-auctex-init)
+  )
+
+(use-package company-math
+  :ensure t)
+
 
 (provide 'init-tex)
 
