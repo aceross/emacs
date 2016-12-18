@@ -151,6 +151,9 @@
   "#+LaTeX_HEADER: \\hypersetup{colorlinks=true,linkcolor=Maroon,citecolor=PineGreen}\n"
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{babel}\n"
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{isodate}\n"
+  "#+LaTeX_HEADER: \\usepackage{sectsty}\n"
+  "#+LaTeX_HEADER: \\sectionfont{\normalfont\scshape}\n"
+  "#+LaTeX_HEADER: \\subsectionfont{\normalfont\itshape}\n"
  )
 
 
