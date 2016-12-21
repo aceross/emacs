@@ -117,7 +117,7 @@
 	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
 	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
-;; skeletons
+;;; skeletons
 
 (define-skeleton org-skeleton-header
   "Insert document headers."
@@ -152,10 +152,21 @@
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{babel}\n"
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{isodate}\n"
   "#+LaTeX_HEADER: \\usepackage{sectsty}\n"
-  "#+LaTeX_HEADER: \\sectionfont{\normalfont\scshape}\n"
   "#+LaTeX_HEADER: \\subsectionfont{\normalfont\itshape}\n"
- )
+  )
 
+(define-skeleton org-skelton-R-src
+  "Basic R source code block"
+  "#+begin_src R :session R :cache yes\n"
+  " \n"
+  "#+end_src"
+  )
+
+(define-skeleton org-skeleton-ditaa-src-block
+  "Source block for ditaa"
+  "#+begin_src ditaa :file <name>.png\n"
+  " \n"
+  "#+end_src")
 
 (provide 'init-org)
 
