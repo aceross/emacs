@@ -89,6 +89,12 @@ utf-8)))
   (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet))
 
 ;; company mode
+
+(use-package company-quickhelp
+  :ensure t
+  :config
+  (company-quickhelp-mode t))
+
 (use-package company
   :ensure t
   :diminish company-mode
@@ -102,11 +108,10 @@ utf-8)))
   (setq company-minimum-prefix-length 2)
   (setq company-show-numbers t)
   (setq company-dabbrev-downcase nil)
+  (add-hook 'global-company-mode-hook #'company-quickhelp-mode)
   )
 
-(use-package company-quickhelp  ; Documentation popups for Company
-  :ensure t
-  :init (add-hook 'global-company-mode-hook #'company-quickhelp-mode))
+
 
 ;; error linting
 (use-package flycheck
