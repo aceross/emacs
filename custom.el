@@ -81,6 +81,7 @@
  '(isearch ((t (:background "cyan" :foreground "grey20" :weight normal))))
  '(isearch-fail ((t (:foreground "firebrick" :weight bold))))
  '(lazy-highlight ((((class color) (min-colors 89)) (:foreground "grey90" :background "grey20"))))
+ '(link ((t (:foreground "SkyBlue4" :underline t))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.5))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4))))
  '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.35))))
