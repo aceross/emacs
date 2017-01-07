@@ -14,6 +14,18 @@
 (set-language-environment "UTF-8")
 
 ;; set the language and dictionary
+
+(use-package flyspell
+  :diminish (flyspell-mode . "spell")
+  :config
+  (set-face-attribute 'flyspell-incorrect nil :background
+"pink" :underline '(:color "red") :weight 'bold)
+  )
+
+;; turn on flyspell in desired modes
+(add-hook 'text-mode-hook 'flyspell-mode)
+;(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
 (setq ispell-dictionary "british")
 (setq ispell-check-comments t)
 (setq ispell-really-hunspell t)
@@ -89,7 +101,6 @@ utf-8)))
   (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet))
 
 ;; company mode
-
 (use-package company-quickhelp
   :ensure t
   :config
@@ -110,8 +121,6 @@ utf-8)))
   (setq company-dabbrev-downcase nil)
   (add-hook 'global-company-mode-hook #'company-quickhelp-mode)
   )
-
-
 
 ;; error linting
 (use-package flycheck
@@ -171,6 +180,7 @@ utf-8)))
   :config
   (global-set-key "\C-c\C-gg" 'writegood-grade-level)
   (global-set-key "\C-c\C-ge" 'writegood-reading-ease)
+  (add-hook 'text-mode-hook 'writegood-mode)
   )
 
 ;; multiple cursors

@@ -105,4 +105,7 @@
  '(region ((t (:background "dark sea green"))))
  '(secondary-selection ((t (:background "rosy brown"))))
  '(show-paren-match ((t (:background "goldenrod1"))))
- '(sldb-restartable-frame-line-face ((t (:foreground "DarkSeaGreen4")))))
+ '(sldb-restartable-frame-line-face ((t (:foreground "DarkSeaGreen4"))))
+ '(writegood-duplicates-face ((t (:underline (:color "maroon" :style wave)))))
+ '(writegood-passive-voice-face ((t (:underline (:color "blue" :style wave)))))
+ '(writegood-weasels-face ((t (:underline (:color "OrangeRed1" :style wave))))))
