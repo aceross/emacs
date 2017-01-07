@@ -33,8 +33,10 @@
 	org-todo-keyword-faces
 	  (quote
 	   (("IN PROGRESS" . (:foreground "blue"
+			      :background "grey90"
 			      :weight bold))
 	    ("OVERDUE" . (:foreground "goldenrod3"
+			  :background "grey90"
 			  :weight bold)))))
   (add-hook 'org-mode-hook
 	  (lambda ()
