@@ -106,6 +106,6 @@
  '(secondary-selection ((t (:background "rosy brown"))))
  '(show-paren-match ((t (:background "goldenrod1"))))
  '(sldb-restartable-frame-line-face ((t (:foreground "DarkSeaGreen4"))))
- '(writegood-duplicates-face ((t (:underline (:color "maroon" :style wave)))))
- '(writegood-passive-voice-face ((t (:underline (:color "blue" :style wave)))))
+ '(writegood-duplicates-face ((t (:background "thistle" :underline "medium violet red"))))
+ '(writegood-passive-voice-face ((t (:background "light steel blue" :underline "blue"))))
  '(writegood-weasels-face ((t (:underline (:color "OrangeRed1" :style wave))))))

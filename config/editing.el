@@ -19,7 +19,7 @@
   :diminish (flyspell-mode . "spell")
   :config
   (set-face-attribute 'flyspell-incorrect nil :background
-"pink" :underline '(:color "red") :weight 'bold)
+"pink" :underline '(:color "firebrick") :weight 'bold)
   )
 
 ;; turn on flyspell in desired modes
