@@ -2,6 +2,7 @@
 ;;
 ;;; Commentary:
 ;;
+;;  Mostly font and readability stuff.
 
 ;;; Code:
 
