@@ -19,7 +19,7 @@
   :diminish (flyspell-mode . "spell")
   :config
   (set-face-attribute 'flyspell-incorrect nil :background
-"pink" :underline '(:color "firebrick") :weight 'bold)
+                      "pink" :underline '(:color "firebrick") :weight 'bold)
   )
 
 ;; turn on flyspell in desired modes
@@ -110,8 +110,8 @@ utf-8)))
   :ensure t
   :diminish company-mode
   :bind (:map company-active-map
-	      ("TAB" . nil)
-	      ("<tab>" . nil))
+              ("TAB" . nil)
+              ("<tab>" . nil))
   :init (global-company-mode t)
   :config
   (add-hook 'prog-mode-hook 'company-mode)
@@ -139,7 +139,7 @@ utf-8)))
   :diminish paredit-mode
   :init
   (dolist (hook '(emacs-lisp-mode-hook lisp-mode-hook geiser-mode-hook
-				       clojure-mode-hook))
+                                       clojure-mode-hook))
     (add-hook hook 'paredit-mode))
   :config
   (autoload 'enable-paredit-mode "paredit"
@@ -165,11 +165,11 @@ utf-8)))
   (let ((filename (buffer-file-name)))
     (when filename
       (if (vc-backend filename)
-	  (vc-delete-file filename)
-	(progn
-	  (delete-file filename)
-	  (message "Deleted file %s" filename)
-	  (kill-buffer))))))
+          (vc-delete-file filename)
+        (progn
+          (delete-file filename)
+          (message "Deleted file %s" filename)
+          (kill-buffer))))))
 
 (global-set-key (kbd "C-c D")  'delete-file-and-buffer)
 
@@ -187,16 +187,16 @@ utf-8)))
 (use-package multiple-cursors
   :ensure t
   :bind (("C-c C-. ."   . mc/mark-all-dwim)
-	 ("C-c C-. C-." . mc/mark-all-like-this-dwim)
-	 ("C-c C-. n"   . mc/mark-next-like-this)
-	 ("C-c C-. p"   . mc/mark-previous-like-this)
-	 ("C-c C-. a"   . mc/mark-all-like-this)
-	 ("C-c C-. N"   . mc/mark-next-symbol-like-this)
-	 ("C-c C-. P"   . mc/mark-previous-symbol-like-this)
-	 ("C-c C-. A"   . mc/mark-all-symbols-like-this)
-	 ("C-c C-. f"   . mc/mark-all-like-this-in-defun)
-	 ("C-c C-. l"   . mc/edit-lines)
-	 ("C-c C-. e"   . mc/edit-ends-of-lines)))
+         ("C-c C-. C-." . mc/mark-all-like-this-dwim)
+         ("C-c C-. n"   . mc/mark-next-like-this)
+         ("C-c C-. p"   . mc/mark-previous-like-this)
+         ("C-c C-. a"   . mc/mark-all-like-this)
+         ("C-c C-. N"   . mc/mark-next-symbol-like-this)
+         ("C-c C-. P"   . mc/mark-previous-symbol-like-this)
+         ("C-c C-. A"   . mc/mark-all-symbols-like-this)
+         ("C-c C-. f"   . mc/mark-all-like-this-in-defun)
+         ("C-c C-. l"   . mc/edit-lines)
+         ("C-c C-. e"   . mc/edit-ends-of-lines)))
 
 (provide 'editing)
 
