@@ -39,8 +39,9 @@
 (require 'init-org)         ; customisations for org-mode
 (require 'init-python)      ; customisations for Python
 (require 'init-ess)         ; customisations for ESS package
-(require 'init-markdown)    ; customisations for markdown
-(require 'init-javascript)  ; customisations for javascript
-
+(require 'init-markdown)    ; customisations for Markdown
+(require 'init-javascript)  ; customisations for Javascript
+(require 'init-haskell)     ; customisations for Haskell
+(require 'init-erlang)      ; customisations for Erlang
 
 ;;; init.el ends here
