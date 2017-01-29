@@ -73,6 +73,7 @@
  '(font-lock-comment-face ((t (:foreground "#696F77"))))
  '(font-lock-doc-face ((t (:foreground "tomato4"))))
  '(font-lock-string-face ((t (:foreground "dark slate gray"))))
+ '(git-commit-overlong-summary ((t (:inherit font-lock-warning-face :background "RosyBrown1"))))
  '(git-gutter:added ((t (:inherit default :background "grey95" :foreground "forest green" :weight bold))))
  '(git-gutter:deleted ((t (:foreground "firebrick" :weight bold))))
  '(git-gutter:modified ((t (:inherit default :background "grey95" :foreground "magenta4" :weight bold))))
@@ -108,4 +109,4 @@
  '(sldb-restartable-frame-line-face ((t (:foreground "DarkSeaGreen4"))))
  '(writegood-duplicates-face ((t (:background "thistle" :underline "medium violet red"))))
  '(writegood-passive-voice-face ((t (:background "light steel blue" :underline "blue"))))
- '(writegood-weasels-face ((t (:underline (:color "OrangeRed1" :style wave))))))
+ '(writegood-weasels-face ((t (:background "sandy brown" :underline "OrangeRed1")))))
