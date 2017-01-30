@@ -4,7 +4,7 @@
 ;;
 ;;; Code:
 
-;; lifted from https://writequit.org/org/settings.html#sec-1-4-9
+;; lifted in large part from https://writequit.org/org/settings.html#sec-1-4-9
 (use-package haskell-mode
   :defer t
   :init
