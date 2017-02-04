@@ -1,6 +1,6 @@
-;;; editing.el --- Editing module for my Emacs configuration -------------------
+;;; editing.el --- Editing module for my Emacs configuration
 ;;
-;;  Copyright (c) 2016, Aaron Ceross
+;;  Copyright (c) 2016 - 2017, Aaron Ceross
 ;;
 ;;; Commentary:
 ;;
@@ -68,8 +68,12 @@ utf-8)))
 (setq x-select-enable-clipboard t
       x-select-enable-primary t)
 
-(setq tab-width 2
-      indent-tabs-mode nil)
+;; set all tabs to spaces
+(setq-default indent-tabs-mode nil)
+(setq tab-width 2)
+
+;; make tab key indent first, then complete
+(setq-default tab-always-indent 'complete)
 
 ;; turn tabs to spaces on save
 (add-hook 'before-save-hook (lambda () (untabify (point-min) (point-max))))
