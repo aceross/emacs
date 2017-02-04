@@ -18,29 +18,11 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
-(use-package minimal-theme
-  :ensure t
-  :config
-  (load-theme 'minimal-light t :no-confirm))
+(require 'color-theme-sanityinc-tomorrow)
 
 (use-package powerline
   :ensure t
   :config)
-
-;; modeline theming
-(use-package airline-themes
-  :ensure t
-  :config
-  (load-theme 'airline-raven t)
-  (setq airline-shortened-directory-length 20)
-  ;; add the glyphs for git-branch, seperators, line numbers, etc
-  (setq airline-utf-glyph-separator-left      #xe0b0
-        airline-utf-glyph-separator-right     #xe0b2
-        airline-utf-glyph-subseparator-left   #xe0b1
-        airline-utf-glyph-subseparator-right  #xe0b3
-        airline-utf-glyph-branch              #xe0a0
-        airline-utf-glyph-readonly            #xe0a2
-        airline-utf-glyph-linenumber          #xe0a1))
 
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
