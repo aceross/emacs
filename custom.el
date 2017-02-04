@@ -43,4 +43,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(font-latex-sectioning-5-face ((t (:inherit variable-pitch :weight bold))))
- '(font-latex-warning-face ((t (:inherit bold :foreground "#f2777a")))))
+ '(font-latex-warning-face ((t (:inherit bold :foreground "#f2777a"))))
+ '(font-lock-constant-face ((t (:foreground "#7aa6da" :weight bold))))
+ '(font-lock-function-name-face ((t (:foreground "#e78c45" :weight bold))))
+ '(font-lock-keyword-face ((t (:foreground "#b9ca4a" :weight bold)))))
