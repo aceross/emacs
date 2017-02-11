@@ -2,6 +2,9 @@
 ;;
 ;;; Commentary:
 ;;
+;;  The customisations in this file relate to the visual aesthetics
+;;  and function of my Emacs configuration.
+;;
 
 ;;; Code:
 
@@ -18,22 +21,34 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
+;; colour themes by Steve Purcell, https://github.com/purcell/
+(require 'color-theme-sanityinc-solarized)
 (require 'color-theme-sanityinc-tomorrow)
+;; set the dark bright theme as default
+(setq-default custom-enabled-themes '(color-theme-sanityinc-tomorrow-bright))
+
 
 (use-package powerline
   :ensure t
-  :config)
+  :config
+  (setq powerline-arrow-shape 'curve))
 
+
+;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
   (toggle-indicate-empty-lines))
 
+
 ;; full path in title bar
 (setq-default frame-title-format "%b (%f)")
+
 
 ;; answer yes or no question with a single letter
 (defalias 'yes-or-no-p 'y-or-n-p)
 
+
+;; visually show the indentation within the program
 (use-package indent-guide
   :ensure t
   :diminish indent-guide-mode
@@ -43,8 +58,10 @@
   (set-face-foreground 'indent-guide-face "cadet blue")
   )
 
+
 ;; highlight current line
 (global-hl-line-mode 1)
+
 
 ;; volatile highlights - highlight changes from pasting etc
 (use-package volatile-highlights
@@ -52,8 +69,10 @@
   :config
   (volatile-highlights-mode t))
 
+
 ;; highlight matching parenthesis
 (show-paren-mode 1)
+
 
 ;; show highlights for indentation
 (use-package highlight-indentation
@@ -71,6 +90,7 @@
   (add-hook 'js-mode-hook      'highlight-indentation-mode)
   )
 
+
 ;; colour the delimiters to better identify nested constracts
 (use-package rainbow-delimiters
   :ensure t
@@ -78,6 +98,7 @@
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'ess-mode-hook 'rainbow-delimiters-mode)
   )
+
 
 ;; show git diff in the buffer
 (use-package git-gutter-fringe
@@ -87,24 +108,29 @@
   (global-git-gutter-mode)
   )
 
+
 (use-package smooth-scrolling
   :ensure t
   :config
   (smooth-scrolling-mode)
   )
 
+
 (use-package eldoc
   :ensure nil
   :diminish eldoc-mode
   :commands eldoc-mode)
+
 
 ;; display modeline search information
 (use-package anzu
   :init (global-anzu-mode +1)
   :diminish anzu-mode)
 
+
 ;; Chinese fontset
 (set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
+
 
 (provide 'ui)
 
