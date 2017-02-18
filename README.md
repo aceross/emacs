@@ -18,3 +18,5 @@ Some of the material in my configuration file has been 'inspired' or
 simply outright lifted from other more elegant, clever, and
 sophisticated set-ups. I will update comments within the files to
 reflect this.
+
+Please use any material you find here.
