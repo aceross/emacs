@@ -12,45 +12,42 @@
 
 (use-package org
   :ensure t
+  :mode ("\\.org\\'" . org-mode)
   :init
-  (setq org-startup-indented t
-	org-hide-leading-stars t
-	org-use-speed-commands t
-	org-src-fontify-natively t
-	org-src-tab-acts-natively t
-	org-hide-emphasis-markers t
-	org-odd-level-only nil
-	org-completion-use-ido t
-	org-indent-mode t
-	org-startup-folded nil
-	org-startup-truncated nil
-	auto-fill-mode -1
-	org-confirm-babel-evaluate nil
-	)
+  (setq org-src-fontify-natively t
+        org-startup-indented t
+        org-hide-leading-stars t
+        org-use-speed-commands t
+        org-src-tab-acts-natively t
+        org-hide-emphasis-markers t
+        org-odd-level-only nil
+        org-completion-use-ido t
+        org-indent-mode t
+        org-startup-folded nil
+        org-startup-truncated nil
+        auto-fill-mode -1
+        org-confirm-babel-evaluate nil
+        )
   (setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (setq org-log-done t
-	org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
-	org-todo-keyword-faces
-	  (quote
-	   (("IN PROGRESS" . (:foreground "blue"
-			      :background "grey90"
-			      :weight bold))
-	    ("OVERDUE" . (:foreground "goldenrod3"
-			  :background "grey90"
-			  :weight bold)))))
-  ;; (add-hook 'org-mode-hook
-  ;;      (lambda ()
-  ;;        (add-hook 'flyspell-mode 'writegood-mode)))
+        org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
+        org-todo-keyword-faces
+          (quote
+           (("IN PROGRESS" . (:foreground "blue"
+                              :weight bold))
+            ("OVERDUE" . (:foreground "goldenrod3"
+                          :weight bold)))))
   (add-hook 'org-shiftup-final-hook    'windmove-up)
   (add-hook 'org-shiftleft-final-hook  'windmove-left)
   (add-hook 'org-shiftdown-final-hook  'windmove-down)
   (add-hook 'org-shiftright-final-hook 'windmove-right))
 
-(use-package org-plus-contrib)
+(use-package org-plus-contrib
+  :ensure t)
 
 (use-package org-bullets
-   :ensure t
-   :init (add-hook 'org-mode-hook 'org-bullets-mode))
+  :ensure t
+  :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
 (use-package ox-tufte)
 (use-package ox-gfm)
@@ -59,7 +56,6 @@
 (use-package org-ref)
 
 ;; presentations
-
 (use-package ox-reveal
   :ensure t
   :init
@@ -68,11 +64,11 @@
   (setq org-reveal-postamble "Aaron Ceross"))
 
 (use-package htmlize
-:ensure t)
+  :ensure t)
 
 (use-package org-tree-slide
-   :ensure t
-   :init
+  :ensure t
+  :init
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))
 
@@ -80,15 +76,16 @@
   :init
   :config
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
-
-(org-babel-do-load-languages 'org-babel-load-languages
-			       '(
-				 (emacs-lisp . t)
-				 (R          . t)
-				 (python     . t)
-				 (dot        . t)
-				 (ditaa      . t)
-				 (plantuml   . t))))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '(
+                                 (emacs-lisp . t)
+                                 (R          . t)
+                                 (C          . t)
+                                 (python     . t)
+                                 (clojure    . t)
+                                 (dot        . t)
+                                 (ditaa      . t)
+                                 (plantuml   . t))))
 
 (setq org-confirm-babel-evaluate nil)
 (setq org-plantuml-jar-path
@@ -96,8 +93,6 @@
 
 ;;; export options
 
-;; syntax highlight code blocks
-(setq org-src-fontify-natively t)
 ;; put caption below in tables
 (setq org-export-latex-table-caption-above nil)
 (setq org-latex-table-caption-above nil)
@@ -113,9 +108,9 @@
 
 (setq org-latex-pdf-process
       '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-	"bibtex %b"
-	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-	"pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+        "bibtex %b"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
 ;;; skeletons
 
@@ -152,17 +147,17 @@
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{babel}\n"
   "#+LaTeX_HEADER: \\usepackage[UKenglish]{isodate}\n"
   "#+LaTeX_HEADER: \\usepackage{sectsty}\n"
-  "#+LaTeX_HEADER: \\subsectionfont{\normalfont\itshape}\n"
+  "#+LaTeX_HEADER: \\subsectionfont{\\normalfont\itshape}\n"
   )
 
-(define-skeleton org-skelton-R-src
+(define-skeleton org-skeleton-R-src
   "Basic R source code block"
   "#+begin_src R :session R :cache yes\n"
   " \n"
   "#+end_src"
   )
 
-(define-skeleton org-skeleton-ditaa-src-block
+(define-skeleton org-skeleton-ditaa-src
   "Source block for ditaa"
   "#+begin_src ditaa :file <name>.png\n"
   " \n"

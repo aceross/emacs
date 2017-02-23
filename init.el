@@ -42,5 +42,6 @@
 (require 'init-markdown)    ; customisations for Markdown
 (require 'init-javascript)  ; customisations for Javascript
 (require 'init-haskell)     ; customisations for Haskell
+(require 'init-clojure)     ; customisations for Clojure
 
 ;;; init.el ends here

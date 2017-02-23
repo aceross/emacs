@@ -14,7 +14,6 @@
 (set-language-environment "UTF-8")
 
 ;; set the language and dictionary
-
 (use-package flyspell
   :diminish (flyspell-mode . "spell")
   :config
@@ -61,8 +60,8 @@ utf-8)))
   "Comment or uncomment current line."
   (interactive)
   (comment-or-uncomment-region (line-beginning-position) (line-end-position)))
-(global-set-key (kbd "C-;") 'toggle-comment-on-line)
 
+(global-set-key (kbd "C-;") 'toggle-comment-on-line)
 (delete-selection-mode t)
 (transient-mark-mode t)
 (setq x-select-enable-clipboard t
@@ -136,7 +135,8 @@ utf-8)))
   (global-flycheck-mode t)
   (use-package flycheck-pos-tip
     :ensure t
-    :config (flycheck-pos-tip-mode)))
+    :config (flycheck-pos-tip-mode))
+  )
 
 (use-package paredit
   :ensure t

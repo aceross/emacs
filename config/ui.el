@@ -22,15 +22,20 @@
   )
 
 ;; colour themes by Steve Purcell, https://github.com/purcell/
-(require 'color-theme-sanityinc-solarized)
-(require 'color-theme-sanityinc-tomorrow)
-;; set the dark bright theme as default
-(setq-default custom-enabled-themes '(color-theme-sanityinc-tomorrow-bright))
+(use-package color-theme-sanityinc-tomorrow
+  :ensure t)
+(use-package color-theme-sanityinc-solarized
+  :ensure t)
 
+;; set the dark bright theme as default
+;(setq-default custom-enabled-themes '(color-theme-sanityinc-tomorrow-night))
+
+;(load-theme 'flatland t)
 
 (use-package powerline
   :ensure t
   :config
+ ; (powerline-default-theme)
   (setq powerline-arrow-shape 'curve))
 
 
