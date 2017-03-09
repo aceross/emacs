@@ -32,15 +32,94 @@
   (setq org-log-done t
         org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
         org-todo-keyword-faces
-          (quote
-           (("IN PROGRESS" . (:foreground "blue"
-                              :weight bold))
-            ("OVERDUE" . (:foreground "goldenrod3"
-                          :weight bold)))))
+        (quote
+         (("IN PROGRESS" . (:foreground "blue"
+                                        :weight bold))
+          ("OVERDUE" . (:foreground "goldenrod3"
+                                    :weight bold)))))
   (add-hook 'org-shiftup-final-hook    'windmove-up)
   (add-hook 'org-shiftleft-final-hook  'windmove-left)
   (add-hook 'org-shiftdown-final-hook  'windmove-down)
-  (add-hook 'org-shiftright-final-hook 'windmove-right))
+  (add-hook 'org-shiftright-final-hook 'windmove-right)
+  :config
+  (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
+  (org-babel-do-load-languages 'org-babel-load-languages
+                               '(
+                                 (emacs-lisp . t)
+                                 (R          . t)
+                                 (C          . t)
+                                 (python     . t)
+                                 (clojure    . t)
+                                 (dot        . t)
+                                 (ditaa      . t)
+                                 (plantuml   . t)))
+  (add-to-list 'org-latex-classes
+               '("awc-article"
+                 "
+               \\documentclass{article}
+               \\usepackage[utf8]{inputenc}
+               \\usepackage[T1]{fontenc}
+               \\usepackage{graphicx}
+               \\usepackage{longtable}
+               \\usepackage{hyperref}
+               \\usepackage{natbib}
+               \\usepackage{amssymb}
+               \\usepackage{amsmath}
+               \\usepackage{geometry}
+               \\geometry{
+                    a4paper,
+                    left=2.5cm,
+                    top=2cm,
+                    right=2.5cm,
+                    bottom=2cm,
+                    marginparsep=7pt,
+                    marginparwidth=.6in
+                 }
+               \\usepackage{booktabs}
+               \\usepackage[style=british]{csquotes}
+               \\usepackage[dvipsnames,table,xcdraw]{xcolor}
+               \\hypersetup{
+                    colorlinks=true,
+                    linkcolor=Maroon,
+                    citecolor=PineGreen
+                 }
+               \\usepackage[UKenglish]{babel}
+               \\usepackage[UKenglish]{isodate}
+               "
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-classes
+               '("IEEE"
+                 "\\documentclass[conference]{IEEEtran}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))
+               )
+  (add-to-list 'org-latex-classes
+               '("ACM"
+                 "\\documentclass[conference]{sig-alternate}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))
+               )
+  (add-to-list 'org-latex-classes
+               '("tuftehandout"
+                 "\\documentclass{tufte-handout}
+                  \\usepackage{color}
+                  \\usepackage{amssymb}
+                  \\usepackage{amsmath}
+                  \\usepackage{gensymb}
+                  \\usepackage{nicefrac}
+                  \\usepackage{units}"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 (use-package org-plus-contrib
   :ensure t)
@@ -51,6 +130,9 @@
 
 (use-package ox-tufte)
 (use-package ox-gfm)
+(use-package org-pomodoro
+  :ensure t
+  :defer t)
 
 ;; bibliography
 (use-package org-ref)
@@ -72,21 +154,6 @@
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))
 
-(use-package org
-  :init
-  :config
-  (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
-  (org-babel-do-load-languages 'org-babel-load-languages
-                               '(
-                                 (emacs-lisp . t)
-                                 (R          . t)
-                                 (C          . t)
-                                 (python     . t)
-                                 (clojure    . t)
-                                 (dot        . t)
-                                 (ditaa      . t)
-                                 (plantuml   . t))))
-
 (setq org-confirm-babel-evaluate nil)
 (setq org-plantuml-jar-path
       (expand-file-name "~/src/org/contrib/scripts/plantuml.jar"))
@@ -97,6 +164,7 @@
 (setq org-export-latex-table-caption-above nil)
 (setq org-latex-table-caption-above nil)
 (setq org-latex-listings t)
+
 ;; don't export tags
 (setq org-export-with-tags nil)
 
@@ -112,6 +180,7 @@
         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
 
+
 ;;; skeletons
 
 (define-skeleton org-skeleton-header
@@ -120,8 +189,7 @@
   "#+TITLE: " str | (buffer-name) "\n"
   "#+AUTHOR: " (user-full-name) "\n"
   "#+DATE: \n"
-  "#+OPTIONS: ':true *:true toc:nil num:nil" _)
-
+  "#+OPTIONS: ':true *:true toc:nil" _)
 
 ;; hugo blog skeleton
 (define-skeleton org-skeleton-blog-frontmatter
@@ -136,30 +204,19 @@
   "+++\n"
   "#+END_EXPORT\n")
 
-(define-skeleton org-skeleton-latex-header
-  "Insert document headers and essential LaTeX header options."
-  "options"
-  '(org-skeleton-header)
-  "\n#+LaTeX_HEADER: \\usepackage{booktabs}\n"
-  "#+LaTeX_HEADER: \\usepackage[style=british]{csquotes}\n"
-  "#+LaTeX_HEADER: \\usepackage[dvipsnames,table,xcdraw]{xcolor}\n"
-  "#+LaTeX_HEADER: \\hypersetup{colorlinks=true,linkcolor=Maroon,citecolor=PineGreen}\n"
-  "#+LaTeX_HEADER: \\usepackage[UKenglish]{babel}\n"
-  "#+LaTeX_HEADER: \\usepackage[UKenglish]{isodate}\n"
-  "#+LaTeX_HEADER: \\usepackage{sectsty}\n"
-  "#+LaTeX_HEADER: \\subsectionfont{\\normalfont\itshape}\n"
-  )
-
 (define-skeleton org-skeleton-R-src
-  "Basic R source code block"
-  "#+begin_src R :session R :cache yes\n"
-  " \n"
-  "#+end_src"
-  )
+  "Basic R source code block."
+  "\n"
+  "#+begin_src R :session :cache yes :tangle yes\n"
+  "\n"
+  "\n"
+  "#+end_src\n")
 
-(define-skeleton org-skeleton-ditaa-src
-  "Source block for ditaa"
-  "#+begin_src ditaa :file <name>.png\n"
+(define-skeleton org-skeleton-dot-src
+  "Source block for dot."
+  "file name: "
+  "\n"
+  "#+begin_src dot :file img/" str ".png\n"
   " \n"
   "#+end_src")
 
