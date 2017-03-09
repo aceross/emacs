@@ -8,7 +8,7 @@
 ;;; Code:
 
 ;; display results in a block instead of prefixed with :
-(setq org-babel-min-lines-for-block-output 1)
+(setq org-babel-min-lines-for-block-output t)
 
 (use-package org
   :ensure t
@@ -33,10 +33,12 @@
         org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
         org-todo-keyword-faces
         (quote
-         (("IN PROGRESS" . (:foreground "blue"
-                                        :weight bold))
-          ("OVERDUE" . (:foreground "goldenrod3"
-                                    :weight bold)))))
+         (("TODO"        . (:weight bold))
+          ("IN PROGRESS" . (:foreground "blue"
+                            :weight bold))
+          ("OVERDUE"     . (:foreground "goldenrod3"
+                            :weight bold))
+          ("DONE"        . (:weight bold)))))
   (add-hook 'org-shiftup-final-hook    'windmove-up)
   (add-hook 'org-shiftleft-final-hook  'windmove-left)
   (add-hook 'org-shiftdown-final-hook  'windmove-down)
@@ -53,73 +55,72 @@
                                  (dot        . t)
                                  (ditaa      . t)
                                  (plantuml   . t)))
+  (setq org-latex-classes nil)
   (add-to-list 'org-latex-classes
-               '("awc-article"
-                 "
-               \\documentclass{article}
-               \\usepackage[utf8]{inputenc}
-               \\usepackage[T1]{fontenc}
-               \\usepackage{graphicx}
-               \\usepackage{longtable}
-               \\usepackage{hyperref}
-               \\usepackage{natbib}
-               \\usepackage{amssymb}
-               \\usepackage{amsmath}
-               \\usepackage{geometry}
-               \\geometry{
-                    a4paper,
-                    left=2.5cm,
-                    top=2cm,
-                    right=2.5cm,
-                    bottom=2cm,
-                    marginparsep=7pt,
-                    marginparwidth=.6in
-                 }
-               \\usepackage{booktabs}
-               \\usepackage[style=british]{csquotes}
-               \\usepackage[dvipsnames,table,xcdraw]{xcolor}
-               \\hypersetup{
-                    colorlinks=true,
-                    linkcolor=Maroon,
-                    citecolor=PineGreen
-                 }
-               \\usepackage[UKenglish]{babel}
-               \\usepackage[UKenglish]{isodate}
-               "
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-classes
-               '("IEEE"
-                 "\\documentclass[conference]{IEEEtran}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))
-               )
-  (add-to-list 'org-latex-classes
-               '("ACM"
-                 "\\documentclass[conference]{sig-alternate}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}"))
-               )
-  (add-to-list 'org-latex-classes
-               '("tuftehandout"
-                 "\\documentclass{tufte-handout}
+               '(
+                 ("awc-article"
+                  "
+                  \\documentclass{article}
+                  \\usepackage[utf8]{inputenc}
+                  \\usepackage[T1]{fontenc}
+                  \\usepackage{graphicx}
+                  \\usepackage{longtable}
+                  \\usepackage{hyperref}
+                  \\usepackage{natbib}
+                  \\usepackage{amssymb}
+                  \\usepackage{amsmath}
+                  \\usepackage{geometry}
+                  \\geometry{
+                       a4paper,
+                       left=2.5cm,
+                       top=2cm,
+                       right=2.5cm,
+                       bottom=2cm,
+                       marginparsep=7pt,
+                       marginparwidth=.6in
+                    }
+                  \\usepackage{booktabs}
+                  \\usepackage[style=british]{csquotes}
+                  \\usepackage[dvipsnames,table,xcdraw]{xcolor}
+                  \\hypersetup{
+                       colorlinks=true,
+                       linkcolor=Maroon,
+                       citecolor=PineGreen
+                    }
+                  \\usepackage[UKenglish]{babel}
+                  \\usepackage[UKenglish]{isodate}
+                  "
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))
+                 ("IEEE"
+                     "\\documentclass[conference]{IEEEtran}"
+                     ("\\section{%s}" . "\\section*{%s}")
+                     ("\\subsection{%s}" . "\\subsection*{%s}")
+                     ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                     ("\\paragraph{%s}" . "\\paragraph*{%s}"))
+                 ("ACM"
+                  "\\documentclass[conference]{sig-alternate}"
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                  ("\\paragraph{%s}" . "\\paragraph*{%s}"))
+                 ("tuftehandout"
+                  "\\documentclass{tufte-handout}
                   \\usepackage{color}
                   \\usepackage{amssymb}
                   \\usepackage{amsmath}
                   \\usepackage{gensymb}
                   \\usepackage{nicefrac}
                   \\usepackage{units}"
-                 ("\\section{%s}" . "\\section*{%s}")
-                 ("\\subsection{%s}" . "\\subsection*{%s}")
-                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
-                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
+                  ("\\section{%s}" . "\\section*{%s}")
+                  ("\\subsection{%s}" . "\\subsection*{%s}")
+                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+               )
+  )
 
 (use-package org-plus-contrib
   :ensure t)
@@ -207,7 +208,7 @@
 (define-skeleton org-skeleton-R-src
   "Basic R source code block."
   "\n"
-  "#+begin_src R :session :cache yes :tangle yes\n"
+  "#+begin_src R :session :cache yes :exports none :tangle yes\n"
   "\n"
   "\n"
   "#+end_src\n")
