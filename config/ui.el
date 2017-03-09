@@ -8,6 +8,7 @@
 
 ;;; Code:
 
+
 ;; customise the window system
 (when window-system
   ;; set the size of the emacs window
@@ -21,22 +22,17 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
+
 ;; colour themes by Steve Purcell, https://github.com/purcell/
 (use-package color-theme-sanityinc-tomorrow
   :ensure t)
-(use-package color-theme-sanityinc-solarized
-  :ensure t)
 
-;; set the dark bright theme as default
-;(setq-default custom-enabled-themes '(color-theme-sanityinc-tomorrow-night))
 
-;(load-theme 'flatland t)
-
-(use-package powerline
-  :ensure t
-  :config
- ; (powerline-default-theme)
-  (setq powerline-arrow-shape 'curve))
+;; colour themes in base16, https://chriskempson.github.io/base16/
+;; (use-package base16-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'base16-ocean t))
 
 
 ;; see which are empty lines in the buffer
@@ -80,20 +76,20 @@
 
 
 ;; show highlights for indentation
-(use-package highlight-indentation
-  :ensure t
-  :diminish highlight-indentation-mode
-  :config
-  (add-hook 'prog-mode-hook #'highlight-indentation-mode)
-  (add-hook 'c-mode-hook       'highlight-indentation-mode)
-  (add-hook 'c++-mode-hook     'highlight-indentation-mode)
-  (add-hook 'emacs-lisp-mode   'highlight-indentation-mode)
-  (add-hook 'python-mode-hook  'highlight-indentation-mode)
-  (add-hook 'java-mode-hook    'highlight-indentation-mode)
-  (add-hook 'clojure-mode-hook 'highlight-indentation-mode)
-  (add-hook 'lisp-mode-hook    'highlight-indentation-mode)
-  (add-hook 'js-mode-hook      'highlight-indentation-mode)
-  )
+;; (use-package highlight-indentation
+;;   :ensure t
+;;   :diminish highlight-indentation-mode
+;;   :config
+;;   (add-hook 'prog-mode-hook #'highlight-indentation-mode)
+;;   (add-hook 'c-mode-hook       'highlight-indentation-mode)
+;;   (add-hook 'c++-mode-hook     'highlight-indentation-mode)
+;;   (add-hook 'emacs-lisp-mode   'highlight-indentation-mode)
+;;   (add-hook 'python-mode-hook  'highlight-indentation-mode)
+;;   (add-hook 'java-mode-hook    'highlight-indentation-mode)
+;;   (add-hook 'clojure-mode-hook 'highlight-indentation-mode)
+;;   (add-hook 'lisp-mode-hook    'highlight-indentation-mode)
+;;   (add-hook 'js-mode-hook      'highlight-indentation-mode)
+;;   )
 
 
 ;; colour the delimiters to better identify nested constracts
