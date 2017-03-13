@@ -41,6 +41,7 @@
   (add-hook 'org-shiftleft-final-hook  'windmove-left)
   (add-hook 'org-shiftdown-final-hook  'windmove-down)
   (add-hook 'org-shiftright-final-hook 'windmove-right)
+  (require 'ox-latex)
   :config
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
   (org-babel-do-load-languages 'org-babel-load-languages
