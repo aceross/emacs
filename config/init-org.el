@@ -12,6 +12,7 @@
 
 (use-package org
   :ensure t
+  :defer t
   :mode ("\\.org\\'" . org-mode)
   :init
   (setq org-src-fontify-natively t
@@ -123,10 +124,12 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 (use-package org-plus-contrib
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package org-bullets
   :ensure t
+  :defer t
   :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
 (use-package ox-tufte)
@@ -141,16 +144,19 @@
 ;; presentations
 (use-package ox-reveal
   :ensure t
+  :defer t
   :init
   (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
   (setq org-reveal-mathjax t)
   (setq org-reveal-postamble "Aaron Ceross"))
 
 (use-package htmlize
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package org-tree-slide
   :ensure t
+  :defer t
   :init
    (setq org-tree-slide-skip-outline-level 4)
    (org-tree-slide-simple-profile))

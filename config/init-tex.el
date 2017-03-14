@@ -7,6 +7,7 @@
 
 (use-package reftex
   :ensure t
+  :defer t
   :config
   ;; Enable RefTeX to find the central bibliography
   (setq reftex-default-bibliography '("~/Documents/dphil/bibliography/references.bib"))

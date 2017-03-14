@@ -80,6 +80,7 @@ utf-8)))
 ;; undo tree
 (use-package undo-tree
   :diminish undo-tree-mode
+  :defer t
   :config
   (progn
     (global-undo-tree-mode)
@@ -140,6 +141,7 @@ utf-8)))
 
 (use-package paredit
   :ensure t
+  :defer t
   :diminish paredit-mode
   :init
   (dolist (hook '(emacs-lisp-mode-hook lisp-mode-hook geiser-mode-hook
@@ -180,6 +182,7 @@ utf-8)))
 ;; write-good mode
 (use-package writegood-mode
   :ensure t
+  :defer t
   :diminish writegood-mode
   :config
   (global-set-key "\C-c\C-gg" 'writegood-grade-level)
@@ -190,6 +193,7 @@ utf-8)))
 ;; multiple cursors
 (use-package multiple-cursors
   :ensure t
+  :defer t
   :bind (("C-c C-. ."   . mc/mark-all-dwim)
          ("C-c C-. C-." . mc/mark-all-like-this-dwim)
          ("C-c C-. n"   . mc/mark-next-like-this)
