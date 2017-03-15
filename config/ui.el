@@ -28,11 +28,11 @@
   :ensure t)
 
 
-;; colour themes in base16, https://chriskempson.github.io/base16/
-;; (use-package base16-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'base16-ocean t))
+;; powerline
+(use-package powerline
+  :ensure t
+  :config
+  (powerline-default-theme))
 
 
 ;; see which are empty lines in the buffer
@@ -56,8 +56,7 @@
   :config
   (indent-guide-global-mode)
   (setq indent-guide-char "|")
-  (set-face-foreground 'indent-guide-face "cadet blue")
-  )
+  (set-face-foreground 'indent-guide-face "cadet blue"))
 
 
 ;; highlight current line
@@ -75,30 +74,12 @@
 (show-paren-mode 1)
 
 
-;; show highlights for indentation
-;; (use-package highlight-indentation
-;;   :ensure t
-;;   :diminish highlight-indentation-mode
-;;   :config
-;;   (add-hook 'prog-mode-hook #'highlight-indentation-mode)
-;;   (add-hook 'c-mode-hook       'highlight-indentation-mode)
-;;   (add-hook 'c++-mode-hook     'highlight-indentation-mode)
-;;   (add-hook 'emacs-lisp-mode   'highlight-indentation-mode)
-;;   (add-hook 'python-mode-hook  'highlight-indentation-mode)
-;;   (add-hook 'java-mode-hook    'highlight-indentation-mode)
-;;   (add-hook 'clojure-mode-hook 'highlight-indentation-mode)
-;;   (add-hook 'lisp-mode-hook    'highlight-indentation-mode)
-;;   (add-hook 'js-mode-hook      'highlight-indentation-mode)
-;;   )
-
-
 ;; colour the delimiters to better identify nested constracts
 (use-package rainbow-delimiters
   :ensure t
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'ess-mode-hook 'rainbow-delimiters-mode)
-  )
+  (add-hook 'ess-mode-hook 'rainbow-delimiters-mode))
 
 
 ;; show git diff in the buffer
@@ -106,15 +87,13 @@
   :ensure t
   :diminish git-gutter-mode
   :config
-  (global-git-gutter-mode)
-  )
+  (global-git-gutter-mode))
 
 
 (use-package smooth-scrolling
   :ensure t
   :config
-  (smooth-scrolling-mode)
-  )
+  (smooth-scrolling-mode))
 
 
 (use-package eldoc
