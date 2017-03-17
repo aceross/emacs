@@ -28,13 +28,6 @@
   :ensure t)
 
 
-;; powerline
-(use-package powerline
-  :ensure t
-  :config
-  (powerline-default-theme))
-
-
 ;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
