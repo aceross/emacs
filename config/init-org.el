@@ -44,6 +44,8 @@
   (add-hook 'org-shiftright-final-hook 'windmove-right)
   (require 'ox-latex)
   :config
+  (setq org-export-latex-table-caption-above nil)
+  (setq org-latex-table-caption-above nil)
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
   (org-babel-do-load-languages 'org-babel-load-languages
                                '(
@@ -168,8 +170,7 @@
 ;;; export options
 
 ;; put caption below in tables
-(setq org-export-latex-table-caption-above nil)
-(setq org-latex-table-caption-above nil)
+
 (setq org-latex-listings t)
 
 ;; don't export tags
