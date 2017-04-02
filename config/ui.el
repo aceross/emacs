@@ -27,6 +27,18 @@
 (use-package color-theme-sanityinc-tomorrow
   :ensure t)
 
+;; colour themes in base16, https://chriskempson.github.io/base16/
+;; (use-package base16-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'base16-ocean t))
+
+;; (use-package material-theme
+;;   :ensure t
+;;   :config
+;;   (load-theme 'material t))
+
+
 
 ;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)

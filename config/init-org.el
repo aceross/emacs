@@ -11,7 +11,7 @@
 (setq org-babel-min-lines-for-block-output t)
 
 (use-package org
-  :ensure t
+  :ensure org-plus-contrib
   :defer t
   :mode ("\\.org\\'" . org-mode)
   :init
