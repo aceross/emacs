@@ -31,7 +31,7 @@
 ;; (use-package base16-theme
 ;;   :ensure t
 ;;   :config
-;;   (load-theme 'base16-ocean t))
+;;   (load-theme 'base16-railscasts t))
 
 ;; (use-package material-theme
 ;;   :ensure t

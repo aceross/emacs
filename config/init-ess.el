@@ -48,7 +48,7 @@
     (setq ess-first-tab-never-complete
           'symbol-or-paren-or-punct))
 
-  (add-hook 'ess-mode-hook #'my-ess-init)
+  ;(add-hook 'ess-mode-hook #'my-ess-init)
 
   ;; prettify <- and %>% symbols
   (when (boundp 'global-prettify-symbols-mode)
