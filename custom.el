@@ -41,4 +41,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(font-latex-sectioning-5-face ((t (:inherit variable-pitch :weight bold))))
- '(font-latex-warning-face ((t (:inherit bold :foreground "#f2777a")))))
+ '(font-latex-warning-face ((t (:inherit bold :foreground "#f2777a"))))
+ '(org-done ((t (:foreground "#b5bd68" :weight bold))))
+ '(org-todo ((t (:foreground "#cc6666" :weight bold)))))

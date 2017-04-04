@@ -34,7 +34,7 @@
         org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
         org-todo-keyword-faces
         (quote
-         (("IN PROGRESS" . (:foreground "blue"
+         (("IN PROGRESS" . (:foreground "steel blue"
                             :weight bold))
           ("OVERDUE"     . (:foreground "goldenrod3"
                             :weight bold)))))
