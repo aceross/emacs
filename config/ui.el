@@ -27,17 +27,10 @@
 (use-package color-theme-sanityinc-tomorrow
   :ensure t)
 
+
 ;; colour themes in base16, https://chriskempson.github.io/base16/
-;; (use-package base16-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'base16-railscasts t))
-
-;; (use-package material-theme
-;;   :ensure t
-;;   :config
-;;   (load-theme 'material t))
-
+(use-package base16-theme
+  :ensure t)
 
 
 ;; see which are empty lines in the buffer
