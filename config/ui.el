@@ -12,7 +12,7 @@
 ;; customise the window system
 (when window-system
   ;; set the size of the emacs window
-  (setq initial-frame-alist '((top . 0) (left . 0) (width . 85) (height . 35)))
+  (setq initial-frame-alist '((top . 0) (left . 0) (width . 83) (height . 37)))
   (setq inhibit-splash-screen t)  ; remove spash screen
   (tooltip-mode -1)               ; remove tooltip
   (tool-bar-mode -1)              ; remove toolbar
