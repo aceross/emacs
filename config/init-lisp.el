@@ -5,10 +5,10 @@
 ;;; Code:
 
 (setq lisp-modes '(lisp-mode
-		   emacs-lisp-mode
-		   common-lisp-mode
-		   scheme-mode
-		   clojure-mode))
+                   emacs-lisp-mode
+                   common-lisp-mode
+                   scheme-mode
+                   clojure-mode))
 
 (autoload 'enable-paredit-mode "paredit"
   "Turn on pseudo-structural editing of Lisp code." t)
@@ -44,6 +44,10 @@
     '(add-to-list 'ac-modes 'slime-repl-mode))
   )
 
+(use-package common-lisp-snippets
+  :ensure t
+  :defer t)
+
 ;; eldoc-mode shows documentation in the minibuffer when writing code
 ;; http://www.emacswiki.org/emacs/ElDoc
 (add-hook 'emacs-lisp-mode-hook 'turn-on-eldoc-mode)
@@ -52,4 +56,4 @@
 
 (provide 'init-lisp)
 
-;;; init-lisp.el ends here.
+;;; init-lisp.el ends here
