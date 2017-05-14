@@ -33,6 +33,19 @@
   :ensure t)
 
 
+;; modeline customisations
+(use-package spaceline
+  :ensure t
+  :config
+  (setq-default mode-line-format '("%e"(:eval (spaceline-ml-main)))))
+
+(use-package spaceline-config
+  :ensure spaceline
+  :config
+  (spaceline-helm-mode t)
+  (spaceline-emacs-theme))
+
+
 ;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)
 (when (not indicate-empty-lines)
