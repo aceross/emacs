@@ -51,6 +51,11 @@
   :config
   (setq auto-package-update-delete-old-versions t))
 
+;; restart Emacs from within Emacs
+(use-package restart-emacs
+  :ensure t
+  :commands
+  (restart-emacs))
 
 ;; two functions from Steve Purcell,
 ;; https://github.com/purcell/emacs.d/blob/master/lisp/init-elpa.el
