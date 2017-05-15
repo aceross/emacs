@@ -17,9 +17,9 @@
 (use-package flyspell
   :diminish (flyspell-mode . "spell")
   :config
-  (set-face-attribute 'flyspell-incorrect nil :background
-                      "pink" :underline '(:color "firebrick") :weight 'bold)
-  )
+  (set-face-attribute 'flyspell-incorrect nil
+                      :underline '(:color "firebrick") :weight 'bold)
+)
 
 ;; turn on flyspell in desired modes
 (add-hook 'text-mode-hook 'flyspell-mode)
@@ -144,8 +144,10 @@ utf-8)))
   :defer t
   :diminish paredit-mode
   :init
-  (dolist (hook '(emacs-lisp-mode-hook lisp-mode-hook geiser-mode-hook
-                                       clojure-mode-hook))
+  (dolist (hook '(emacs-lisp-mode-hook
+                  lisp-mode-hook
+                  geiser-mode-hook
+                  clojure-mode-hook))
     (add-hook hook 'paredit-mode))
   :config
   (autoload 'enable-paredit-mode "paredit"
