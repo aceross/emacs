@@ -43,7 +43,8 @@
   :ensure spaceline
   :config
   (spaceline-helm-mode t)
-  (spaceline-emacs-theme))
+  (spaceline-emacs-theme)
+  )
 
 
 ;; see which are empty lines in the buffer
