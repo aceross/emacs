@@ -5,10 +5,12 @@
 
 ;;; Code:
 
+
 ;; Globally set a directory variable.
 (defconst awc/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 
 (defun awc/emacs-subdirectory (d) (expand-file-name d awc/emacs-directory))
+
 
 ;; Ensure that the backup and elisp directories are generated.
 (let* ((subdirs '("elisp" "backups"))
@@ -18,20 +20,25 @@
       (message "Make directory: %s" dir)
       (make-directory dir))))
 
+
 ;; Put the Emacs customisations from menu into their own file.
 (setq custom-file (expand-file-name "custom.el" awc/emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
 
+
 ;; Increase garbase collection
 (setq gc-cons-threshold 50000000)
+
 
 ;; Remove the warnings from the GnuTLS library when using HTTPS by increasing
 ;; the minimum prime bits size.
 (setq gnutls-min-prime-bits 4096)
 
+
 ;; auto-save list
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+
 
 ;; history
 (setq savehist-file "~/.emacs.d/savehist")
@@ -44,6 +51,7 @@
         search-ring
         regexp-search-ring))
 
+
 ;; update packages automatically
 (use-package auto-package-update
   :ensure t
@@ -51,11 +59,23 @@
   :config
   (setq auto-package-update-delete-old-versions t))
 
+
 ;; restart Emacs from within Emacs
 (use-package restart-emacs
   :ensure t
   :commands
   (restart-emacs))
+
+
+;; for when I can't remember *all* Emacs' keybindings!
+(use-package which-key
+  :defer t
+  :init (which-key-mode)
+  :diminish which-key-mode
+  :config
+  (setq which-key-popup-type 'minibuffer)
+  (setq which-key-compute-remaps t))
+
 
 ;; two functions from Steve Purcell,
 ;; https://github.com/purcell/emacs.d/blob/master/lisp/init-elpa.el
