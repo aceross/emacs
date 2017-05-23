@@ -11,6 +11,9 @@
   :defer t
   :commands R
   :config
+  ;; set up Julia
+  (setq inferior-julia-program-name "/usr/bin/julia")
+  ;; R-specific config
   (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
             (ess-R-fl-keyword:fun-defs . t)
@@ -60,8 +63,7 @@
             (lambda ()
               (push '("%>%" . ?|) prettify-symbols-alist)
           ))
-    (global-prettify-symbols-mode +1))
-  )
+    (global-prettify-symbols-mode +1)))
 
 (provide 'init-ess)
 
