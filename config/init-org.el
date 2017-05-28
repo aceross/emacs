@@ -54,6 +54,7 @@
                                  (C          . t)
                                  (python     . t)
                                  (clojure    . t)
+                                 (julia      . t)
                                  (dot        . t)
                                  (ditaa      . t)
                                  (plantuml   . t)))
