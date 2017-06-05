@@ -35,20 +35,17 @@ utf-8)))
 
 ;; magit
 (use-package magit
-  :ensure t
   :defer t
   :diminish auto-revert-mode
   :bind (("C-x g" . magit-status)))
 
 ;; ws-butler
 (use-package ws-butler
-  :ensure t
   :diminish ws-butler-mode
   :config
   (ws-butler-global-mode))
 
 (use-package autopair
-  :ensure t
   :diminish autopair-mode
   :config (autopair-global-mode))
 
@@ -89,7 +86,6 @@ utf-8)))
 
 ;; kill ring
 (use-package browse-kill-ring
-  :ensure t
   :commands browse-kill-ring
   :config
   (progn
@@ -97,7 +93,6 @@ utf-8)))
 
 ;; snippets for various languages
 (use-package yasnippet
-  :ensure t
   :diminish yas-minor-mode
   :config
   (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.emacs.d/snippets/")))
@@ -111,7 +106,6 @@ utf-8)))
   (company-quickhelp-mode t))
 
 (use-package company
-  :ensure t
   :diminish company-mode
   :bind (:map company-active-map
               ("TAB" . nil)
@@ -128,7 +122,6 @@ utf-8)))
 
 ;; error linting
 (use-package flycheck
-  :ensure t
   :defer t
   :diminish flycheck-mode
   :init (add-hook 'prog-mode-hook 'flycheck-mode)
@@ -140,7 +133,6 @@ utf-8)))
   )
 
 (use-package paredit
-  :ensure t
   :defer t
   :diminish paredit-mode
   :init
@@ -183,7 +175,6 @@ utf-8)))
 
 ;; write-good mode
 (use-package writegood-mode
-  :ensure t
   :defer t
   :diminish writegood-mode
   :config
@@ -194,7 +185,6 @@ utf-8)))
 
 ;; multiple cursors
 (use-package multiple-cursors
-  :ensure t
   :defer t
   :bind (("C-c C-. ."   . mc/mark-all-dwim)
          ("C-c C-. C-." . mc/mark-all-like-this-dwim)

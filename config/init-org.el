@@ -44,6 +44,8 @@
   (add-hook 'org-shiftright-final-hook 'windmove-right)
   (require 'ox-latex)
   :config
+  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+  (add-hook 'org-mode-hook 'org-display-inline-images)
   (setq org-export-latex-table-caption-above nil)
   (setq org-latex-table-caption-above nil)
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
@@ -54,7 +56,8 @@
                                  (C          . t)
                                  (python     . t)
                                  (clojure    . t)
-                                 (julia      . t)
+                                 (latex      . t)
+;                                 (julia      . t)
                                  (dot        . t)
                                  (ditaa      . t)
                                  (plantuml   . t)))

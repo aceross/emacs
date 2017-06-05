@@ -12,6 +12,7 @@
   :commands R
   :config
   ;; set up Julia
+  (setq inferior-julia-program-name "/usr/bin/julia")
   (add-to-list 'ess-tracebug-search-path "/usr/share/julia/base/")
   ;; R-specific config
   (setq ess-R-font-lock-keywords

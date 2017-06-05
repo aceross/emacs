@@ -32,6 +32,10 @@
   (setq jedi:complete-on-dot t)
   )
 
+(use-package python-x
+  :ensure t
+  :config
+  (python-x-setup))
 
 (use-package flycheck-pyflakes
   :ensure t

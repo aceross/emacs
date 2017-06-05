@@ -38,10 +38,10 @@
 (require 'init-lisp)        ; customisations for Common Lisp
 (require 'init-scheme)
 (require 'init-cc)          ; customisations for C/C++
+(require 'init-ess)         ; customisations for ESS package
 (require 'init-tex)         ; customisations for Latex/AucTex
 (require 'init-org)         ; customisations for org-mode
 (require 'init-python)      ; customisations for Python
-(require 'init-ess)         ; customisations for ESS package
 (require 'init-markdown)    ; customisations for Markdown
 (require 'init-javascript)  ; customisations for Javascript
 (require 'init-haskell)     ; customisations for Haskell
