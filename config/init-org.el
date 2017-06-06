@@ -46,8 +46,8 @@
   :config
   (add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
   (add-hook 'org-mode-hook 'org-display-inline-images)
-  (setq org-export-latex-table-caption-above nil)
-  (setq org-latex-table-caption-above nil)
+  (setq org-latex-caption-above nil)
+  (setq org-ascii-caption-above nil)
   (add-to-list 'org-src-lang-modes '("dot" . "graphviz-dot"))
   (org-babel-do-load-languages 'org-babel-load-languages
                                '(
