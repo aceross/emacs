@@ -32,6 +32,10 @@
   (setq jedi:complete-on-dot t)
   )
 
+;; jupyter notebook integration
+(use-package ein)
+
+;; cell-like objects in python
 (use-package python-x
   :ensure t
   :config
