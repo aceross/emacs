@@ -101,7 +101,9 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
   (add-to-list 'org-latex-classes
                '("IEEE"
-                 "\\documentclass[conference]{IEEEtran}"
+                 "\\documentclass[conference]{IEEEtran}
+                  \\usepackage[hidelinks]{hyperref}
+                 "
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
