@@ -73,16 +73,7 @@
                \\usepackage{natbib}
                \\usepackage{amssymb}
                \\usepackage{amsmath}
-               \\usepackage{geometry}
-               \\geometry{
-                    a4paper,
-                    left=2.5cm,
-                    top=2cm,
-                    right=2.5cm,
-                    bottom=2cm,
-                    marginparsep=7pt,
-                    marginparwidth=.6in
-                 }
+               \\usepackage[margin=1.5in]{geometry}
                \\usepackage{booktabs}
                \\usepackage[style=british]{csquotes}
                \\usepackage[dvipsnames,table,xcdraw]{xcolor}
@@ -132,26 +123,23 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 (use-package org-plus-contrib
-  :ensure t
   :defer t)
 
 (use-package org-bullets
-  :ensure t
   :defer t
   :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
 (use-package ox-tufte)
 (use-package ox-gfm)
 (use-package org-pomodoro
-  :ensure t
   :defer t)
 
 ;; bibliography
-(use-package org-ref)
+(use-package org-ref
+  :defer t)
 
 ;; presentations
 (use-package ox-reveal
-  :ensure t
   :defer t
   :init
   (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
@@ -159,11 +147,9 @@
   (setq org-reveal-postamble "Aaron Ceross"))
 
 (use-package htmlize
-  :ensure t
   :defer t)
 
 (use-package org-tree-slide
-  :ensure t
   :defer t
   :init
    (setq org-tree-slide-skip-outline-level 4)
