@@ -135,8 +135,7 @@
   :defer t)
 
 ;; bibliography
-(use-package org-ref
-  :defer t)
+(use-package org-ref)
 
 ;; presentations
 (use-package ox-reveal
