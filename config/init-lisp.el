@@ -19,6 +19,9 @@
 (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
 (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
 
+(use-package slime-company
+  :ensure t)
+
 (use-package slime
   :commands slime
   :config
@@ -28,20 +31,9 @@
      (lambda () (slime-mode t)))
     'inferior-lisp-mode-hook
     (lambda () (inferior-slime-mode t)))
-  (setq slime-contribs '(slime-fancy))
+  (setq slime-contribs '(slime-fancy slime-company))
   (setq inferior-lisp-program "/usr/bin/sbcl")
   (slime-setup '(slime-repl))
-  )
-
-(use-package auto-complete)
-
-(use-package ac-slime
-  :ensure t
-  :config
-  (add-hook 'slime-mode-hook 'set-up-slime-ac)
-  (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-  (eval-after-load "auto-complete"
-    '(add-to-list 'ac-modes 'slime-repl-mode))
   )
 
 (use-package common-lisp-snippets
