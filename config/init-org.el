@@ -123,6 +123,7 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 
 (use-package org-plus-contrib
+  :ensure t
   :defer t)
 
 (use-package org-bullets

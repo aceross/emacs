@@ -19,12 +19,12 @@
   :bind-keymap ("C-c a" . my-ag-map)
   :config
   (setq ag-reuse-buffers t    ; Don't spam buffer list with ag buffers
-	ag-highlight-search t ; A little fanciness
-	;; Use Projectile to find the project root
-	ag-project-root-function
-	(lambda (d)
-	  (let ((default-directory d))
-	    (projectile-project-root))))
+        ag-highlight-search t ; A little fanciness
+        ;; Use Projectile to find the project root
+        ag-project-root-function
+        (lambda (d)
+          (let ((default-directory d))
+            (projectile-project-root))))
   (defvar my-ag-map
     (let ((map (make-sparse-keymap)))
       (define-key map (kbd "a") #'ag-regexp)
@@ -35,20 +35,20 @@
   :ensure t
   :config
   (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right
-	ido-enable-flex-matching t
-	ido-create-new-buffer 'always
-	ido-use-filename-at-point 'guess
-	ido-max-prospects 10
-	ido-default-file-method 'selected-window
-	ido-everywhere t
-	ido-use-virtual-buffers t  ; only try to match within the work directory
-	ido-max-window-height 0.25
-	ido-auto-merge-work-directories-length -1)
+        ido-enable-flex-matching t
+        ido-create-new-buffer 'always
+        ido-use-filename-at-point 'guess
+        ido-max-prospects 10
+        ido-default-file-method 'selected-window
+        ido-everywhere t
+        ido-use-virtual-buffers t  ; only try to match within the work directory
+        ido-max-window-height 0.25
+        ido-auto-merge-work-directories-length -1)
   (ido-mode t)
   (use-package ido-vertical-mode
     :ensure t
     :config (ido-vertical-mode t))
-  (use-package ido-ubiquitous
+  (use-package ido-completing-read+
     :ensure t
     :config (ido-ubiquitous-mode t))
   (use-package flx-ido
@@ -67,12 +67,12 @@
   :init
   (projectile-mode)
     :bind (("C-c p s" . projectile-ag)
-	   ("C-c p g" . projectile-grep)
-	   ("C-c p R" . projectile-regenerate-tags))
+           ("C-c p g" . projectile-grep)
+           ("C-c p R" . projectile-regenerate-tags))
     :config
     (setq projectile-switch-project-action 'projectile-commander
-	projectile-completion-system 'ido
-	projectile-create-missing-test-files t)
+        projectile-completion-system 'ido
+        projectile-create-missing-test-files t)
   (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
   :diminish projectile-mode)
 
