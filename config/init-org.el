@@ -10,6 +10,11 @@
 ;; display results in a block instead of prefixed with :
 (setq org-babel-min-lines-for-block-output t)
 
+(use-package ob-ipython
+  :ensure t
+  :config
+  (add-to-list 'company-backends 'company-ob-ipython))
+
 (use-package org
   :ensure org-plus-contrib
   :defer t
@@ -55,6 +60,7 @@
                                  (R          . t)
                                  (C          . t)
                                  (python     . t)
+                                 (ipython    . t)
                                  (clojure    . t)
                                  (latex      . t)
 ;                                 (julia      . t)
@@ -64,26 +70,21 @@
   (add-to-list 'org-latex-classes
                '("awc-article"
                  "
-               \\documentclass{article}
-               \\usepackage[utf8]{inputenc}
-               \\usepackage[T1]{fontenc}
-               \\usepackage{graphicx}
-               \\usepackage{longtable}
-               \\usepackage{hyperref}
-               \\usepackage{natbib}
-               \\usepackage{amssymb}
-               \\usepackage{amsmath}
-               \\usepackage[margin=1.5in]{geometry}
-               \\usepackage{booktabs}
-               \\usepackage[style=british]{csquotes}
-               \\usepackage[dvipsnames,table,xcdraw]{xcolor}
-               \\hypersetup{
-                    colorlinks=true,
-                    linkcolor=Maroon,
-                    citecolor=PineGreen
-                 }
-               \\usepackage[UKenglish]{babel}
-               \\usepackage[UKenglish]{isodate}
+\\documentclass{article}
+\\usepackage{lmodern}
+\\usepackage{longtable}
+\\usepackage{hyperref}
+\\usepackage{natbib}
+\\usepackage[margin=1.5in]{geometry}
+\\usepackage[style=british]{csquotes}
+\\usepackage[dvipsnames,table,xcdraw]{xcolor}
+\\hypersetup{
+             colorlinks=true,
+             linkcolor=Maroon,
+             citecolor=PineGreen
+}
+\\usepackage[UKenglish]{babel}
+\\usepackage[UKenglish]{isodate}
                "
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
@@ -92,8 +93,9 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
   (add-to-list 'org-latex-classes
                '("IEEE"
-                 "\\documentclass[conference]{IEEEtran}
-                  \\usepackage[hidelinks]{hyperref}
+                 "
+\\documentclass[conference]{IEEEtran}
+\\usepackage[hidelinks]{hyperref}
                  "
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
@@ -102,7 +104,8 @@
                )
   (add-to-list 'org-latex-classes
                '("ACM"
-                 "\\documentclass[conference]{sig-alternate}"
+                 "
+\\documentclass{acmart}"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -110,13 +113,12 @@
                )
   (add-to-list 'org-latex-classes
                '("tuftehandout"
-                 "\\documentclass{tufte-handout}
-                  \\usepackage{color}
-                  \\usepackage{amssymb}
-                  \\usepackage{amsmath}
-                  \\usepackage{gensymb}
-                  \\usepackage{nicefrac}
-                  \\usepackage{units}"
+                 "
+\\documentclass{tufte-handout}
+\\usepackage{color}
+\\usepackage{gensymb}
+\\usepackage{nicefrac}
+\\usepackage{units}"
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}")
@@ -208,6 +210,14 @@
   "Basic R source code block."
   "\n"
   "#+begin_src R :session :cache yes :exports none :tangle yes\n"
+  "\n"
+  "\n"
+  "#+end_src\n")
+
+(define-skeleton org-skeleton-ipython-src
+  "Source for ipython."
+  "\n"
+  "#+begin_src ipython :session :results raw drawer :tangle yes\n"
   "\n"
   "\n"
   "#+end_src\n")

@@ -12,7 +12,7 @@
   :commands R
   :config
   ;; set up Julia
-  (setq inferior-julia-program-name "/usr/bin/julia")
+;  (setq inferior-julia-program-name "/usr/bin/julia")
   (add-to-list 'ess-tracebug-search-path "/usr/share/julia/base/")
   ;; R-specific config
   (setq ess-R-font-lock-keywords
@@ -27,7 +27,7 @@
             (ess-fl-keyword:delimiters)
             (ess-fl-keyword:=)
             (ess-R-fl-keyword:F&T . t)
-            (ess-R-fl-keyword:%op% . t)))
+           ))
   ;; font-lock for R interpreter
   (setq inferior-R-font-lock-keywords
         '((ess-S-fl-keyword:prompt . t)

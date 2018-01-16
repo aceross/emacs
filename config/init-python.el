@@ -23,7 +23,7 @@
     (remove-hook 'elpy-mode-hook 'elpy-module-highlight-indentation)
     (add-hook 'elpy-mode-hook 'flycheck-mode))
   (elpy-enable)
-  (elpy-use-ipython)
+  ;(elpy-use-ipython)
   (setq py-python-command "/usr/bin/python3")
   (setq elpy-rpc-python-command "python3")
   (setq python-shell-interpreter "ipython3")
@@ -48,7 +48,6 @@
 
 (use-package py-autopep8
   :ensure t
-  :defer t
   :config (add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
 
 (provide 'init-python)
