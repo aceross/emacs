@@ -37,15 +37,11 @@
 ;; Language and mode specific customisations.
 (require 'init-lisp)        ; customisations for Common Lisp
 (require 'init-scheme)      ; customisations for Scheme/Guile/Chicken
-(require 'init-sml)         ; customisations for SML
 (require 'init-cc)          ; customisations for C/C++
 (require 'init-ess)         ; customisations for ESS package
 (require 'init-tex)         ; customisations for Latex/AucTex
 (require 'init-org)         ; customisations for org-mode
 (require 'init-python)      ; customisations for Python
 (require 'init-markdown)    ; customisations for Markdown
-(require 'init-javascript)  ; customisations for Javascript
-(require 'init-haskell)     ; customisations for Haskell
-(require 'init-clojure)     ; customisations for Clojure
 
 ;;; init.el ends here

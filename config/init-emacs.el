@@ -20,25 +20,20 @@
       (message "Make directory: %s" dir)
       (make-directory dir))))
 
-
 ;; Put the Emacs customisations from menu into their own file.
 (setq custom-file (expand-file-name "custom.el" awc/emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
 
-
 ;; Increase garbase collection
 (setq gc-cons-threshold 50000000)
-
 
 ;; Remove the warnings from the GnuTLS library when using HTTPS by increasing
 ;; the minimum prime bits size.
 (setq gnutls-min-prime-bits 4096)
 
-
 ;; auto-save list
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-
 
 ;; history
 (setq savehist-file "~/.emacs.d/savehist")
@@ -51,7 +46,6 @@
         search-ring
         regexp-search-ring))
 
-
 ;; update packages automatically
 (use-package auto-package-update
   :ensure t
@@ -59,13 +53,11 @@
   :config
   (setq auto-package-update-delete-old-versions t))
 
-
 ;; restart Emacs from within Emacs
 (use-package restart-emacs
   :ensure t
   :commands
   (restart-emacs))
-
 
 ;; for when I can't remember *all* Emacs' keybindings!
 (use-package which-key
@@ -75,7 +67,6 @@
   :config
   (setq which-key-popup-type 'minibuffer)
   (setq which-key-compute-remaps t))
-
 
 ;; two functions from Steve Purcell,
 ;; https://github.com/purcell/emacs.d/blob/master/lisp/init-elpa.el
@@ -93,7 +84,6 @@ re-downloaded in order to locate PACKAGE."
       (progn
         (package-refresh-contents)
         (require-package package min-version t)))))
-
 
 (defun maybe-require-package (package &optional min-version no-refresh)
   "Try to install PACKAGE, and return non-nil if successful.

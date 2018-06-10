@@ -9,11 +9,8 @@
 (use-package ess
   :ensure t
   :defer t
-  :commands R
+  :init (require 'ess-site)
   :config
-  ;; set up Julia
-;  (setq inferior-julia-program-name "/usr/bin/julia")
-  (add-to-list 'ess-tracebug-search-path "/usr/share/julia/base/")
   ;; R-specific config
   (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
