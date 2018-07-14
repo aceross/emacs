@@ -2,7 +2,6 @@
 ;;
 ;;; Commentary:
 ;;
-
 ;;; Code:
 
 (package-initialize)
@@ -14,11 +13,8 @@
   (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
   (package-refresh-contents))
 
-
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-(setq use-package-verbose t)
-(setq use-package-always-ensure t)
 (require 'use-package)
 
 (use-package auto-compile

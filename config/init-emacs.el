@@ -9,8 +9,9 @@
 ;; Globally set a directory variable.
 (defconst awc/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
 
-(defun awc/emacs-subdirectory (d) (expand-file-name d awc/emacs-directory))
-
+(defun awc/emacs-subdirectory (d)
+  "D is the sub-directory."
+  (expand-file-name d awc/emacs-directory))
 
 ;; Ensure that the backup and elisp directories are generated.
 (let* ((subdirs '("elisp" "backups"))
@@ -61,41 +62,12 @@
 
 ;; for when I can't remember *all* Emacs' keybindings!
 (use-package which-key
+  :diminish which-key-mode
   :defer t
   :init (which-key-mode)
-  :diminish which-key-mode
   :config
   (setq which-key-popup-type 'minibuffer)
   (setq which-key-compute-remaps t))
-
-;; two functions from Steve Purcell,
-;; https://github.com/purcell/emacs.d/blob/master/lisp/init-elpa.el
-(defun require-package (package &optional min-version no-refresh)
-  "Install given PACKAGE, optionally requiring MIN-VERSION.
-If NO-REFRESH is non-nil, the available package lists will not be
-re-downloaded in order to locate PACKAGE."
-  (if (package-installed-p package min-version)
-      t
-    (if (or (assoc package package-archive-contents) no-refresh)
-        (if (boundp 'package-selected-packages)
-            ;; Record this as a package the user installed explicitly
-            (package-install package nil)
-          (package-install package))
-      (progn
-        (package-refresh-contents)
-        (require-package package min-version t)))))
-
-(defun maybe-require-package (package &optional min-version no-refresh)
-  "Try to install PACKAGE, and return non-nil if successful.
-In the event of failure, return nil and print a warning message.
-Optionally require MIN-VERSION.  If NO-REFRESH is non-nil, the
-available package lists will not be re-downloaded in order to
-locate PACKAGE."
-  (condition-case err
-      (require-package package min-version no-refresh)
-    (error
-     (message "Couldn't install optional package `%s': %S" package err)
-     nil)))
 
 (provide 'init-emacs)
 

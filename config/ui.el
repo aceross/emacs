@@ -22,13 +22,19 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
-;; colour themes by Steve Purcell, https://github.com/purcell/
-;; (use-package color-theme-sanityinc-tomorrow
-;;   :ensure t)
+(use-package diminish
+  :ensure t)
 
 ;; colour themes in base16, https://chriskempson.github.io/base16/
 (use-package base16-theme
   :ensure t)
+
+(use-package circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("7:00" . base16-classic-light)
+                           ("19:30" . base16-chalk)))
+  (circadian-setup))
 
 ;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)

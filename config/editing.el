@@ -18,8 +18,7 @@
   :diminish (flyspell-mode . "spell")
   :config
   (set-face-attribute 'flyspell-incorrect nil
-                      :underline '(:color "firebrick") :weight 'bold)
-)
+                      :underline '(:color "firebrick") :weight 'bold))
 
 ;; turn on flyspell in desired modes
 (add-hook 'text-mode-hook 'flyspell-mode)
@@ -35,7 +34,7 @@ utf-8)))
 
 ;; magit
 (use-package magit
-  :defer t
+  :no-require t
   :diminish auto-revert-mode
   :bind (("C-x g" . magit-status)))
 
@@ -46,8 +45,8 @@ utf-8)))
   (ws-butler-global-mode))
 
 (use-package autopair
-  :diminish autopair-mode
-  :config (autopair-global-mode))
+  :config (autopair-global-mode)
+  :diminish autopair-mode)
 
 ;; ensure EOF newline on save
 (setq require-final-newline t)
@@ -93,11 +92,11 @@ utf-8)))
 
 ;; snippets for various languages
 (use-package yasnippet
-  :diminish yas-minor-mode
   :config
   (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.emacs.d/snippets/")))
   (yas-global-mode)
-  (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet))
+  (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet)
+  :diminish yas-minor-mode)
 
 ;; company mode
 (use-package company-quickhelp
@@ -106,7 +105,6 @@ utf-8)))
   (company-quickhelp-mode t))
 
 (use-package company
-  :diminish company-mode
   :bind (:map company-active-map
               ("TAB" . nil)
               ("<tab>" . nil))
@@ -118,19 +116,19 @@ utf-8)))
   (setq company-show-numbers t)
   (setq company-dabbrev-downcase nil)
   (add-hook 'global-company-mode-hook #'company-quickhelp-mode)
+  :diminish company-mode
   )
 
 ;; error linting
 (use-package flycheck
   :defer t
-  :diminish flycheck-mode
   :init (add-hook 'prog-mode-hook 'flycheck-mode)
   :config
   (global-flycheck-mode t)
   (use-package flycheck-pos-tip
     :ensure t
     :config (flycheck-pos-tip-mode))
-  )
+    :diminish flycheck-mode)
 
 (use-package paredit
   :defer t

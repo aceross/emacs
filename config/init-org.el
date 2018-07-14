@@ -57,13 +57,11 @@
   (org-babel-do-load-languages 'org-babel-load-languages
                                '(
                                  (emacs-lisp . t)
-                                 (R          . t)
+;                                 (R          . t)
                                  (C          . t)
                                  (python     . t)
                                  (ipython    . t)
-                                 (clojure    . t)
                                  (latex      . t)
-;                                 (julia      . t)
                                  (dot        . t)
                                  (ditaa      . t)
                                  (plantuml   . t)))
