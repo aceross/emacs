@@ -32,8 +32,8 @@
 (use-package circadian
   :ensure t
   :config
-  (setq circadian-themes '(("7:00" . base16-classic-light)
-                           ("19:30" . base16-chalk)))
+  (setq circadian-themes '(("7:00" . base16-github)
+                           ("19:30" . base16-tomorrow-night)))
   (circadian-setup))
 
 ;; see which are empty lines in the buffer
@@ -61,6 +61,7 @@
 
 ;; volatile highlights - highlight changes from pasting etc
 (use-package volatile-highlights
+  :ensure t
   :diminish volatile-highlights-mode
   :config
   (volatile-highlights-mode t))
@@ -88,12 +89,13 @@
   (smooth-scrolling-mode))
 
 (use-package eldoc
-  :ensure nil
+  :ensure t
   :diminish eldoc-mode
   :commands eldoc-mode)
 
 ;; display modeline search information
 (use-package anzu
+  :ensure t
   :init (global-anzu-mode +1)
   :diminish anzu-mode)
 
