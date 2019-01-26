@@ -1,0 +1,274 @@
+#+TITLE: Emacs Configuration
+#+AUTHOR: Aaron Ceross
+#+OPTIONS: ':true *:true toc:t
+#+PROPERTY: header-args:elisp  :tangle ~/.emacs.d/init.el
+
+* Introduction
+
+This is my configuration file for Emacs.
+
+* Package Management
+
+There are a number of package managers which we can add to Emacs.
+
+#+begin_src elisp
+(unless (assoc-default "melpa" package-archives)
+  (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
+  (add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/") t)
+  (package-refresh-contents))
+
+(package-initialize)
+#+end_src
+
+** use-package
+
+This is by and large one of the best packages out there for Emacs.
+
+#+begin_src elisp
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
+(require 'use-package)
+#+end_src
+
+** auto-compile
+
+#+begin_src elisp
+(use-package auto-compile
+  :ensure t
+  :config (auto-compile-on-load-mode))
+(setq load-prefer-newer t)
+#+end_src
+
+** auto-package-update
+
+It may be a bit dangerous sometimes to have auto-updates for packages,
+but so far so good.
+
+#+begin_src elisp
+(use-package auto-package-update
+  :ensure t
+  :bind ("C-x P" . auto-package-update-now)
+  :config
+  (setq auto-package-update-delete-old-versions t))
+#+end_src
+
+* General Settings
+
+#+begin_src elisp
+(setq user-full-name "Aaron Ceross")
+#+end_src
+
+#+begin_src elisp
+(defconst awc/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
+
+(defun awc/emacs-subdirectory (d)
+  "D is the sub-directory."
+  (expand-file-name d awc/emacs-directory))
+
+;; Ensure that the backup and elisp directories are generated.
+(let* ((subdirs '("elisp" "backups"))
+       (fulldirs (mapcar (lambda (d) (awc/emacs-subdirectory d)) subdirs)))
+  (dolist (dir fulldirs)
+    (when (not (file-exists-p dir))
+      (message "Make directory: %s" dir)
+      (make-directory dir))))
+#+end_src
+
+** Custom file
+
+While I like to have things done within the init and config files,
+there are things that end up in the customisation file, so let's have
+one of those.
+
+#+begin_src elisp
+(setq custom-file (expand-file-name "custom.el" awc/emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
+#+end_src
+
+While we are at it, let's arrange some of the default settings.
+
+Of course, there are few packages that can help with the general
+function of Emacs.
+
+** User Interface
+
+*** Basic settings
+
+
+The window needs to be sorted
+
+#+begin_src elisp
+(when window-system
+  ;; set the size of the emacs window
+  (setq initial-frame-alist '((top . 0) (left . 0) (width . 83) (height . 37)))
+  (setq inhibit-splash-screen t)  ; remove spash screen
+  (tooltip-mode -1)               ; remove tooltip
+  (tool-bar-mode -1)              ; remove toolbar
+  (menu-bar-mode -1)              ; remove the menu bar
+  (scroll-bar-mode -1)            ; remove the scrollbar
+  (setq column-number-mode t)     ; display column numbers
+  (blink-cursor-mode 0)           ; no blinking cursor
+  )
+#+end_src
+
+I find it useful to see empty lines in the buffer.
+
+#+begin_src elisp
+;; see empty lines in the buffer
+(setq-default indicate-empty-lines t)
+(when (not indicate-empty-lines)
+  (toggle-indicate-empty-lines))
+
+;; full path in title bar
+(setq-default frame-title-format "%b (%f)")
+
+;; answer yes or no question with a single letter
+(defalias 'yes-or-no-p 'y-or-n-p)
+
+;; visually show the indentation within the program
+(use-package indent-guide
+  :diminish
+  :config
+  (indent-guide-global-mode)
+  (setq indent-guide-char "|")
+  (set-face-foreground 'indent-guide-face "cadet blue"))
+
+;; highlight current line
+(global-hl-line-mode 1)
+
+;; highlight matching parenthesis
+(show-paren-mode 1)
+
+;; stop beeping at me
+(setq visible-bell t)
+#+end_src
+
+When pasting into a buffer, I like to see which part it is.
+
+#+begin_src elisp
+(use-package volatile-highlights
+  :ensure t
+  :diminish volatile-highlights-mode
+  :config
+  (volatile-highlights-mode t))
+#+end_src
+
+
+*** Theme
+
+The base16 themes are quite good and there are lots to choose from.
+#+begin_src elisp
+;; colour themes in base16, https://chriskempson.github.io/base16/
+(use-package base16-theme
+  :ensure t)
+#+end_src
+
+Additionally, I like to have a lighter theme during the day and a
+darker theme at night. I have found that circadian is ideal for
+switching through themes.
+
+
+#+begin_src elisp
+(use-package circadian
+  :ensure t
+  :config
+  (setq circadian-themes '(("7:00" . base16-github)
+                           ("16:45" . base16-ia-dark)))
+  (circadian-setup))
+#+end_src
+
+Ideally, I would like it to automatically shift the times based on
+sunrise and sunset rather than manually setting the time; that
+might be a project for later.
+
+*** GitGutter
+
+#+begin_src elisp
+(use-package git-gutter-fringe
+  :ensure t
+  :diminish git-gutter-mode
+  :config
+  (global-git-gutter-mode))
+#+end_src
+
+*** Rainbow Delimiters
+
+For lisp, I think it's almost essential as the parentheses can pile up
+quick quickly. For other languages, it's not as big of a deal, but
+they aren't distracting or anything, so why not.
+
+#+begin_src elisp
+(use-package rainbow-delimiters
+  :ensure t
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ess-mode-hook 'rainbow-delimiters-mode))
+#+end_src
+
+** restart-emacs
+
+There are instances where I've had to restart Emacs and there is no
+nice way to do it. I found a package that does that for me. Nice.
+
+#+begin_src elisp
+;; restart Emacs from within Emacs
+(use-package restart-emacs
+  :commands
+  (restart-emacs))
+#+end_src
+
+** which-key
+
+There are a great multitude of key-bindings and this is a handy
+package that gives you a bit of a hint when you are stuck.
+
+#+begin_src elisp
+(use-package which-key
+  :diminish which-key-mode
+  :defer t
+  :init (which-key-mode)
+  :config
+  (setq which-key-popup-type 'minibuffer)
+  (setq which-key-compute-remaps t))
+#+end_src
+
+* Navigation
+
+Use of Ivy
+
+#+begin_src elisp
+(use-package ivy
+  :ensure t
+  :diminish ivy-mode
+  :bind (("C-x b" . ivy-switch-buffer)
+         :map ivy-minibuffer-map
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line))
+  :config
+  (ivy-mode 1)
+  (setq ivy-display-style 'fancy)
+  (setq ivy-dynamic-exhibit-delay-ms 200)
+  (setq ivy-use-selectable-prompt t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+  ;; C-M-j imediate done ivy
+  ;; ;; Show recently killed buffers when calling ivy-switch-buffer
+  (setq ivy-use-virtual-buffers t)
+  ;; (setq ivy-virtual-abbreviate 'full) ; Show the full virtual file paths
+  ;; ;; Do not show "./" and "../" in the counsel-find-file completion list
+  (setq ivy-extra-directories nil))
+#+end_src
+
+
+#+begin_src elisp
+(use-package counsel
+  :ensure t
+  :after ivy
+  :bind (("M-x" . counsel-M-x)
+         ("C-s" . counsel-grep-or-swiper)
+         ("C-h v" . counsel-describe-variable)
+         ("C-h f" . counsel-describe-function)
+         ("C-x C-f" . counsel-find-file)))
+#+end_src
