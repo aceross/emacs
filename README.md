@@ -8,11 +8,7 @@ has strong support for the languages and environments I work with:
 * R (through [ESS](http://ess.r-project.org/))
 * org-mode
 * Common Lisp
-* JavaScript
 * Python
-
-I have some basic configurations for working with Haskell, but I
-haven't done much aside from the basics.
 
 Some of the material in my configuration file has been 'inspired' or
 simply outright lifted from other more elegant, clever, and

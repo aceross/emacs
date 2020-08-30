@@ -15,7 +15,18 @@
 
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-(require 'use-package)
+
+;; Configure `use-package' prior to loading it.
+(eval-and-compile
+  (setq use-package-always-ensure nil)
+  (setq use-package-always-defer nil)
+  (setq use-package-always-demand nil)
+  (setq use-package-expand-minimally nil)
+  (setq use-package-enable-imenu-support t))
+
+(eval-when-compile
+  (require 'use-package))
+
 
 (use-package auto-compile
   :config (auto-compile-on-load-mode))
@@ -39,5 +50,7 @@
 (require 'init-org)         ; customisations for org-mode
 (require 'init-python)      ; customisations for Python
 (require 'init-markdown)    ; customisations for Markdown
+(require 'init-julia)
+(require 'init-prolog)
 
 ;;; init.el ends here

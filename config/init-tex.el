@@ -9,11 +9,8 @@
   :ensure t
   :defer t
   :config
-  ;; Enable RefTeX to find the central bibliography
-  (setq reftex-default-bibliography '("~/Documents/dphil/bibliography/references.bib"))
   (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-  (setq reftex-plug-into-AUCTeX t)
-  )
+  (setq reftex-plug-into-AUCTeX t))
 
 (use-package tex
   :defer t
@@ -31,12 +28,11 @@
         (let ((cite (replace-regexp-in-string "%l" key fmt)))
           (if (or (= ?~ (string-to-char fmt))
                   (member (preceding-char) '(?\ ?\t ?\n ?~)))
-              cite (concat "~" cite)))))
-  )
+              cite (concat "~" cite))))))
 
 (use-package company-auctex
-  :defer t
   :ensure t
+  :defer t
   :config
   (progn
     (push 'company-auctex-labels company-backends-LaTeX-mode)
@@ -44,8 +40,7 @@
     (push '(company-auctex-macros
             company-auctex-symbols
             company-auctex-environments) company-backends-LaTeX-mode))
-  (company-auctex-init)
-  )
+  (company-auctex-init))
 
 (use-package company-math
   :ensure t)

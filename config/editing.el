@@ -15,36 +15,54 @@
 
 ;; set the language and dictionary
 (use-package flyspell
+  :ensure t
   :diminish (flyspell-mode . "spell")
   :config
   (set-face-attribute 'flyspell-incorrect nil
-                      :underline '(:color "firebrick") :weight 'bold))
-
-;; turn on flyspell in desired modes
-(add-hook 'text-mode-hook 'flyspell-mode)
-;(add-hook 'prog-mode-hook 'flyspell-prog-mode)
-
-(setq ispell-dictionary "british")
-(setq ispell-check-comments t)
-(setq ispell-really-hunspell t)
-(setq ispell-program-name "hunspell")
-(setq ispell-local-dictionary-alist
+                      :underline '(:color "firebrick") :weight 'bold)
+  (add-hook 'text-mode-hook 'flyspell-mode)
+  ;; (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+  (setq ispell-dictionary "british")
+  (setq ispell-check-comments t)
+  (setq ispell-really-hunspell t)
+  (setq ispell-program-name "hunspell")
+  (setq ispell-local-dictionary-alist
       `(("british" "[[:alpha:]]" "[^[:alpha:]]" "[']" t ("-d" "en_GB") nil
-utf-8)))
+         utf-8))))
+
+;; ;; turn on flyspell in desired modes
+;; (add-hook 'text-mode-hook 'flyspell-mode)
+;; ;(add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+;; (setq ispell-dictionary "british")
+;; (setq ispell-check-comments t)
+;; (setq ispell-really-hunspell t)
+;; (setq ispell-program-name "hunspell")
+;; (setq ispell-local-dictionary-alist
+;;       `(("british" "[[:alpha:]]" "[^[:alpha:]]" "[']" t ("-d" "en_GB") nil
+;; utf-8)))
+
+(eval-after-load "flyspell"
+    '(progn
+       (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+       (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+
 
 ;; magit
 (use-package magit
-  :no-require t
+  :ensure t
   :diminish auto-revert-mode
   :bind (("C-x g" . magit-status)))
 
 ;; ws-butler
 (use-package ws-butler
+  :ensure t
   :diminish ws-butler-mode
   :config
   (ws-butler-global-mode))
 
 (use-package autopair
+  :ensure t
   :config (autopair-global-mode)
   :diminish autopair-mode)
 
@@ -75,6 +93,7 @@ utf-8)))
 
 ;; undo tree
 (use-package undo-tree
+  :ensure t
   :diminish undo-tree-mode
   :defer t
   :config
@@ -85,18 +104,20 @@ utf-8)))
 
 ;; kill ring
 (use-package browse-kill-ring
+  :ensure t
   :commands browse-kill-ring
-  :config
-  (progn
-    (browse-kill-ring-default-keybindings)))
+  :config (browse-kill-ring-default-keybindings))
 
-;; snippets for various languages
 (use-package yasnippet
+  :ensure t
+  :diminish yas-minor-mode
+  :bind ("C-c yi" . 'yas-insert-snippet)
   :config
   (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.emacs.d/snippets/")))
-  (yas-global-mode)
-  (define-key yas-minor-mode-map (kbd "C-c yi") 'yas-insert-snippet)
-  :diminish yas-minor-mode)
+  (yas-global-mode))
+
+(use-package ivy-yasnippet
+  :ensure t)
 
 ;; company mode
 (use-package company-quickhelp
@@ -105,6 +126,7 @@ utf-8)))
   (company-quickhelp-mode t))
 
 (use-package company
+  :ensure t
   :bind (:map company-active-map
               ("TAB" . nil)
               ("<tab>" . nil))
@@ -121,16 +143,30 @@ utf-8)))
 
 ;; error linting
 (use-package flycheck
-  :defer t
+  :ensure t
   :init (add-hook 'prog-mode-hook 'flycheck-mode)
   :config
   (global-flycheck-mode t)
   (use-package flycheck-pos-tip
     :ensure t
     :config (flycheck-pos-tip-mode))
-    :diminish flycheck-mode)
+  :diminish flycheck-mode)
+
+(flycheck-define-checker proselint
+  "A linter for prose."
+  :ensure t
+  :defer t
+  :command ("proselint" source-inplace)
+  :error-patterns
+  ((warning line-start (file-name) ":" line ":" column ": "
+            (id (one-or-more (not (any " "))))
+            (message) line-end))
+  :modes (text-mode markdown-mode gfm-mode org-mode LaTeX-mode))
+
+(add-to-list 'flycheck-checkers 'proselint)
 
 (use-package paredit
+  :ensure t
   :defer t
   :diminish paredit-mode
   :init
@@ -173,28 +209,13 @@ utf-8)))
 
 ;; write-good mode
 (use-package writegood-mode
+  :ensure t
   :defer t
   :diminish writegood-mode
   :config
-  (global-set-key "\C-c\C-gg" 'writegood-grade-level)
-  (global-set-key "\C-c\C-ge" 'writegood-reading-ease)
-  (add-hook 'text-mode-hook 'writegood-mode)
-  )
-
-;; multiple cursors
-(use-package multiple-cursors
-  :defer t
-  :bind (("C-c C-. ."   . mc/mark-all-dwim)
-         ("C-c C-. C-." . mc/mark-all-like-this-dwim)
-         ("C-c C-. n"   . mc/mark-next-like-this)
-         ("C-c C-. p"   . mc/mark-previous-like-this)
-         ("C-c C-. a"   . mc/mark-all-like-this)
-         ("C-c C-. N"   . mc/mark-next-symbol-like-this)
-         ("C-c C-. P"   . mc/mark-previous-symbol-like-this)
-         ("C-c C-. A"   . mc/mark-all-symbols-like-this)
-         ("C-c C-. f"   . mc/mark-all-like-this-in-defun)
-         ("C-c C-. l"   . mc/edit-lines)
-         ("C-c C-. e"   . mc/edit-ends-of-lines)))
+  :bind (("C-c gg" . writegood-grade-level)
+         ("C-c ge" . writegood-reading-ease))
+  :hook (text-mode org-mode markdown-mode gfm-mode))
 
 (provide 'editing)
 

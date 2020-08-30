@@ -10,9 +10,16 @@
   :ensure t
   :defer t
   :init (require 'ess-site)
-  :config
-  ;; R-specific config
-  (setq ess-R-font-lock-keywords
+  :bind
+    (:map ess-mode-map
+          (";" . ess-insert-assign))
+    (:map inferior-ess-mode-map
+          (";" . ess-insert-assign))
+    :config
+    ;; R-specific config
+    (setq inferior-R-program-name "/usr/bin/R")
+    (setq ess-use-flymake nil)
+    (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
             (ess-R-fl-keyword:fun-defs . t)
             (ess-R-fl-keyword:keywords . t)
@@ -24,9 +31,12 @@
             (ess-fl-keyword:delimiters)
             (ess-fl-keyword:=)
             (ess-R-fl-keyword:F&T . t)
-           ))
-  ;; font-lock for R interpreter
-  (setq inferior-R-font-lock-keywords
+            ))
+    (global-set-key (kbd "C-j") 'ess-eval-line-and-step)
+    ;;(global-set-key (kbd "C-M-j") 'ess-eval-region)
+    (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go)
+    ;; font-lock for R interpreter
+    (setq inferior-R-font-lock-keywords
         '((ess-S-fl-keyword:prompt . t)
           (ess-R-fl-keyword:messages . t)
           (ess-R-fl-keyword:modifiers . t)
@@ -41,27 +51,14 @@
           (ess-fl-keyword:delimiters)
           (ess-fl-keyword:=)
           (ess-R-fl-keyword:F&T . t)))
-
-  (defun my-ess-init ()
-    "Init my ess mode."
     (setq ess-help-own-frame 'one)
     (setq ess-tab-complete-in-script t)
     (setq ess-first-tab-never-complete
-          'symbol-or-paren-or-punct))
+          'symbol-or-paren-or-punct)
+    )
 
-  (add-hook 'ess-mode-hook #'my-ess-init)
-
-  ;; prettify <- and %>% symbols
-  (when (boundp 'global-prettify-symbols-mode)
-    (add-hook 'ess-mode-hook
-            (lambda ()
-              (push '("%>%" . ?|) prettify-symbols-alist)
-          ))
-    (add-hook 'inferior-ess-mode-hook
-            (lambda ()
-              (push '("%>%" . ?|) prettify-symbols-alist)
-          ))
-    (global-prettify-symbols-mode +1)))
+;; (require 'ess-site)
+;; (require 'ess-smart-underscore)
 
 (provide 'init-ess)
 

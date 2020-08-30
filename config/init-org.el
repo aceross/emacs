@@ -10,30 +10,38 @@
 ;; display results in a block instead of prefixed with :
 (setq org-babel-min-lines-for-block-output t)
 
-(use-package ob-ipython
-  :ensure t
-  :config
-  (add-to-list 'company-backends 'company-ob-ipython))
+;; (use-package ob-ipython
+;;   :ensure t
+;;   :config
+;;   (add-to-list 'company-backends 'company-ob-ipython))
 
 (use-package org
-  :ensure org-plus-contrib
+  :ensure t
   :defer t
   :mode ("\\.org\\'" . org-mode)
   :init
+  (setq org-agenda-files '("~/MEGA/org/"))
   (setq org-src-fontify-natively t
         org-startup-indented t
         org-hide-leading-stars t
         org-use-speed-commands t
         org-src-tab-acts-natively t
         org-hide-emphasis-markers t
-        org-odd-level-only nil
-        org-completion-use-ido t
+     ;   org-odd-level-only nil
+     ;   org-completion-use-ido t
         org-indent-mode t
         org-startup-folded nil
         org-startup-truncated nil
-        auto-fill-mode -1
+     ;   auto-fill-mode -1
         org-confirm-babel-evaluate nil
         )
+  (setq org-agenda-custom-commands
+      '(("c" "Simple agenda view"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (agenda "")
+          (alltodo "")))))
   (setq org-blank-before-new-entry '((heading . nil) (plain-list-item . nil)))
   (setq org-log-done t
         org-todo-keywords '((sequence "TODO" "IN PROGRESS" "OVERDUE" "DONE"))
@@ -57,14 +65,19 @@
   (org-babel-do-load-languages 'org-babel-load-languages
                                '(
                                  (emacs-lisp . t)
-;                                 (R          . t)
+                                 (lisp       . t)
+                                 (R          . t)
                                  (C          . t)
                                  (python     . t)
-                                 (ipython    . t)
+                              ;;   (julia      . t)
+                                 (ein        . t)
                                  (latex      . t)
                                  (dot        . t)
                                  (ditaa      . t)
-                                 (plantuml   . t)))
+                                 (plantuml   . t)
+                            ;;     (jupyter    . t)
+                                 )
+                               )
   (add-to-list 'org-latex-classes
                '("awc-article"
                  "
@@ -129,27 +142,62 @@
                  ("\\subsection{%s}" . "\\subsection*{%s}")
                  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
                  ("\\paragraph{%s}" . "\\paragraph*{%s}"))
-
-  ))
+               )
+      (add-to-list 'org-latex-classes
+             '("book"
+               "\\documentclass{book}"
+           ;    ("\\part{%s}" . "\\part*{%s}")
+               ("\\chapter{%s}" . "\\chapter*{%s}")
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+             )
+      )
 
 (use-package org-plus-contrib
   :ensure t
   :defer t)
 
 (use-package org-bullets
+  :ensure t
   :defer t
   :init (add-hook 'org-mode-hook 'org-bullets-mode))
 
-(use-package ox-tufte)
-(use-package ox-gfm)
+(use-package ox-tufte
+  :ensure t)
+  
+(use-package ox-gfm
+  :ensure t)
+  
 (use-package org-pomodoro
+  :ensure t
   :defer t)
 
 ;; bibliography
-(use-package org-ref)
+(use-package org-ref
+  :ensure t
+  :init (setq org-ref-completion-library 'org-ref-ivy-cite)
+  :config
+  (setq org-ref-default-bibliography '("~/MEGA/bibliography/references.bib")))
+
+(use-package pdf-tools
+  :ensure t
+  :magic ("%PDF" . pdf-view-mode)
+  :config
+  (pdf-tools-install))
+
+(use-package academic-phrases
+  :ensure t)
+
+(use-package powerthesaurus
+  :ensure t)
+
+(use-package interleave
+  :ensure t)
 
 ;; presentations
 (use-package ox-reveal
+  :ensure t
   :defer t
   :init
   (setq org-reveal-root "https://cdn.jsdelivr.net/reveal.js/3.0.0/")
@@ -157,9 +205,11 @@
   (setq org-reveal-postamble "Aaron Ceross"))
 
 (use-package htmlize
+  :ensure t
   :defer t)
 
 (use-package org-tree-slide
+  :ensure t
   :defer t
   :init
    (setq org-tree-slide-skip-outline-level 4)
@@ -219,6 +269,12 @@
   "\n"
   "#+begin_src R :session :cache yes :exports none :tangle yes\n"
   "\n"
+  "#+end_src\n")
+
+(define-skeleton org-skeleton-R-plot
+  "Basic R source code block."
+  "\n"
+  "#+begin_src R :session :cache yes :file\" str \":exports none :tangle yes\n"
   "\n"
   "#+end_src\n")
 

@@ -5,6 +5,10 @@
 
 ;;; Code:
 
+(require 'cl)
+
+(use-package auto-compile
+  :ensure t)
 
 ;; Globally set a directory variable.
 (defconst awc/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
@@ -36,6 +40,12 @@
 ;; auto-save list
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
+;; UTF-8
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+
 ;; history
 (setq savehist-file "~/.emacs.d/savehist")
 (savehist-mode 1)
@@ -62,12 +72,32 @@
 
 ;; for when I can't remember *all* Emacs' keybindings!
 (use-package which-key
+  :ensure t
   :diminish which-key-mode
   :defer t
   :init (which-key-mode)
   :config
   (setq which-key-popup-type 'minibuffer)
   (setq which-key-compute-remaps t))
+
+(use-package shell-pop
+  :ensure t
+  :bind (("s-t" . shell-pop))
+  :config
+  (setq shell-pop-shell-type (quote ("ansi-term" "*ansi-term*" (lambda nil (ansi-term shell-pop-term-shell)))))
+  (setq shell-pop-term-shell "/bin/bash")
+  ;; need to do this manually or not picked up by `shell-pop'
+  (shell-pop--set-shell-type 'shell-pop-shell-type shell-pop-shell-type))
+
+(use-package exec-path-from-shell
+   :ensure t
+   :config
+   (exec-path-from-shell-initialize))
+
+(when (string= system-type "darwin")
+  (setq dired-use-ls-dired t
+        insert-directory-program "/usr/local/bin/gls"
+        dired-listing-switches "-aBhl --group-directories-first"))
 
 (provide 'init-emacs)
 

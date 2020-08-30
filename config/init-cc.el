@@ -11,8 +11,8 @@
   (progn
     (add-hook 'c-mode-hook (lambda () (c-set-style "bsd")))
     (setq tab-width 4
-	  c-basic-offset 2
-	  gdb-many-windows t)))
+          c-basic-offset 2
+          gdb-many-windows t)))
 
 (use-package irony
   :ensure t
@@ -31,6 +31,9 @@
   (add-hook 'irony-mode-hook 'my-irony-mode-hook)
   (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
   :config
+  (custom-set-variables
+   '(irony-additional-clang-options
+     '("-I/Library/Developer/CommandLineTools/usr/include/c++/v1")))
   (use-package company-irony
     :ensure t
     :config (add-to-list 'company-backends '(company-irony)))
@@ -52,9 +55,9 @@
   (fa-config-default)
   :bind
   (:map c-mode-map
-	("M-o" . fa-show))
+        ("M-o" . fa-show))
   (:map c++-mode-map
-	("M-o" . fa-show)))
+        ("M-o" . fa-show)))
 
 (provide 'init-cc)
 

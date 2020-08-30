@@ -8,11 +8,9 @@
 
 ;;; Code:
 
-
 ;; customise the window system
 (when window-system
   ;; set the size of the emacs window
-  (setq initial-frame-alist '((top . 0) (left . 0) (width . 83) (height . 37)))
   (setq inhibit-splash-screen t)  ; remove spash screen
   (tooltip-mode -1)               ; remove tooltip
   (tool-bar-mode -1)              ; remove toolbar
@@ -25,16 +23,40 @@
 (use-package diminish
   :ensure t)
 
-;; colour themes in base16, https://chriskempson.github.io/base16/
-(use-package base16-theme
+(use-package modus-operandi-theme
   :ensure t)
 
+(use-package modus-vivendi-theme
+  :ensure t)
+
+(use-package all-the-icons
+  :ensure t)
+(setq inhibit-compacting-font-caches t)
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (doom-themes-org-config))
+
+(use-package doom-modeline
+  :ensure t
+  :config
+  (setq doom-modeline-height 25)
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-major-mode-color-icon t)
+  :hook
+  (after-init . doom-modeline-mode))
+
+;; TODO: automatically change according to sunrise and sunset
 (use-package circadian
   :ensure t
   :config
-  (setq circadian-themes '(("7:00" . base16-github)
-                           ("19:30" . base16-tomorrow-night)))
+  (setq circadian-themes '(("6:00" . modus-operandi)
+                           ("17:45" . modus-vivendi)))
   (circadian-setup))
+
+(use-package eterm-256color
+  :ensure t)
 
 ;; see which are empty lines in the buffer
 (setq-default indicate-empty-lines t)
@@ -69,6 +91,9 @@
 ;; highlight matching parenthesis
 (show-paren-mode 1)
 
+;; stop beeping at me
+(setq visible-bell t)
+
 ;; colour the delimiters to better identify nested constracts
 (use-package rainbow-delimiters
   :ensure t
@@ -99,8 +124,16 @@
   :init (global-anzu-mode +1)
   :diminish anzu-mode)
 
+(use-package hl-todo
+  :ensure t
+  :config
+  (hl-todo-mode t))
+
+
+(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
 ;; Chinese fontset
-(set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
+;; (set-fontset-font t 'han (font-spec :name "Noto Sans Mono CJK SC"))
 
 (provide 'ui)
 

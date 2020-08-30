@@ -14,67 +14,111 @@
 
 ;;; Code:
 
-(use-package ag
-  :defines my-ag-keymap
-  :bind-keymap ("C-c a" . my-ag-map)
-  :config
-  (setq ag-reuse-buffers t    ; Don't spam buffer list with ag buffers
-        ag-highlight-search t ; A little fanciness
-        ;; Use Projectile to find the project root
-        ag-project-root-function
-        (lambda (d)
-          (let ((default-directory d))
-            (projectile-project-root))))
-  (defvar my-ag-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map (kbd "a") #'ag-regexp)
-      (define-key map (kbd "p") #'ag-project-regexp)
-      map)))
+;; vim bindings
+;; (use-package evil
+;;   :ensure t
+;;   :init
+;;   (setq evil-want-integration t)
+;;   (setq evil-want-keybinding nil)
+;;   :config
+;;   (evil-mode 1))
 
-(use-package ido
-  :ensure t
-  :config
-  (setq ido-vertical-define-keys 'C-n-C-p-up-down-left-right
-        ido-enable-flex-matching t
-        ido-create-new-buffer 'always
-        ido-use-filename-at-point 'guess
-        ido-max-prospects 10
-        ido-default-file-method 'selected-window
-        ido-everywhere t
-        ido-use-virtual-buffers t  ; only try to match within the work directory
-        ido-max-window-height 0.25
-        ido-auto-merge-work-directories-length -1)
-  (ido-mode t)
-  (use-package ido-vertical-mode
-    :ensure t
-    :config (ido-vertical-mode t))
-  (use-package ido-completing-read+
-    :ensure t
-    :config (ido-ubiquitous-mode t))
-  (use-package flx-ido
-    :ensure t
-    :init (flx-ido-mode t))
-  (use-package idomenu :ensure t))
+;; (use-package evil-collection
+;;   :after evil
+;;   :ensure t
+;;   :custom (evil-collection-setup-minibuffer t)
+;;   :config (evil-collection-init))
+
+;; (use-package evil-escape
+;; ;;  :after evil
+;;   :ensure t
+;;   :config
+;;   (setq-default evil-escape-key-sequence "jk")
+;;   (setq evil-escape-mode t))
+
+;; (use-package evil-magit
+;;   :after evil
+;;   :ensure t)
 
 ;; Smex - provide recent and most used commands
 (use-package smex
   :ensure t
-  :bind ("M-x" . smex)
   :config
   (setq smex-save-file (expand-file-name ".smex-items" user-emacs-directory)))
 
-(use-package projectile
-  :init
-  (projectile-mode)
-    :bind (("C-c p s" . projectile-ag)
-           ("C-c p g" . projectile-grep)
-           ("C-c p R" . projectile-regenerate-tags))
-    :config
-    (setq projectile-switch-project-action 'projectile-commander
-        projectile-completion-system 'ido
-        projectile-create-missing-test-files t)
-  (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
-  :diminish projectile-mode)
+(use-package ivy
+  :ensure t
+  :diminish ivy-mode
+  :bind (("C-x b" . ivy-switch-buffer)
+         :map ivy-minibuffer-map
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line))
+  :config
+  (ivy-mode 1)
+  (setq ivy-display-style 'fancy)
+  (setq ivy-wrap t)
+  (setq ivy-dynamic-exhibit-delay-ms 200)
+  (setq ivy-use-selectable-prompt t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-initial-inputs-alist nil)
+  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-extra-directories nil))
+
+(use-package ivy-posframe
+  :ensure t
+  :disabled
+  :config
+  (setq ivy-posframe-display-functions-alist
+        '((swiper          . nil)
+          (complete-symbol . ivy-posframe-display-at-point)
+          (counsel-M-x     . ivy-posframe-display-at-window-center)
+          (t               . ivy-posframe-display)))
+  (ivy-posframe-mode 1))
+
+(use-package counsel
+  :ensure t
+  :bind (("M-x" . counsel-M-x)
+         ("C-s" . counsel-grep-or-swiper)
+         ("C-h v" . counsel-describe-variable)
+         ("C-h f" . counsel-describe-function)
+         ("C-x C-f" . counsel-find-file)))
+
+(use-package ivy-prescient
+  :ensure t
+  :config
+  (ivy-prescient-mode))
+
+;; (use-package projectile
+;;   :init
+;;   (projectile-mode)
+;;     :bind (("C-c p s" . projectile-ag)
+;;            ("C-c p g" . projectile-grep)
+;;            ("C-c p R" . projectile-regenerate-tags))
+;;     :config
+;;     (setq projectile-switch-project-action 'projectile-commander
+;;         projectile-completion-system 'ido
+;;         projectile-create-missing-test-files t)
+;;   (define-key projectile-mode-map [remap projectile-ack] #'projectile-ag)
+;;   :diminish projectile-mode)
+
+(use-package swiper
+  :ensure t
+  :after ivy
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper)))
+
+(use-package avy
+  :ensure t
+  :bind (("C-c gc". avy-goto-char)
+         ("C-'"   . avy-goto-line)
+         ("M-g c" . avy-goto-char-2)
+         ("M-g w" . avy-goto-word-1)
+         ("M-g P" . avy-pop-mark)))
+
+(use-package ace-window
+  :ensure t
+  :bind ("C-x o" . ace-window))
 
 ;; Windmove configuration
 (when (fboundp 'windmove-default-keybindings)
@@ -82,8 +126,10 @@
 
 ;; control window placement with C-c <arrow>
 (use-package winner
-  :ensure t
   :init (winner-mode 1))
+
+(when (string= system-type "darwin")
+  (setq dired-use-ls-dired nil))
 
 (provide 'navigation)
 
