@@ -33,11 +33,6 @@
   :ensure t)
 (setq inhibit-compacting-font-caches t)
 
-(use-package doom-themes
-  :ensure t
-  :config
-  (doom-themes-org-config))
-
 (use-package doom-modeline
   :ensure t
   :config
