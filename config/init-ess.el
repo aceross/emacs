@@ -17,7 +17,7 @@
           (";" . ess-insert-assign))
     :config
     ;; R-specific config
-    (setq inferior-R-program-name "/usr/bin/R")
+    (setq inferior-ess-r-program "/usr/bin/R")
     (setq ess-use-flymake nil)
     (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
@@ -57,8 +57,18 @@
           'symbol-or-paren-or-punct)
     )
 
-;; (require 'ess-site)
-;; (require 'ess-smart-underscore)
+(use-package poly-markdown
+  :ensure t)
+
+(use-package poly-R
+  :ensure t)
+
+(use-package polymode
+  :ensure t
+  :config
+  :config
+  (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
 
 (provide 'init-ess)
 
