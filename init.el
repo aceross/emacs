@@ -52,5 +52,6 @@
 (require 'init-markdown)    ; customisations for Markdown
 (require 'init-julia)
 (require 'init-prolog)
+(require 'init-jupyter)
 
 ;;; init.el ends here
