@@ -10,11 +10,6 @@
 ;; display results in a block instead of prefixed with :
 (setq org-babel-min-lines-for-block-output t)
 
-;; (use-package ob-ipython
-;;   :ensure t
-;;   :config
-;;   (add-to-list 'company-backends 'company-ob-ipython))
-
 (use-package org
   :ensure t
   :defer t
@@ -69,15 +64,15 @@
                                  (R          . t)
                                  (C          . t)
                                  (python     . t)
-                              ;;   (julia      . t)
-                                 (ein        . t)
+                                 (julia      . t)
                                  (latex      . t)
                                  (dot        . t)
                                  (ditaa      . t)
                                  (plantuml   . t)
-                            ;;     (jupyter    . t)
+                                 (jupyter    . t)
                                  )
                                )
+  (org-babel-jupyter-override-src-block "python")
   (add-to-list 'org-latex-classes
                '("awc-article"
                  "
@@ -266,16 +261,15 @@
 
 (define-skeleton org-skeleton-R-src
   "Basic R source code block."
-  "\n"
+  nil
   "#+begin_src R :session :cache yes :exports none :tangle yes\n"
-  "\n"
-  "#+end_src\n")
+  > _
+  "\n#+end_src")
 
 (define-skeleton org-skeleton-R-plot
   "Basic R source code block."
   "\n"
   "#+begin_src R :session :cache yes :file\" str \":exports none :tangle yes\n"
-  "\n"
   "#+end_src\n")
 
 (define-skeleton org-skeleton-ipython-src

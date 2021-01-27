@@ -70,6 +70,28 @@
   (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
   (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
 
+(defun r-function (function-name)
+  "Create and name a function in R"
+  (interactive "sFunction name: ")
+  (insert (concat function-name " <- function() {\n\n}"))
+  (forward-line -1))
+
+
+(define-skeleton rmd-skeleton-header
+  "Rmd headers with focus on LaTex output."
+  "---\n"
+  "title: " str | (buffer-name) "\n"
+  "author: " (user-full-name) "\n"
+  "documentclass: article\n"
+  )
+
+(defun rmd-insert-r-chunk (header)
+  "Insert an r-chunk in markdown mode and name using HEADER."
+  (interactive "sLabel: ")
+  (insert (concat "```{r " header " echo=FALSE}\n\n```"))
+  (forward-line -1))
+(global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
+
 (provide 'init-ess)
 
 ;;; init-ess.el ends here
