@@ -17,7 +17,7 @@
           (";" . ess-insert-assign))
     :config
     ;; R-specific config
-    (setq inferior-ess-r-program "/usr/bin/R")
+    ;(setq inferior-ess-r-program "/usr/bin/R")
     (setq ess-use-flymake nil)
     (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
@@ -88,7 +88,7 @@
 (defun rmd-insert-r-chunk (header)
   "Insert an r-chunk in markdown mode and name using HEADER."
   (interactive "sLabel: ")
-  (insert (concat "```{r " header " echo=FALSE}\n\n```"))
+  (insert (concat "```{r " header ", echo=FALSE}\n\n```"))
   (forward-line -1))
 (global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
 
