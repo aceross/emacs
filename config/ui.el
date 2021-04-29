@@ -20,14 +20,58 @@
   (blink-cursor-mode 0)           ; no blinking cursor
   )
 
+(use-package battery
+  :ensure t
+  :config
+  (setq battery-mode-line-format " [%b%p%%]")
+  (setq battery-mode-line-limit 99)
+  (setq battery-update-interval 180)
+  (setq battery-load-low 20)
+  (setq battery-load-critical 10)
+  :hook (after-init-hook . display-battery-mode))
+
+(use-package time
+  :ensure t
+  :config
+  (setq display-time-format "%H:%M  %Y-%m-%d")
+  ;;;; Covered by `display-time-format'
+  ;; (setq display-time-24hr-format t)
+  ;; (setq display-time-day-and-date t)
+  (setq display-time-interval 60)
+  (setq display-time-mail-directory nil)
+  (setq display-time-default-load-average nil)
+  :hook (after-init-hook . display-time-mode))
+
+
 (use-package diminish
   :ensure t)
 
-(use-package modus-operandi-theme
-  :ensure t)
+(use-package modus-themes
+  :ensure
+  :init
+  (setq modus-themes-org-blocks nil
+        modus-themes-region 'bg-only-no-extend
+        modus-themes-paren-match 'subtle-bold
+        modus-themes-hl-line 'accented-background
+        modus-themes-headings '((t . section))
+        modus-themes-scale-headings t
+        )
+  (modus-themes-load-themes)
+  )
 
-(use-package modus-vivendi-theme
-  :ensure t)
+;; (use-package modus-operandi-theme
+;;   :ensure t
+;;   :init
+;;   (setq modus-operandi-theme-distinct-org-blocks t
+;;         modus-operandi-theme-section-headings t
+;;         modus-operandi-theme-scale-heaadings t))
+
+;; (use-package modus-vivendi-theme
+;;   :ensure t
+;;   :init
+;;   (setq modus-vivendi-theme-distinct-org-blocks t
+;;         modus-vivendi-theme-section-headings t
+;;         modus-vivendi-theme-scale-headings t))
 
 (use-package all-the-icons
   :ensure t)
@@ -47,7 +91,7 @@
   :ensure t
   :config
   (setq circadian-themes '(("6:00" . modus-operandi)
-                           ("17:45" . modus-vivendi)))
+                           ("17:00" . modus-vivendi)))
   (circadian-setup))
 
 (use-package eterm-256color
@@ -119,10 +163,10 @@
   :init (global-anzu-mode +1)
   :diminish anzu-mode)
 
-(use-package hl-todo
-  :ensure t
-  :config
-  (hl-todo-mode t))
+;; (use-package hl-todo
+;;   :ensure t
+;;   :config
+;;   (hl-todo-mode t))
 
 
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)

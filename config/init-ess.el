@@ -83,6 +83,7 @@
   "title: " str | (buffer-name) "\n"
   "author: " (user-full-name) "\n"
   "documentclass: article\n"
+  "---\n"
   )
 
 (defun rmd-insert-r-chunk (header)

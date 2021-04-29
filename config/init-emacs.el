@@ -5,10 +5,6 @@
 
 ;;; Code:
 
-(require 'cl)
-
-(use-package auto-compile
-  :ensure t)
 
 ;; Globally set a directory variable.
 (defconst awc/emacs-directory (concat (getenv "HOME") "/.emacs.d/"))
@@ -62,7 +58,8 @@
   :ensure t
   :bind ("C-x P" . auto-package-update-now)
   :config
-  (setq auto-package-update-delete-old-versions t))
+  (setq auto-package-update-delete-old-versions t)
+  (auto-package-update-maybe))
 
 ;; restart Emacs from within Emacs
 (use-package restart-emacs

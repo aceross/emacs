@@ -73,6 +73,7 @@
                                  )
                                )
   (org-babel-jupyter-override-src-block "python")
+  (org-babel-jupyter-override-src-block "julia")
   (add-to-list 'org-latex-classes
                '("awc-article"
                  "
@@ -187,8 +188,8 @@
 (use-package powerthesaurus
   :ensure t)
 
-(use-package interleave
-  :ensure t)
+;; (use-package interleave
+;;   :ensure t)
 
 ;; presentations
 (use-package ox-reveal

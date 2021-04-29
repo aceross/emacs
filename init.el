@@ -18,7 +18,7 @@
 
 ;; Configure `use-package' prior to loading it.
 (eval-and-compile
-  (setq use-package-always-ensure nil)
+  (setq use-package-always-ensure t)
   (setq use-package-always-defer nil)
   (setq use-package-always-demand nil)
   (setq use-package-expand-minimally nil)
@@ -51,7 +51,7 @@
 (require 'init-python)      ; customisations for Python
 (require 'init-markdown)    ; customisations for Markdown
 (require 'init-julia)
-(require 'init-prolog)
+;(require 'init-prolog)
 (require 'init-jupyter)
 
 ;;; init.el ends here

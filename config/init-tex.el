@@ -10,7 +10,21 @@
   :defer t
   :config
   (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
-  (setq reftex-plug-into-AUCTeX t))
+  (setq reftex-plug-into-AUCTeX t)
+  (setq reftex-default-bibliography '("~/MEGA/bibliography/references.bib"))
+  (eval-after-load 'reftex-vars
+  '(progn
+     ;; (also some other reftex-related customizations)
+     (setq reftex-cite-format
+           '((?\C-m . "\\cite[]{%l}")
+             (?f . "\\footcite[][]{%l}")
+             (?t . "\\textcite[]{%l}")
+             (?p . "\\parencite[]{%l}")
+             (?o . "\\citepr[]{%l}")
+             (?n . "\\nocite{%l}")
+             (?d . "[@%l]")
+             ))))
+  )
 
 (use-package tex
   :defer t

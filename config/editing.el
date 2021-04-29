@@ -61,10 +61,17 @@
   :config
   (ws-butler-global-mode))
 
-(use-package autopair
+(use-package smartparens
   :ensure t
-  :config (autopair-global-mode)
-  :diminish autopair-mode)
+  :config
+  (setq sp-show-pair-from-inside nil)
+  (require 'smartparens-config)
+  :diminish smartparens-mode)
+
+;; (use-package autopair
+;;   :ensure t
+;;   :config (autopair-global-mode)
+;;   :diminish autopair-mode)
 
 ;; ensure EOF newline on save
 (setq require-final-newline t)
