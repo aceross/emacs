@@ -7,7 +7,6 @@
 ;;; Code:
 
 (use-package ess
-  :ensure t
   :defer t
   :init (require 'ess-site)
   :bind
@@ -57,15 +56,15 @@
           'symbol-or-paren-or-punct)
     )
 
-(use-package poly-markdown
-  :ensure t)
+;;TODO: 
+(defun awc/test-R-project (&optional test-whole-project)
+  "Run unittests for R in project.")
 
-(use-package poly-R
-  :ensure t)
+(use-package poly-markdown)
+
+(use-package poly-R)
 
 (use-package polymode
-  :ensure t
-  :config
   :config
   (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
   (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
