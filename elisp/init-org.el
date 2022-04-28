@@ -17,13 +17,14 @@
   (setq org-startup-with-inline-images t)
   (setq org-src-tab-acts-natively t)
   (setq org-startup-indented t)
+  (setq org-confirm-babel-evaluate nil)
   (setq org-odt-preferred-output-format "doc")
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((R      . t)
 				 (python . t)))
   (setq org-latex-pdf-process
         '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
-  (add-hook 'org-mode-hook (lambda () (setq fill-column 80)))
+  (add-hook 'org-mode-hook (lambda () (setq fill-column 70)))
   (add-to-list 'org-file-apps '("\\.pdf\\'" . emacs))
   :hook (org-mode . visual-line-mode)
   )
@@ -58,13 +59,12 @@
   )
 
 (use-package org-superstar
-  :hook (org-mode . org-superstar-mode)
   :custom
   (org-superstar-remove-leading-stars t)
-  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●")))
+  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
+  :hook (org-mode . org-superstar-mode))
 
-(use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+(use-package org-pdftools)
 
 (use-package org-sidebar)
 
