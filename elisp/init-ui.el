@@ -115,6 +115,19 @@
   :config
   (smooth-scrolling-mode))
 
+(use-package pulsar
+  :config
+  (setq pulsar-pulse-on-window-change t)
+  (setq pulsar-pulse t)
+  (setq pulsar-face 'pulsar-magenta)
+  (setq pulsar-highlight-face 'pulsar-yellow)
+  (setq pulsar-delay 0.095)
+  (setq pulsar-iterations 10)
+  (pulsar-global-mode 1)
+  :bind
+  ("C-x p l" . pulsar-pulse-line)
+  ("C-x p h" . pulsar-highlight-line))
+
 (use-package eldoc
   :diminish eldoc-mode
   :commands eldoc-mode)
