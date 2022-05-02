@@ -17,7 +17,7 @@
   (menu-bar-mode -1)              ; remove the menu bar
   (scroll-bar-mode -1)            ; remove the scrollbar
   (setq column-number-mode t)     ; display column numbers
-  (blink-cursor-mode 0)           ; no blinking cursor
+  (blink-cursor-mode 1)           ; blinking cursor
   (setq frame-resize-pixelwise t)
   )
 
@@ -169,3 +169,69 @@
 (provide 'init-ui)
 
 ;;; init-ui ends here
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

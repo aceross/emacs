@@ -19,6 +19,8 @@
 ;; Increase garbase collection
 (setq gc-cons-threshold 50000000)
 
+(setq next-line-add-newlines t)
+
 ;; Remove the warnings from the GnuTLS library when using HTTPS by increasing
 ;; the minimum prime bits size.
 (setq gnutls-min-prime-bits 4096)
@@ -59,3 +61,13 @@
 
 (provide 'init-emacs)
 ;;; init-emacs ends here
+
+
+
+
+
+
+
+
+
+

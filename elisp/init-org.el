@@ -17,6 +17,10 @@
   (setq org-startup-with-inline-images t)
   (setq org-src-tab-acts-natively t)
   (setq org-startup-indented t)
+  (setq org-pretty-entities-include-sub-superscripts t)
+  (setq org-latex-listings t)
+  (setq org-fontify-quote-and-verse-blocks t)
+  (setq org-fontify-whole-heading-line t)
   (setq org-confirm-babel-evaluate nil)
   (setq org-odt-preferred-output-format "doc")
   (org-babel-do-load-languages 'org-babel-load-languages
