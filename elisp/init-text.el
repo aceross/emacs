@@ -35,10 +35,11 @@
    :config
    (pdf-tools-install)
    (setq-default pdf-view-display-size 'fit-width)
+   (setq-default pdf-view-use-scaling t)
+   (setq-default pdf-view-use-imagemagick nil)
    (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
    :custom
    (pdf-annot-activate-created-annotations t "automatically annotate highlights"))
-
 (add-hook 'pdf-view-mode-hook (lambda() (linum-mode -1)))
 
 (use-package tex
