@@ -66,7 +66,6 @@
 (add-hook 'TeX-after-compilation-finished-functions
           #'TeX-revert-document-buffer)
 
-
 (use-package latex-math-preview)
 
 (use-package latex-preview-pane
@@ -74,7 +73,7 @@
 
 (use-package bibtex
   :config
-  (setq  bibtex-align-at-equal-sign t)
+  (setq bibtex-align-at-equal-sign t)
   (setq bibtex-dialect 'biblatex)
   (setq bib-files-directory (directory-files
                              (concat (getenv "HOME") "/MEGA/bibliography") t

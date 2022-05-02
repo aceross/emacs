@@ -23,6 +23,7 @@
   (setq org-fontify-whole-heading-line t)
   (setq org-confirm-babel-evaluate nil)
   (setq org-odt-preferred-output-format "doc")
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.65))
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((R      . t)
 				 (python . t)))
