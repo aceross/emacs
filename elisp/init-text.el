@@ -83,7 +83,6 @@
 (use-package reftex
   :defer t
   :config
-  (add-hook 'LaTeX-mode-hook 'turn-on-reftex)
   (setq reftex-plug-into-AUCTeX t)
   (setq reftex-default-bibliography '("~/Dropbox/Aaron/bibliography/references.bib"))
   (eval-after-load 'reftex-vars
@@ -98,6 +97,8 @@
              (?n . "\\nocite{%l}")
              (?d . "[@%l]")
              ))))
+  :hook
+  (LaTeX-mode . turn-on-reftex)
   )
 
 (use-package company-auctex
