@@ -121,8 +121,8 @@
   (setq pulsar-pulse t)
   (setq pulsar-face 'pulsar-magenta)
   (setq pulsar-highlight-face 'pulsar-yellow)
-  (setq pulsar-delay 0.095)
-  (setq pulsar-iterations 10)
+  (setq pulsar-delay 0.15)
+  (setq pulsar-iterations 5)
   (pulsar-global-mode 1)
   :bind
   ("C-x p l" . pulsar-pulse-line)
