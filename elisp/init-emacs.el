@@ -44,6 +44,8 @@
     (setq dired-use-ls-dired t
           insert-directory-program "/usr/local/bin/gls"
           dired-listing-switches "-aBhl --group-directories-first"))
+  :bind (:map dired-mode-map
+	      ("-" . dired-up-directory))
   )
 
 (use-package dired-narrow
