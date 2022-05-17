@@ -6,17 +6,26 @@
 
 ;;; Code:
 
+(defun insert-r-pipe-operator()
+  "R - |> operator or 'then' pipe operator."
+  (interactive
+  (just-one-space 1)
+  (insert "|>")
+  (reindent-then-newline-and-indent)))
+
 (use-package ess
   :defer t
   :init (require 'ess-site)
   :bind
     (:map ess-mode-map
-          (";" . ess-insert-assign))
+          (";" . ess-insert-assign)
+	  ("C-;" . insert-r-pipe-operator)
+	  )
     (:map inferior-ess-mode-map
-          (";" . ess-insert-assign))
+          (";" . ess-insert-assign)
+	  ("C-;" . insert-r-pipe-operator)
+	  )
     :config
-    ;; R-specific config
-    ;(setq inferior-ess-r-program "/usr/bin/R")
     (setq ess-use-flymake nil)
     (setq ess-R-font-lock-keywords
           '((ess-R-fl-keyword:modifiers . t)
@@ -26,7 +35,7 @@
             (ess-R-fl-keyword:constants . t)
             (ess-fl-keyword:fun-calls .t)
             (ess-fl-keyword:numbers . t)
-            (ess-fl-keyword:operators)
+            (ess-fl-keyword:operators . t)
             (ess-fl-keyword:delimiters)
             (ess-fl-keyword:=)
             (ess-R-fl-keyword:F&T . t)
@@ -46,7 +55,7 @@
           (ess-fl-keyword:matrix-labels . t)
           (ess-fl-keyword:fun-calls . t)
           (ess-fl-keyword:numbers . t)
-          (ess-fl-keyword:operators)
+          (ess-fl-keyword:operators . t)
           (ess-fl-keyword:delimiters)
           (ess-fl-keyword:=)
           (ess-R-fl-keyword:F&T . t)))
