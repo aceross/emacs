@@ -38,5 +38,6 @@
 (require 'init-ess)
 (require 'init-org)
 (require 'init-git)
+(require 'init-lisp)
 
 ;;; init.el ends here
