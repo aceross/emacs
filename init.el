@@ -30,6 +30,7 @@
 
 ;; customisations for Emacs
 (add-to-list 'load-path (expand-file-name "elisp" "~/.emacs.d"))
+
 (require 'init-emacs)
 (require 'init-ui)
 (require 'init-navigation)
@@ -39,5 +40,6 @@
 (require 'init-org)
 (require 'init-git)
 (require 'init-lisp)
+(require 'init-python)
 
 ;;; init.el ends here
