@@ -36,6 +36,17 @@
   (setq sp-show-pair-from-inside nil)
   (require 'smartparens-config)
   (setq smartparens-global-mode t)
+  (custom-set-variables
+     '(sp-base-key-bindings 'sp)
+     '(sp-override-key-bindings
+       '(("C-S-<left>" . sp-backward-slurp-sexp)
+         ("C-S-<right>" . sp-backward-barf-sexp)
+         ("C-M-t" . sp-transpose-sexp)
+         ("C-S-k" . sp-kill-hybrid-sexp)
+         ("C-c C-<right>" . sp-slurp-hybrid-sexp)
+         ("C-(" . sp-rewrap-sexp)
+         ("C-M-<backspace>" . sp-splice-sexp-killing-around)
+         ("C-S-<backspace>" . nil))))
   :hook
   (prog-mode . smartparens-mode)
   (text-mode . smartparens-mode)
