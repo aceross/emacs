@@ -21,6 +21,9 @@
   (setq frame-resize-pixelwise t)
   )
 
+(set-face-attribute 'default nil
+                    :family "Comic Code Ligatures" :weight 'normal)
+
 (use-package diminish)
 
 (use-package all-the-icons
@@ -53,21 +56,6 @@
   (setq circadian-themes '((:sunrise . modus-operandi)
                            (:sunset  . modus-vivendi)))
   (circadian-setup))
-
-(use-package ligature
-  :disabled t
-  :load-path "~/.emacs.d/elisp/ligature.el"
-  :config
-  ;; Enable the "www" ligature in every possible major mode
-  (ligature-set-ligatures 't '("www"))
-  ;; Enable traditional ligature support in eww-mode, if the
-  ;; `variable-pitch' face supports it
-  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-  ;; Enable all Cascadia Code ligatures in programming modes
-  (ligature-set-ligatures 'prog-mode '("<-"))
-  ;; Enables ligature checks globally in all buffers. You can also do it
-  ;; per mode with `ligature-mode'.
-  (global-ligature-mode t))
 
 (use-package which-key
   :init (which-key-mode)
@@ -166,20 +154,13 @@
 
 (use-package minimap)
 
+(use-package ligature
+  :config
+  (ligature-set-ligatures 'prog-mode '("|>" "<-" "<<-" "::" "!=" "=="))
+  (global-ligature-mode t))
 (provide 'init-ui)
 
 ;;; init-ui ends here
-
-
-
-
-
-
-
-
-
-
-
 
 
 
