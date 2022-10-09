@@ -1,7 +1,7 @@
 ;; set utf-8 as preferred coding system
 (set-language-environment "UTF-8")
 
-(use-package evil-nerd-commenter	
+(use-package evil-nerd-commenter
   :bind ("M-;" . evilnc-comment-or-uncomment-lines))
 
 (use-package company
@@ -84,5 +84,8 @@
 
 (use-package yasnippet)
 
+(add-hook 'before-save-hook
+          'delete-trailing-whitespace)
+
 (provide 'init-editing)
-;;; init-editing.el ends here  
+;;; init-editing.el ends here
