@@ -11,7 +11,7 @@
   (setq aspell-dictionary "en_GB-ise-w_accents")
   (setq aspell-program-name "/usr/bin/aspell")
   (setq ispell-dictionary "en_GB-ise-w_accents")
-  (setq ispell-program-name "/usr/bin/aspell")
+  ;;(setq ispell-program-name "/usr/bin/aspell")
   (set-face-attribute 'flyspell-incorrect nil
 		      :background "light coral"
 		      :foreground "firebrick4"
@@ -50,9 +50,12 @@
   (setq TeX-parse-self t
         TeX-auto-save t
         TeX-math-close-double-dollar t)
+  (server-start)
+  (setq TeX-source-correlate-method 'synctex)
+  (setq TeX-source-correlate-start-server t)
+  (TeX-source-correlate-mode t)
   (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
-      TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-      TeX-source-correlate-start-server t)
+      TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view)))
   ;; add the tilde when using \citex
   (setq reftex-format-cite-function
      '(lambda (key fmt)
@@ -92,7 +95,7 @@
      (setq reftex-cite-format
            '((?\C-m . "\\cite[]{%l}")
              (?f . "\\footcite[][]{%l}")
-             (?t . "\\textcite[]{%l}")
+             (?t . "\\citet[]{%l}")
              (?p . "\\parencite[]{%l}")
              (?o . "\\citepr[]{%l}")
              (?n . "\\nocite{%l}")
