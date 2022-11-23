@@ -29,7 +29,7 @@
 (use-package all-the-icons
   :config
   (setq inhibit-compacting-font-caches t))
-  
+
 (use-package modus-themes
   :init
   (setq modus-themes-paren-match '(bold intense)
@@ -158,61 +158,7 @@
   :config
   (ligature-set-ligatures 'prog-mode '("|>" "<-" "<<-" "::" "!=" "=="))
   (global-ligature-mode t))
+
 (provide 'init-ui)
 
-;;; init-ui ends here
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+;;; init-ui.el ends here

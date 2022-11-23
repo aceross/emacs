@@ -132,4 +132,4 @@
 (define-key org-mode-map (kbd "C-q b") 'org-ref-insert-default-bib)
 
 (provide 'init-org)
-;;; init-org ends here
+;;; init-org.el ends here

@@ -41,5 +41,6 @@
 (require 'init-git)
 (require 'init-lisp)
 (require 'init-python)
+(require 'init-zhongwen)
 
 ;;; init.el ends here

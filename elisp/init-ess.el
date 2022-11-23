@@ -9,9 +9,18 @@
 (defun insert-r-pipe-operator()
   "R - |> operator or 'then' pipe operator."
   (interactive
-  (just-one-space 1)
-  (insert "|>")
-  (reindent-then-newline-and-indent)))
+   (insert "|>")
+   (reindent-then-newline-and-indent)))
+
+;; TODO: This is prone to errors and janky. Needs tons of work to act
+;; like running tests in elpy, which is what I want. For the moment, this is fine.
+(defun run-r-tests()
+  "Insert the command for running test in the project. It is always
+assumed that we are running in /R folder and the tests are in the
+/tests folder in a project."
+  (interactive
+   (insert "testthat::test_dir('../tests')")
+   ))
 
 (use-package ess
   :defer t
@@ -20,10 +29,11 @@
     (:map ess-mode-map
           (";" . ess-insert-assign)
 	  ("C-;" . insert-r-pipe-operator)
-	  )
+          )
     (:map inferior-ess-mode-map
           (";" . ess-insert-assign)
 	  ("C-;" . insert-r-pipe-operator)
+          ("C-c r t" . run-r-tests)
 	  )
     :config
     (setq ess-use-flymake nil)
@@ -65,7 +75,7 @@
           'symbol-or-paren-or-punct)
     )
 
-;;TODO: 
+;;TODO:
 (defun awc/test-R-project (&optional test-whole-project)
   "Run unittests for R in project.")
 

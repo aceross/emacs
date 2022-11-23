@@ -28,11 +28,17 @@
 ;; auto-save list
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
-(use-package exec-path-from-shell
-   :ensure t
-   :config
-   (exec-path-from-shell-initialize))
+;; (use-package exec-path-from-shell
+   ;; :ensure t
+   ;; :config
+   ;; (exec-path-from-shell-initialize))
 
+
+(use-package exec-path-from-shell
+  ;; Get environment variables such as $PATH from the shell
+  :ensure t
+  :config (when (memq window-system '(mac ns x))
+        (exec-path-from-shell-initialize)))
 
 (use-package dired
   :ensure nil
