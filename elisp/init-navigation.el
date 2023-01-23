@@ -39,6 +39,10 @@
 (use-package marginalia
   :after vertico
   :ensure t
+   ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (("M-A" . marginalia-cycle)
+         :map minibuffer-local-map
+         ("M-A" . marginalia-cycle))
   :init (marginalia-mode))
 
 (use-package embark
@@ -59,7 +63,6 @@
                  nil
                  (window-parameters (mode-line-format . none)))))
 
-;; Consult users will also want the embark-consult package.
 (use-package embark-consult
   :ensure t
   :after (embark consult)
