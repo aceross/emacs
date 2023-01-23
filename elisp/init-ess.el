@@ -79,37 +79,42 @@ assumed that we are running in /R folder and the tests are in the
 (defun awc/test-R-project (&optional test-whole-project)
   "Run unittests for R in project.")
 
-(use-package poly-markdown)
+;; (use-package poly-markdown)
 
-(use-package poly-R)
+;; (use-package poly-R)
 
-(use-package polymode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
-  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
+;; (use-package polymode
+;;   :config
+;;   (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
+;;   (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
 
-(defun r-function (function-name)
-  "Create and name a function in R"
-  (interactive "sFunction name: ")
-  (insert (concat function-name " <- function() {\n\n}"))
-  (forward-line -1))
+;; (defun r-function (function-name)
+;;   "Create and name a function in R"
+;;   (interactive "sFunction name: ")
+;;   (insert (concat function-name " <- function() {\n\n}"))
+;;   (forward-line -1))
 
 
-(define-skeleton rmd-skeleton-header
-  "Rmd headers with focus on LaTex output."
-  "---\n"
-  "title: " str | (buffer-name) "\n"
-  "author: " (user-full-name) "\n"
-  "documentclass: article\n"
-  "---\n"
+;; (define-skeleton rmd-skeleton-header
+;;   "Rmd headers with focus on LaTex output."
+;;   "---\n"
+;;   "title: " str | (buffer-name) "\n"
+;;   "author: " (user-full-name) "\n"
+;;   "documentclass: article\n"
+;;   "---\n"
+;;   )
+
+;; (defun rmd-insert-r-chunk (header)
+;;   "Insert an r-chunk in markdown mode and name using HEADER."
+;;   (interactive "sLabel: ")
+;;   (insert (concat "```{r " header ", echo=FALSE}\n\n```"))
+;;   (forward-line -1))
+;; (global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
+
+;; Quarto is Posit's new literate programming paradigm
+(use-package quarto-mode
+  :mode (("\\.Rmd" . poly-quarto-mode))
   )
-
-(defun rmd-insert-r-chunk (header)
-  "Insert an r-chunk in markdown mode and name using HEADER."
-  (interactive "sLabel: ")
-  (insert (concat "```{r " header ", echo=FALSE}\n\n```"))
-  (forward-line -1))
-(global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
 
 (provide 'init-ess)
 
