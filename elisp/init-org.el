@@ -74,24 +74,24 @@
 
 (use-package org-sidebar)
 
-(use-package org-ref-prettify
-  :hook (org-mode . org-ref-prettify-mode))
+;; (use-package org-ref-prettify
+;;   :hook (org-mode . org-ref-prettify-mode))
 
 (use-package org-pomodoro)
 
-;; TODO: Input keybindings
-(use-package org-ref
-  :defer t
-  :init
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
-  (setq bibtex-completion-bibliography
-	'("~/MEGA/bibliography/references.bib"))
-  (setq bibtex-completion-additional-search-fields '(keywords))
-  :bind(:map org-mode-map
-	     ("C-q c" . org-ref-insert-link)
-	     ("C-q r" . org-ref-insert-ref-function)   ; FIXME
-	     ("C-q l" . org-ref-insert-label-function) ; FIXME
-	     ))
+;; ;; TODO: Input keybindings
+;; (use-package org-ref
+;;   :defer t
+;;   :init
+;;   (setq org-ref-completion-library 'org-ref-ivy-cite)
+;;   (setq bibtex-completion-bibliography
+;; 	'("~/MEGA/bibliography/references.bib"))
+;;   (setq bibtex-completion-additional-search-fields '(keywords))
+;;   :bind(:map org-mode-map
+;; 	     ("C-q c" . org-ref-insert-link)
+;; 	     ("C-q r" . org-ref-insert-ref-function)   ; FIXME
+;; 	     ("C-q l" . org-ref-insert-label-function) ; FIXME
+;; 	     ))
 
 (use-package org-appear
   :hook (org-mode . org-appear-mode))

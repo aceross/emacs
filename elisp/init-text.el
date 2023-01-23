@@ -160,5 +160,17 @@
   (setq ebib-default-directory "~/MEGA/bibliography/references.bib"
 	ebib-bib-search-dirs `(,bibtex-file-path)))
 
+(use-package citar
+  :bind (("C-c b" . citar-insert-citation)
+         :map minibuffer-local-map
+         ("M-b" . citar-insert-preset))
+  :custom
+  (citar-bibliography '("~/MEGA/bibliography/references.bib")))
+
+(use-package citar-embark
+  :after citar embark
+  :no-require
+  :config (citar-embark-mode))
+
 (provide 'init-text)
 ;;; init-text.el ends here
