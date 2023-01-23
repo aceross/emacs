@@ -38,7 +38,6 @@
                                    (selection . (semibold accented))
                                    (popup     . (accented intense)))
 	)
-  ;;(modus-themes-load-themes)
   )
 
 (use-package doom-modeline
