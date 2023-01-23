@@ -27,6 +27,13 @@
   :hook (text-mode . flyspell-mode)
   )
 
+(use-package consult-flyspell
+  :config
+  ;; default settings
+  (setq consult-flyspell-select-function nil
+        consult-flyspell-set-point-after-word t
+        consult-flyspell-always-check-buffer nil))
+
 (use-package academic-phrases
   :defer t)
 
@@ -141,7 +148,17 @@
 
 (use-package move-text
     :init
-  (move-text-default-bindings))
+    (move-text-default-bindings))
+
+(use-package ws-butler
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+
+(use-package ebib
+  :commands ebib
+  :config
+  (setq ebib-default-directory "~/MEGA/bibliography/references.bib"
+	ebib-bib-search-dirs `(,bibtex-file-path)))
 
 (provide 'init-text)
 ;;; init-text.el ends here
