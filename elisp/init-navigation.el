@@ -9,65 +9,64 @@
 ;;
 ;;; Code:
 
-(use-package ivy
-  :diminish ivy-mode
-  :bind (("C-x b" . ivy-switch-buffer)
-         :map ivy-minibuffer-map
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line))
-  :config
-  (ivy-mode 1)
-  (setq ivy-display-style 'fancy)
-  (setq ivy-wrap t)
-  (setq ivy-dynamic-exhibit-delay-ms 200)
-  (setq ivy-use-selectable-prompt t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-initial-inputs-alist nil)
-  (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-extra-directories nil))
-
-(use-package ivy-rich
+(use-package vertico
   :init
-  (ivy-rich-mode 1))
+  (vertico-mode)
+  :custom
+  (vertico-cycle t))
 
-(use-package ivy-posframe
-  :disabled
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  ;; More convenient directory navigation commands
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  ;; Tidy shadowed file names
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package savehist
+  :init
+  (savehist-mode))
+
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package marginalia
+  :after vertico
+  :ensure t
+  :init (marginalia-mode))
+
+(use-package embark
+  :ensure t
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ;; ("C-;" . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+  :init
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command)
+
   :config
-  (setq ivy-posframe-display-functions-alist
-        '((swiper          . nil)
-          (complete-symbol . ivy-posframe-display-at-point)
-          (counsel-M-x     . ivy-posframe-display-at-window-center)
-          (t               . ivy-posframe-display)))
-  (setq ivy-posframe-parameters
-      '((left-fringe . 8)
-        (right-fringe . 8)))
-  (ivy-posframe-mode 1))
 
-(use-package counsel
-  :bind (("M-x" . counsel-M-x)
-         ("C-s" . counsel-grep-or-swiper)
-         ("C-h v" . counsel-describe-variable)
-         ("C-h f" . counsel-describe-function)
-         ("C-x C-f" . counsel-find-file)))
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
 
-(use-package ivy-prescient
-  :config
-  (ivy-prescient-mode))
-
-(use-package swiper
-  :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper)))
-
-(use-package avy
-  :bind (("C-c gc". avy-goto-char)
-         ("C-'"   . avy-goto-line)
-         ("M-g c" . avy-goto-char-2)
-         ("M-g w" . avy-goto-word-1)
-         ("M-g P" . avy-pop-mark)))
-
-(use-package ace-window
-  :bind ("C-x o" . ace-window))
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :ensure t
+  :after (embark consult)
+  :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 (provide 'init-navigation)
