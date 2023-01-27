@@ -40,6 +40,10 @@
 	)
   )
 
+;; sometimes want a bit more for themes
+(use-package ef-themes
+  :bind ("C-c m m" . ef-themes-toggle))
+
 (use-package doom-modeline
   :config
   (setq doom-modeline-height 25)
