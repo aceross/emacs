@@ -64,11 +64,28 @@
 		   ))
   )
 
-(use-package org-superstar
-  :custom
-  (org-superstar-remove-leading-stars t)
-  (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
-  :hook (org-mode . org-superstar-mode))
+;; (use-package org-superstar
+;;   :custom
+;;   (org-superstar-remove-leading-stars t)
+;;   (org-superstar-headline-bullets-list '("◉" "○" "●" "○" "●" "○" "●"))
+;;   :hook (org-mode . org-superstar-mode))
+
+(use-package org-modern
+  :after org
+  :config
+  (setq org-auto-align-tags nil
+        org-tags-column 0
+        org-catch-invisible-edits 'show-and-error
+        org-special-ctrl-a/e t
+        org-insert-heading-respect-content t
+        ;; Org styling, hide markup etc.
+        org-hide-emphasis-markers t
+        org-pretty-entities t
+        org-ellipsis "…"
+	org-modern-table t
+	)
+  (global-org-modern-mode)
+  )
 
 (use-package org-pdftools)
 
@@ -80,18 +97,19 @@
 (use-package org-pomodoro)
 
 ;; ;; TODO: Input keybindings
-;; (use-package org-ref
-;;   :defer t
-;;   :init
-;;   (setq org-ref-completion-library 'org-ref-ivy-cite)
-;;   (setq bibtex-completion-bibliography
-;; 	'("~/MEGA/bibliography/references.bib"))
-;;   (setq bibtex-completion-additional-search-fields '(keywords))
-;;   :bind(:map org-mode-map
-;; 	     ("C-q c" . org-ref-insert-link)
-;; 	     ("C-q r" . org-ref-insert-ref-function)   ; FIXME
-;; 	     ("C-q l" . org-ref-insert-label-function) ; FIXME
-;; 	     ))
+(use-package org-ref
+  :defer t
+  ;; :init
+  ;; (setq org-ref-completion-library 'org-ref-ivy-cite)
+  ;; (setq bibtex-completion-bibliography
+  ;; 	'("~/MEGA/bibliography/references.bib"))
+  ;; (setq bibtex-completion-additional-search-fields '(keywords))
+  ;; :bind(:map org-mode-map
+  ;; 	     ("C-q c" . org-ref-insert-link)
+  ;; 	     ("C-q r" . org-ref-insert-ref-function)   ; FIXME
+  ;; 	     ("C-q l" . org-ref-insert-label-function) ; FIXME
+  ;; 	     )
+  )
 
 (use-package org-appear
   :hook (org-mode . org-appear-mode))
