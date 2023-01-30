@@ -159,5 +159,10 @@
   :no-require
   :config (citar-embark-mode))
 
+(use-package lsp-grammarly
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp))))  ; or lsp-deferred
+
 (provide 'init-text)
 ;;; init-text.el ends here
