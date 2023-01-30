@@ -36,6 +36,7 @@
   (require 'init-lsp)
   (require 'init-ess)
   (require 'init-text)
+  (require 'init-org)
   )
 
 ;;; init.el ends here
