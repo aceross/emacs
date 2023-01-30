@@ -35,6 +35,7 @@
   (require 'init-ui)
   (require 'init-lsp)
   (require 'init-ess)
+  (require 'init-python)
   (require 'init-text)
   (require 'init-org)
   )
