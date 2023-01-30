@@ -160,6 +160,13 @@
   :config (citar-embark-mode))
 
 (use-package lsp-grammarly
+  :init
+  (setq lsp-grammarly-dialect "british")
+  :config
+  (setq lsp-grammarly-domain "academic")
+  (setq lsp-grammarly-audience "expert")
+  :custom
+  (lsp-grammarly-suggestions-oxford-comma t)
   :hook (text-mode . (lambda ()
                        (require 'lsp-grammarly)
                        (lsp))))  ; or lsp-deferred
