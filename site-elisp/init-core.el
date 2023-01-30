@@ -273,6 +273,10 @@
   :init
   (global-corfu-mode))
 
+(use-package cape
+  :bind (("C-c p" . completion-at-point)
+		 ("M-p" . completion-at-point)))
+
 (use-package svg-lib
   :straight '(svg-lib
 	  :host github
