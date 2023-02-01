@@ -58,6 +58,36 @@
 
 (use-package org-ref :defer t)
 
+(use-package org-roam
+  :after org
+
+  :custom
+  (org-roam-directory "~/MEGA/org")
+  :bind
+  ("C-c n l" . org-roam-buffer-toggle)
+  ("C-c n f" . org-roam-node-find)
+  (:map org-mode-map
+        (("C-c n i" . org-roam-node-insert)
+		 ("C-c n f" . org-roam-node-find)
+		 ("C-c n g" . org-roam-graph)
+		 ("C-c n b" . org-roam-buffer-toggle)
+		 ("C-c n t" . org-roam-tag-add)
+		 ("C-c n r" . org-roam-ref-add)
+		 ))
+  :config
+  (setq org-roam-capture-templates '(("d" "default" plain "%?"
+                                      :if-new (file+head "${slug}.org"
+                                                         "#+TITLE: ${title}\n#+DATE: %T\n")
+                                      :unnarrowed t)))
+  ;; this sets up various file handling hooks so your DB remains up to date
+  (org-roam-setup))
+
+(use-package citar-org-roam
+  :after citar org-roam
+  :no-require
+  :config (citar-org-roam-mode))
+
+
 ;;; skeletons
 
 (define-skeleton org-skeleton-header
