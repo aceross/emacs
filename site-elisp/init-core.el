@@ -123,10 +123,12 @@
   ("M-;" . evilnc-comment-or-uncomment-lines))
 
 (use-package smartparens
+  :init
+  (smartparens-global-mode)
   :config
   (setq sp-show-pair-from-inside nil)
   (require 'smartparens-config)
-  (setq smartparens-global-mode t)
+ ;; (setq smartparens-global-mode t)
   (custom-set-variables
      '(sp-base-key-bindings 'sp)
      '(sp-override-key-bindings
@@ -138,9 +140,9 @@
          ("C-(" . sp-rewrap-sexp)
          ("C-M-<backspace>" . sp-splice-sexp-killing-around)
          ("C-S-<backspace>" . nil))))
-  :hook
-  (prog-mode . smartparens-mode)
-  (text-mode . smartparens-mode)
+  ;; :hook
+  ;; (prog-mode . smartparens-mode)
+  ;; (text-mode . smartparens-mode)
   :diminish smartparens-mode)
 
 (use-package flycheck
