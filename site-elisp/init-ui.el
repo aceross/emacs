@@ -49,9 +49,11 @@
   (setq modus-themes-paren-match '(bold intense)
         modus-themes-org-blocks 'tinted-background
 	modus-themes-completions '((matches   . (extrabold))
-                                   (selection . (semibold accented))
-                                   (popup     . (accented intense)))
+                               (selection . (semibold accented))
+                               (popup     . (accented intense)))
 	)
+  (setq modus-operandi-tinted-palette-overrides
+		'((comment fg-dim)))
   )
 
 ;; sometimes want a bit more for themes
@@ -71,7 +73,7 @@
   (setq calendar-longitude 1.2576288)
   (setq calendar-latitude 51.7519826)
   (setq calendar-location-name "Oxford, United Kingdom")
-  (setq circadian-themes '((:sunrise . modus-operandi)
+  (setq circadian-themes '((:sunrise . modus-operandi-tinted)
                            (:sunset  . modus-vivendi)))
   (circadian-setup))
 
