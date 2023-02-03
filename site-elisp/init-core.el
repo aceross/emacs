@@ -293,4 +293,8 @@
   (with-eval-after-load 'modus-themes
     (add-hook 'modus-themes-after-load-theme-hook #'(lambda () (interactive) (kind-icon-reset-cache)))))
 
+(use-package avy
+  :bind
+  ("C-c SPC" . avy-goto-char-2))
+
 (provide 'init-core)
