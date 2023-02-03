@@ -297,4 +297,11 @@
   :bind
   ("C-c SPC" . avy-goto-char-2))
 
+(use-package windmove
+  :bind
+  ("C-x <up>" . windmove-up)
+  ("C-x <down>" . windmove-down)
+  ("C-x <left>" . windmove-left)
+  ("C-x <right>" . windmove-right))
+
 (provide 'init-core)
