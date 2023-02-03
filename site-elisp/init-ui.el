@@ -94,6 +94,9 @@
 (use-package minimap)
 
 (use-package darkroom
+  :init
+  ;; text scaling is a bit jarring, so this might help
+  (setq darkroom-text-scale-increase 2)
   :bind ("<f6>" . darkroom-tentative-mode))
 
 (use-package pulsar
