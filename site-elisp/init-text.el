@@ -149,6 +149,7 @@
 
 (use-package citar
   :bind (("C-c b" . citar-insert-citation)
+		 ("C-c r" . citar-insert-reference)
          :map minibuffer-local-map
          ("M-b" . citar-insert-preset))
   :custom
