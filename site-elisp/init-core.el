@@ -29,7 +29,7 @@
         sentence-end-double-space nil
         ring-bell-function 'ignore
         frame-resize-pixelwise t)
-  (setq user-full-name "Aaron Ceoss")
+  (setq user-full-name "Aaron Ceross")
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   ;; always allow 'y' instead of 'yes'.
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -222,6 +222,17 @@
 
   ;; Enable recursive minibuffers
   (setq enable-recursive-minibuffers t))
+
+(use-package consult
+  :bind (
+		 ("C-c h"    . consult-history)
+		 ("C-x b"    . consult-buffer)
+		 ("C-x  4 b" . consult-buffer-other-window)
+		 ("C-x 5 b"  . consult-buffer-other-frame)
+		 ("M-y"      . consult-yank-pop)
+		 ("M-g g"    . consult-goto-line)
+		 )
+  )
 
 (use-package orderless
   :ensure t
