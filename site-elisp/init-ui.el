@@ -100,6 +100,8 @@
   :bind ("<f6>" . darkroom-tentative-mode))
 
 (use-package pulsar
+  :init
+  (pulsar-global-mode 1)
   :config
   (setq pulsar-pulse-on-window-change t)
   (setq pulsar-pulse t)
@@ -107,13 +109,9 @@
   (setq pulsar-highlight-face 'pulsar-magenta)
   (setq pulsar-delay 0.15)
   (setq pulsar-iterations 10)
-  (pulsar-global-mode 1)
   :bind
   ("C-x p l" . pulsar-pulse-line)
   ("C-x p h" . pulsar-highlight-line)
-  :hook
-  (consult-after-jump-hook . pulsar-recenter-top)
-  (consult-after-jump-hook . pulsar-reveal-entry)
   )
 
 (use-package ligature
