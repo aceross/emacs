@@ -24,6 +24,12 @@
   (lsp-ui-peek-enable t)
   )
 
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ;
+
 (provide 'init-lsp)
 
 ;;; init-lsp.el ends here.
