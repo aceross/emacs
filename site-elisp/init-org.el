@@ -8,16 +8,24 @@
   :defer t
   :config
   (setq org-todo-keywords
-      (quote ((sequence "TODO(t)"  "|" "DRAFT(d)")
-              (sequence "REVISE(r)" "|" "DONE")
-              )))
+		'((sequence "TODO(t)"       ; a task to be tackled
+					"PROGRESS(p)"   ; a task in progress
+					"WAITING(w)"    ; someone needs to do something
+					"REVIEW(r)"     ; task is in review for completion
+					"OVERDUE(o)"    ; task is overdue
+					"MEETING(m)"    ; task is a meeting
+					"|"             ; delimits active/inactive states
+					"DONE(d)"       ; task completed
+					"CANCELLED(c)"  ; task is terminated
+					)))
   (setq org-hide-leading-stars t)
   (setq org-src-fontify-natively t)
   (setq org-hide-emphasis-markers t)
   (setq org-startup-with-inline-images t)
   (setq org-src-tab-acts-natively t)
   (setq org-startup-indented t)
-  (setq org-pretty-entities-include-sub-superscripts t)
+ ;; (setq org-cite-global-bibliography "~/MEGA/bibliography/references.bib")
+  ;;(setq org-pretty-entities-include-sub-superscripts t)
   (setq org-latex-listings t)
   (setq org-fontify-quote-and-verse-blocks t)
   (setq org-fontify-whole-heading-line t)
@@ -33,7 +41,20 @@
   (add-hook 'org-mode-hook (lambda () (setq fill-column 70)))
   (add-to-list 'org-file-apps '("\\.pdf\\'" . emacs))
   :hook (org-mode . visual-line-mode)
+  :custom
+  (org-cite-global-bibliography
+   '("~/MEGA/bibliography/references.bib"))
   )
+
+;; org-agenda settings
+(use-package org
+  :init
+  (setq org-agenda-files '("~/MEGA/org"))
+  (setq org-log-done-with-time t)
+  ; Set default column view headings: Task Total-Time Time-Stamp
+  (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+)
+
 
 (use-package org-modern
   :after org
@@ -45,7 +66,7 @@
         org-insert-heading-respect-content t
         ;; Org styling, hide markup etc.
         org-hide-emphasis-markers t
-        org-pretty-entities t
+        ;; org-pretty-entities t
         org-ellipsis "…"
 	org-modern-table t
 	)
@@ -60,7 +81,6 @@
 
 (use-package org-roam
   :after org
-
   :custom
   (org-roam-directory "~/MEGA/org")
   :bind
