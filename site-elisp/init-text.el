@@ -153,7 +153,24 @@
          :map minibuffer-local-map
          ("M-b" . citar-insert-preset))
   :custom
-  (citar-bibliography '("~/MEGA/bibliography/references.bib")))
+  (citar-bibliography '("~/MEGA/bibliography/references.bib"))
+  (citar-templates
+ '((main . "${author editor:30}   ${date year issued:4}    ${title:110}")
+   (suffix . "     ${=type=:20}    ${tags keywords keywords:*}")
+   (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+   (note . "#+title: Notes on ${author editor}, ${title}") ; For new notes
+   ))
+;; Configuring all-the-icons. From
+;; https://github.com/bdarcus/citar#rich-ui
+(citar-symbols
+ `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) .
+         ,(all-the-icons-faicon "file-o" :face 'kb/citar-icon-dim :v-adjust -0.1) )
+   (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) .
+         ,(all-the-icons-material "speaker_notes" :face 'kb/citar-icon-dim :v-adjust -0.3))
+   (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) .
+         ,(all-the-icons-octicon "link" :face 'kb/citar-icon-dim :v-adjust 0.01))))
+(citar-symbol-separator "  ")
+  )
 
 (use-package citar-embark
   :after citar embark
