@@ -55,7 +55,6 @@
   (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 )
 
-
 (use-package org-modern
   :after org
   :config
@@ -106,7 +105,6 @@
   :after citar org-roam
   :no-require
   :config (citar-org-roam-mode))
-
 
 ;;; skeletons
 

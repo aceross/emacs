@@ -153,6 +153,8 @@
          :map minibuffer-local-map
          ("M-b" . citar-insert-preset))
   :custom
+  (org-cite-csl-styles-dir
+   (expand-file-name "~/styles/"))
   (citar-bibliography '("~/MEGA/bibliography/references.bib"))
   (citar-templates
  '((main . "${author editor:30}   ${date year issued:4}    ${title:110}")
@@ -162,15 +164,15 @@
    ))
 ;; Configuring all-the-icons. From
 ;; https://github.com/bdarcus/citar#rich-ui
-(citar-symbols
- `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) .
-         ,(all-the-icons-faicon "file-o" :face 'kb/citar-icon-dim :v-adjust -0.1) )
-   (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) .
-         ,(all-the-icons-material "speaker_notes" :face 'kb/citar-icon-dim :v-adjust -0.3))
-   (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) .
-         ,(all-the-icons-octicon "link" :face 'kb/citar-icon-dim :v-adjust 0.01))))
-(citar-symbol-separator "  ")
-  )
+  (citar-symbols
+   `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) .
+           ,(all-the-icons-faicon "file-o" :face 'kb/citar-icon-dim :v-adjust -0.1) )
+	 (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) .
+           ,(all-the-icons-material "speaker_notes" :face 'kb/citar-icon-dim :v-adjust -0.3))
+	 (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) .
+           ,(all-the-icons-octicon "link" :face 'kb/citar-icon-dim :v-adjust 0.01))))
+  (citar-symbol-separator "  ")
+)
 
 (use-package citar-embark
   :after citar embark

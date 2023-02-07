@@ -24,44 +24,46 @@ assumed that we are running in /R folder and the tests are in the
 
 (use-package ess
   :defer t
-  :init (require 'ess-site)
+  :init
+  (require 'ess-site)
   :bind
     (:map ess-mode-map
-          (";" . ess-insert-assign)
-	  ("C-;" . insert-r-pipe-operator)
+          (";"   . ess-insert-assign)
+		  ("C-;" . insert-r-pipe-operator)
           )
     (:map inferior-ess-mode-map
-          (";" . ess-insert-assign)
-	  ("C-;" . insert-r-pipe-operator)
+          (";"       . ess-insert-assign)
+		  ("C-;"     . insert-r-pipe-operator)
           ("C-c r t" . run-r-tests)
 	  )
-    :config
-    (setq ess-use-flymake nil)
-    (setq ess-R-font-lock-keywords
-          '((ess-R-fl-keyword:modifiers . t)
-            (ess-R-fl-keyword:fun-defs . t)
-            (ess-R-fl-keyword:keywords . t)
-            (ess-R-fl-keyword:assign-ops . t)
-            (ess-R-fl-keyword:constants . t)
-            (ess-fl-keyword:fun-calls .t)
-            (ess-fl-keyword:numbers . t)
-            (ess-fl-keyword:operators . t)
-            (ess-fl-keyword:delimiters)
-            (ess-fl-keyword:=)
-            (ess-R-fl-keyword:F&T . t)
-            ))
-    (global-set-key (kbd "C-j") 'ess-eval-line-and-step)
-    ;;(global-set-key (kbd "C-M-j") 'ess-eval-region)
-    (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go)
-    ;; font-lock for R interpreter
-    (setq inferior-R-font-lock-keywords
-        '((ess-S-fl-keyword:prompt . t)
-          (ess-R-fl-keyword:messages . t)
-          (ess-R-fl-keyword:modifiers . t)
+  :config
+  (setq ess-use-flymake nil)
+;;  (setq ess-use-company nil)
+  (setq ess-R-font-lock-keywords
+        '((ess-R-fl-keyword:modifiers . t)
           (ess-R-fl-keyword:fun-defs . t)
           (ess-R-fl-keyword:keywords . t)
           (ess-R-fl-keyword:assign-ops . t)
           (ess-R-fl-keyword:constants . t)
+          (ess-fl-keyword:fun-calls .t)
+          (ess-fl-keyword:numbers . t)
+          (ess-fl-keyword:operators . t)
+          (ess-fl-keyword:delimiters)
+          (ess-fl-keyword:=)
+          (ess-R-fl-keyword:F&T . t)
+          ))
+  (global-set-key (kbd "C-j") 'ess-eval-line-and-step)
+  ;;(global-set-key (kbd "C-M-j") 'ess-eval-region)
+  (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go)
+  ;; font-lock for R interpreter
+  (setq inferior-R-font-lock-keywords
+        '((ess-S-fl-keyword:prompt      . t)
+          (ess-R-fl-keyword:messages    . t)
+          (ess-R-fl-keyword:modifiers   . t)
+          (ess-R-fl-keyword:fun-defs    . t)
+          (ess-R-fl-keyword:keywords    . t)
+          (ess-R-fl-keyword:assign-ops  . t)
+          (ess-R-fl-keyword:constants   . t)
           (ess-fl-keyword:matrix-labels . t)
           (ess-fl-keyword:fun-calls . t)
           (ess-fl-keyword:numbers . t)

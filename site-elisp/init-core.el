@@ -22,6 +22,8 @@
 ;; doing :sraight (:no-native-compile t)
 (setq comp-deferred-compilation-black-list nil)
 
+(use-package dash)
+
 (use-package emacs
   :init
   (setq inhibit-startup-screen t
@@ -277,14 +279,30 @@
   (embark-collect-mode . consult-preview-at-point-mode))
 
 (use-package corfu
+  :hook (lsp-completion-mode . kb/corfu-setup-lsp)
   :custom
   (corfu-auto t)
+  (lsp-completion-provider :none)
   :init
-  (global-corfu-mode))
+  (global-corfu-mode)
+
+;; Setup lsp to use corfu for lsp completion
+;; from https://kristofferbalintona.me/posts/202202270056/#further-configuration-in-minibuffers-and-with-lsp
+(defun kb/corfu-setup-lsp ()
+  "Use orderless completion style with lsp-capf instead of the
+default lsp-passthrough."
+  (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+        '(orderless))))
 
 (use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-keyword)
+  (add-to-list 'completion-at-point-functions #'cape-ispell)
+  (add-to-list 'completion-at-point-functions #'cape-dict)
   :bind (("C-c p" . completion-at-point)
-		 ("M-p" . completion-at-point)))
+		 ("M-p"   . completion-at-point)))
 
 (use-package svg-lib
   :straight '(svg-lib
@@ -310,9 +328,11 @@
 
 (use-package windmove
   :bind
-  ("C-x <up>" . windmove-up)
-  ("C-x <down>" . windmove-down)
-  ("C-x <left>" . windmove-left)
+  ("C-x <up>"    . windmove-up)
+  ("C-x <down>"  . windmove-down)
+  ("C-x <left>"  . windmove-left)
   ("C-x <right>" . windmove-right))
 
 (provide 'init-core)
+
+;;; init-core.el ends here.
