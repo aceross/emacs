@@ -24,6 +24,12 @@
 	(push
 	 'comint-watch-for-password-prompt comint-output-filter-functions)))
 
+(use-package pyvenv
+  :config
+  (pyvenv-mode t)
+  )
+
+
 ;; (use-package elpy
 ;;     :bind
 ;;     (:map elpy-mode-map
