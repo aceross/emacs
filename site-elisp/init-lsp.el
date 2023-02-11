@@ -5,8 +5,10 @@
   (setq lsp-enable-snippet nil)
   :hook
   ((python-mode . lsp)
-   (ess-mode  . lsp)
+   (ess-mode    . lsp)
    (LaTeX-mode  . lsp)
+   (c-mode      . lsp)
+   (c++-mode    . lsp)
    (lsp-mode    . lsp-enable-which-key-integration))
   :commands lsp)
 
@@ -22,6 +24,7 @@
   (lsp-doc-use-childframe t)
   (lsp-ui-doc-use-webkit t)
   (lsp-ui-peek-enable t)
+  (lsp-ui-doc-position 'bottom)
   )
 
 (use-package lsp-pyright
