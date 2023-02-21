@@ -45,15 +45,14 @@
 
 (use-package modus-themes
   :demand t
-  :init
-  (setq modus-themes-paren-match '(bold intense)
-        modus-themes-org-blocks 'tinted-background
-	modus-themes-completions '((matches   . (extrabold))
-                               (selection . (semibold accented))
-                               (popup     . (accented intense)))
-	)
-  (setq modus-operandi-tinted-palette-overrides
-		'((comment fg-dim)))
+  :custom
+  (modus-themes-hl-line '(intense))
+  (modus-themes-paren-match '(bold intense))
+  (modus-themes-org-blocks 'tinted-background)
+  (modus-themes-completions '((matches   . (extrabold))
+                              (selection . (semibold accented))
+                              (popup     . (accented intense))))
+  (modus-operandi-tinted-palette-overrides '((comment fg-dim)))
   )
 
 ;; sometimes want a bit more for themes
@@ -116,7 +115,19 @@
 
 (use-package ligature
   :config
-  (ligature-set-ligatures 'prog-mode '("|>" "<-" "<<-" "::" "!=" "=="))
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
   (global-ligature-mode t))
 
 (provide 'init-ui)

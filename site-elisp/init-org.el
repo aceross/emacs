@@ -4,6 +4,8 @@
 ;;
 ;;; Code:
 
+(use-package ob-julia-vterm)
+
 (use-package org
   :defer t
   :config
@@ -34,8 +36,9 @@
   (setq org-image-actual-width nil)
   (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.65))
   (org-babel-do-load-languages 'org-babel-load-languages
-			       '((R      . t)
-				 (python . t)))
+			       '((R            . t)
+					 (python       . t)
+					 (julia-vterm  . t)))
   (setq org-latex-pdf-process
         '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
   (add-hook 'org-mode-hook (lambda () (setq fill-column 70)))
@@ -45,6 +48,9 @@
   (org-cite-global-bibliography
    '("~/MEGA/bibliography/references.bib"))
   )
+
+(defalias 'org-babel-execute:julia 'org-babel-execute:julia-vterm)
+(defalias 'org-babel-variable-assignments:julia 'org-babel-variable-assignments:julia-vterm)
 
 ;; org-agenda settings
 (use-package org

@@ -36,9 +36,10 @@
   (require 'init-ess)
   (require 'init-python)
   (require 'init-lisp)
+  (require 'init-julia)
   (require 'init-text)
-  (require 'init-org)
   (require 'init-lsp)
+  (require 'init-org)
   )
 
 ;;; init.el ends here
