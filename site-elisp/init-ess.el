@@ -81,14 +81,14 @@ assumed that we are running in /R folder and the tests are in the
 (defun awc/test-R-project (&optional test-whole-project)
   "Run unittests for R in project.")
 
-;; (use-package poly-markdown)
+(use-package poly-markdown)
 
-;; (use-package poly-R)
+(use-package poly-R)
 
-;; (use-package polymode
-;;   :config
-;;   (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
-;;   (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
+(use-package polymode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
+  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
 
 ;; (defun r-function (function-name)
 ;;   "Create and name a function in R"
@@ -115,7 +115,8 @@ assumed that we are running in /R folder and the tests are in the
 
 ;; Quarto is Posit's new literate programming paradigm
 (use-package quarto-mode
-  :mode (("\\.Rmd" . poly-quarto-mode))
+  :mode (("\\.qmd" . poly-quarto-mode))
+  :bind (("C-c q p" . quarto-preview))
   )
 
 (provide 'init-ess)
