@@ -84,8 +84,18 @@
 
 ;; Icons in dired and other places
 (use-package all-the-icons
+  :if (display-graphic-p)
   :config
-  (setq inhibit-compacting-font-caches t))
+  (setq all-the-icons-dired-monochrome nil))
+
+(use-package all-the-icons-dired
+  :if (display-graphic-p)
+  :hook (dired-mode . all-the-icons-dired-mode)
+  :config (setq all-the-icons-dired-monochrome nil))
+
+(use-package all-the-icons-completion
+  :config
+  (all-the-icons-completion-mode))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
