@@ -11,7 +11,7 @@
 ;; TODO: Need to gracefully degrade if font not available
 (set-face-attribute 'default nil
                     :family "Comic Code Ligatures" :weight 'normal)
-(set-fontset-font t 'han (font-spec :name "Hiragino Sans GB" :size 14))
+(set-fontset-font t 'han (font-spec :name "Hiragino Sans GB" :size 16))
 
 ;; visually show the indentation within the program
 (use-package indent-guide
