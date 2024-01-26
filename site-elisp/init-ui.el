@@ -63,7 +63,14 @@
   :config
   (setq doom-modeline-height 20)
   (setq doom-modeline-bar-width 1)
+  (setq doom-modeline-icon t)
   (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-lsp-icon t)
+  (setq doom-modeline-time-icon t)
+  (setq doom-modeline-time-live-icon t)
+  (setq doom-modeline-project-detection 'auto)
+  (setq doom-modeline-continuous-word-count-modes
+		'(markdown-mode gfm-mode org-mode))
   :hook
   (after-init . doom-modeline-mode))
 
@@ -83,19 +90,43 @@
   (setq which-key-idle-delay 1))
 
 ;; Icons in dired and other places
-(use-package all-the-icons
-  :if (display-graphic-p)
-  :config
-  (setq all-the-icons-dired-monochrome nil))
+;; (use-package all-the-icons
+;;   :if (display-graphic-p)
+;;   :config
+;;   (setq all-the-icons-scale-factor 1.3)
+;;   (setq all-the-icons-dired-monochrome nil))
 
-(use-package all-the-icons-dired
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode)
-  :config (setq all-the-icons-dired-monochrome nil))
+;; (use-package all-the-icons-dired
+;;   :if (display-graphic-p)
+;;   :hook (dired-mode . all-the-icons-dired-mode)
+;;   :config (setq all-the-icons-dired-monochrome nil))
 
-(use-package all-the-icons-completion
+(use-package nerd-icons
+  :ensure t
+  ;; :custom
+  ;; The Nerd Font you want to use in GUI
+  ;; "Symbols Nerd Font Mono" is the default and is recommended
+  ;; but you can use any other Nerd Font if you want
+  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
+  )
+
+(use-package nerd-icons-completion
+  :after marginalia
   :config
-  (all-the-icons-completion-mode))
+  (nerd-icons-completion-mode)
+  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+
+(use-package nerd-icons-dired
+  :hook
+  (dired-mode . nerd-icons-dired-mode))
+
+(use-package nerd-icons-corfu
+  :after corfu
+  :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
+
+;; (use-package all-the-icons-completion
+;;   :config
+;;   (all-the-icons-completion-mode))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))

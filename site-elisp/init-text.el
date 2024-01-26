@@ -85,7 +85,7 @@
   (setq bibtex-align-at-equal-sign t)
   (setq bibtex-dialect 'biblatex)
   (setq bib-files-directory (directory-files
-                             (concat (getenv "HOME") "/MEGA/bibliography") t
+                             (concat (getenv "HOME") "/Documents/bibliography/") t
                              "^[A-Z|a-z].+.bib$")
         pdf-files-directory (concat (getenv "HOME") "/Documents/bibliography/pdf")))
 
@@ -93,7 +93,7 @@
   :defer t
   :config
   (setq reftex-plug-into-AUCTeX t)
-  (setq reftex-default-bibliography '("~/Dropbox/Aaron/bibliography/references.bib"))
+  (setq reftex-default-bibliography '("~/Documents/bibliography/references.bib"))
   (eval-after-load 'reftex-vars
   '(progn
      ;; (also some other reftex-related customizations)
@@ -144,40 +144,124 @@
 (use-package ebib
   :commands ebib
   :config
-  (setq ebib-default-directory "~/MEGA/bibliography/references.bib"
+  (setq ebib-default-directory "~/Documents/bibliography/references.bib"
 	ebib-bib-search-dirs `(,bibtex-file-path)))
 
+;; (use-package citar
+;;   :bind (("C-c b" . citar-insert-citation)
+;; 		 ("C-c r" . citar-insert-reference)
+;;          :map minibuffer-local-map
+;;          ("M-b" . citar-insert-preset))
+;;   :custom
+;;   (Org-cite-csl-styles-dir
+;;    (expand-file-name "~/styles/"))
+;;   (citar-bibliography '("~/Documents/bibliography/references.bib"))
+;;   (citar-templates
+;;  '((main . "${author editor:30}   ${date year issued:4}    ${title:110}")
+;;    (suffix . "     ${=type=:20}    ${tags keywords keywords:*}")
+;;    (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+;;    (note . "#+title: Notes on ${author editor}, ${title}") ; For new notes
+;;    ))
+;; ;; Configuring all-the-icons. From
+;; ;; https://github.com/bdarcus/citar#rich-ui
+;;   (citar-symbols
+;;    `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) .
+;;            ,(all-the-icons-faicon "file-o" :face 'kb/citar-icon-dim :v-adjust -0.1) )
+;; 	 (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) .
+;;            ,(all-the-icons-material "speaker_notes" :face 'kb/citar-icon-dim :v-adjust -0.3))
+;; 	 (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) .
+;;            ,(all-the-icons-octicon "link" :face 'kb/citar-icon-dim :v-adjust 0.01))))
+;;   (citar-symbol-separator "  ")
+;; )
+
+;; (use-package citar-embark
+;;   :after citar embark
+;;   :no-require
+;;   :config (citar-embark-mode))
+
 (use-package citar
-  :bind (("C-c b" . citar-insert-citation)
-		 ("C-c r" . citar-insert-reference)
-         :map minibuffer-local-map
-         ("M-b" . citar-insert-preset))
+  :bind
+  (("C-c b" . citar-insert-citation)
+   ("C-c r" . citar-insert-reference))
   :custom
-  (org-cite-csl-styles-dir
-   (expand-file-name "~/styles/"))
-  (citar-bibliography '("~/MEGA/bibliography/references.bib"))
-  (citar-templates
- '((main . "${author editor:30}   ${date year issued:4}    ${title:110}")
-   (suffix . "     ${=type=:20}    ${tags keywords keywords:*}")
-   (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
-   (note . "#+title: Notes on ${author editor}, ${title}") ; For new notes
-   ))
-;; Configuring all-the-icons. From
-;; https://github.com/bdarcus/citar#rich-ui
-  (citar-symbols
-   `((file ,(all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1) .
-           ,(all-the-icons-faicon "file-o" :face 'kb/citar-icon-dim :v-adjust -0.1) )
-	 (note ,(all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3) .
-           ,(all-the-icons-material "speaker_notes" :face 'kb/citar-icon-dim :v-adjust -0.3))
-	 (link ,(all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01) .
-           ,(all-the-icons-octicon "link" :face 'kb/citar-icon-dim :v-adjust 0.01))))
+  (org-cite-csl-styles-dir (expand-file-name "~/styles/"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
+  (citar-bibliography org-cite-global-bibliography)
+  (citar-at-point-function 'embark-act)
+  ;; (citar-notes-paths (list (concat org-directory "brain/bib_notes/")))
+  (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
+                     (suffix . "    ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
+                     (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+                     (note . ,(concat "#+TITLE: ${title}\n"
+                                      "#+AUTHOR: ${author editor}\n"
+                                      "#+DATE: ${date}\n"
+                                      "#+SOURCE: ${doi url}\n"
+                                      "#+CUSTOM_ID: ${=key= id}\n"
+                                      "#+cite_export: biblatex ieee\n"
+                                      (concat "#+bibliography: " (car citar-bibliography) "\n\n")
+                                      "* Notes :ignore:\n"
+                                      ":PROPERTIES:\n"
+                                      ":NOTER_DOCUMENT: ${file} \n"
+                                      ":END:\n\n"
+                                      "* Summary :childless:showchildren:export:\n"
+                                      "This is a summary of [cite/t:@${=key=}].\n"
+                                      "** Bibliography :ignore:\n"
+                                      ))))
   (citar-symbol-separator "  ")
-)
+  :config
+  (defvar citar-indicator-files-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-faicon
+              "nf-fa-file_o"
+              :face 'nerd-icons-green
+              :v-adjust -0.1)
+     :function #'citar-has-files
+     :padding "  " ; need this because the default padding is too low for these icons
+     :tag "has:files"))
+  (defvar citar-indicator-links-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-octicon
+              "nf-oct-link"
+              :face 'nerd-icons-orange
+              :v-adjust 0.01)
+     :function #'citar-has-links
+     :padding "  "
+     :tag "has:links"))
+  (defvar citar-indicator-notes-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-mdicon
+              "nf-md-pencil"
+              :face 'nerd-icons-blue
+              :v-adjust 0.01)
+     :function #'citar-has-notes
+     :padding "  "
+     :tag "has:notes"))
+  (defvar citar-indicator-cited-icons
+    (citar-indicator-create
+     :symbol (nerd-icons-faicon
+              "nf-fa-circle_o"
+              :face 'nerd-icons-green)
+     :function #'citar-is-cited
+     :padding "  "
+     :tag "is:cited"))
+  (setq citar-indicators
+        (list citar-indicator-files-icons
+              citar-indicator-links-icons
+              citar-indicator-notes-icons
+              citar-indicator-cited-icons))
+  ;; optional: org-cite-insert is also bound to C-c C-x C-@
+  ;;:bind
+  ;;(:map org-mode-map :package org ("C-c b" . #'org-cite-insert))
+  :hook
+  ((LaTeX-mode . citar-capf-setup)
+   (org-mode . citar-capf-setup)))
 
 (use-package citar-embark
-  :after citar embark
-  :no-require
-  :config (citar-embark-mode))
+  :hook
+  ((LaTeX-mode . citar-embark-mode)
+   (org-mode . citar-embark-mode)))
 
 (use-package lsp-grammarly
   :init

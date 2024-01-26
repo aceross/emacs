@@ -46,7 +46,7 @@
   :hook (org-mode . visual-line-mode)
   :custom
   (org-cite-global-bibliography
-   '("~/MEGA/bibliography/references.bib"))
+   '("~/Documents/bibliography/references.bib"))
   )
 
 (defalias 'org-babel-execute:julia 'org-babel-execute:julia-vterm)
@@ -55,28 +55,78 @@
 ;; org-agenda settings
 (use-package org
   :init
-  (setq org-agenda-files '("~/MEGA/org"))
+  (setq org-agenda-files '("~/Documents/zettelkasten/"))
   (setq org-log-done-with-time t)
   ; Set default column view headings: Task Total-Time Time-Stamp
   (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 )
 
+;; (use-package org-modern
+;;   :after org
+;;   :config
+;;   (setq org-auto-align-tags nil
+;;         org-tags-column 0
+;;         org-catch-invisible-edits 'show-and-error
+;;         org-special-ctrl-a/e t
+;;         org-insert-heading-respect-content t
+;;         ;; Org styling, hide markup etc.
+;;         org-hide-emphasis-markers t
+;;         ;; org-pretty-entities t
+;;         org-ellipsis "…"
+;; 	org-modern-table t
+;; 	)
+;;   (global-org-modern-mode)
+;;   )
+(let* ((variable-tuple
+          (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
+                ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+                ((x-list-fonts "Verdana")         '(:font "Verdana"))
+                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+         (base-font-color     (face-foreground 'default nil 'default))
+         (headline           `(:inherit default :weight bold))
+		 )
+
+    (custom-theme-set-faces
+     'user
+     `(org-level-8 ((t (,@headline ,@variable-tuple))))
+     `(org-level-7 ((t (,@headline ,@variable-tuple))))
+     `(org-level-6 ((t (,@headline ,@variable-tuple))))
+     `(org-level-5 ((t (,@headline ,@variable-tuple))))
+     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+     `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+     `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+     `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
+
+
 (use-package org-modern
   :after org
-  :config
-  (setq org-auto-align-tags nil
-        org-tags-column 0
-        org-catch-invisible-edits 'show-and-error
-        org-special-ctrl-a/e t
-        org-insert-heading-respect-content t
-        ;; Org styling, hide markup etc.
-        org-hide-emphasis-markers t
-        ;; org-pretty-entities t
-        org-ellipsis "…"
-	org-modern-table t
-	)
-  (global-org-modern-mode)
+  :hook ((org-mode . org-modern-mode)
+         (org-agenda-finalize . org-modern-agenda))
+  :custom
+  (org-fold-catch-invisible-edits 'show-and-error)
+  (org-special-ctrl-a/e t)
+  (org-insert-heading-respect-content t)
+  (org-hide-emphasis-markers t)
+  (org-modern-hide-stars 'leading)
+  (org-modern-todo nil)
+  (org-modern-tag t)
+  ;; Customize this per your font
+  (org-modern-label-border .25)
+  ;; Note that these stars allow differentiation of levels
+  ;; "①" "②" "③" "④" "⑤" "⑥" "⑦"
+  (org-modern-star ["⦶" "⦷" "⦹" "⊕" "⍟" "⊛" "⏣" "❂"])
   )
+
+(use-package org-appear
+  :commands (org-appear-mode)
+  :custom
+  (org-appear-autoemphasis  t)
+  (org-appear-autolinks nil)
+  (org-appear-autosubmarkers t)
+  :hook (org-mode . org-appear-mode))
 
 (use-package org-pdftools)
 
@@ -87,7 +137,7 @@
 (use-package org-roam
   :after org
   :custom
-  (org-roam-directory "~/MEGA/org")
+  (org-roam-directory "~/Documents/zettelkasten/")
   :bind
   ("C-c n l" . org-roam-buffer-toggle)
   ("C-c n f" . org-roam-node-find)
