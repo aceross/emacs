@@ -32,7 +32,12 @@
   :ensure t
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
-                          (lsp))))  ;
+                          (lsp-deferred)))
+  :config
+  ;; set this to nil if getting too many false positive type errors
+  (setq lsp-pyright-use-library-code-for-types t)
+  (setq lsp-pyright-stub-path (concat (getenv "HOME") "/src/python-type-stubs"))
+  )
 
 (use-package lsp-julia)
 
