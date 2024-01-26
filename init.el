@@ -36,7 +36,7 @@
   (require 'init-ess)
   (require 'init-python)
   (require 'init-lisp)
-  (require 'init-julia)
+ ;; (require 'init-julia)
   (require 'init-text)
   (require 'init-lsp)
   (require 'init-org)
