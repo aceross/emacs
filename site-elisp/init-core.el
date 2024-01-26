@@ -49,6 +49,9 @@
   ;; write over selected text on input... like all modern editors do
   (delete-selection-mode t)
 
+  ;; allow for pinentry for GPG key in minibuffer
+  (setq epa-pinentry-mode 'loopback)
+
   ;; enable recent files mode.
   (recentf-mode t)
   (setq recentf-exclude `(,(expand-file-name "straight/build/" user-emacs-directory)
@@ -309,18 +312,18 @@ default lsp-passthrough."
 	  :host github
 	  :repo "rougier/svg-lib"))
 
-(use-package kind-icon
-  :ensure t
-  :after corfu
-  :custom
-  (kind-icons-use-icons t)
-  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
-  (kind-icon-blend-background nil)
-  :config
-  (setq svg-lib-icons-dir "~/.emacs.d/.cache/svg-lib/")
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
-  (with-eval-after-load 'modus-themes
-    (add-hook 'modus-themes-after-load-theme-hook #'(lambda () (interactive) (kind-icon-reset-cache)))))
+;; (use-package kind-icon
+;;   :ensure t
+;;   :after corfu
+;;   :custom
+;;   (kind-icons-use-icons t)
+;;   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
+;;   (kind-icon-blend-background nil)
+;;   :config
+;;   (setq svg-lib-icons-dir "~/.emacs.d/.cache/svg-lib/")
+;;   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+;;   (with-eval-after-load 'modus-themes
+;;     (add-hook 'modus-themes-after-load-theme-hook #'(lambda () (interactive) (kind-icon-reset-cache)))))
 
 (use-package avy
   :bind
