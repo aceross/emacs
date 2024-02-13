@@ -153,7 +153,7 @@
 (use-package org-roam
   :after org
   :custom
-  (org-roam-directory "~/Documents/zettelkasten/")
+  (org-roam-directory "~/Documents/zettelkasten/zettelkasten/")
   :bind
   ("C-c n l" . org-roam-buffer-toggle)
   ("C-c n f" . org-roam-node-find)
