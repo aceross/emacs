@@ -33,13 +33,13 @@
       (gc-cons-threshold 100000000))
   (require 'init-core)
   (require 'init-ui)
+  (require 'init-org)
   (require 'init-ess)
   (require 'init-python)
   (require 'init-lisp)
  ;; (require 'init-julia)
   (require 'init-text)
   (require 'init-lsp)
-  (require 'init-org)
   )
 
 ;;; init.el ends here

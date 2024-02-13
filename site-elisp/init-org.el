@@ -4,7 +4,7 @@
 ;;
 ;;; Code:
 
-(use-package ob-julia-vterm)
+;; (use-package ob-julia-vterm)
 
 (use-package org
   :defer t
@@ -13,13 +13,23 @@
 		'((sequence "TODO(t)"       ; a task to be tackled
 					"PROGRESS(p)"   ; a task in progress
 					"WAITING(w)"    ; someone needs to do something
+					"DELEGATED(d)"  ; task has been given to someone else
 					"REVIEW(r)"     ; task is in review for completion
 					"OVERDUE(o)"    ; task is overdue
 					"MEETING(m)"    ; task is a meeting
 					"|"             ; delimits active/inactive states
 					"DONE(d)"       ; task completed
 					"CANCELLED(c)"  ; task is terminated
+					"GRAVEYARD(g)"  ; task is abandoned
 					)))
+  (setq org-todo-keyword-faces
+		'(("WAITING"   . (:foreground "#77327d" :weight bold))
+		  ("DELEGATED" . (:background "#d09dc0" :weight bold))
+		  ("OVERDUE"   . (:background "#918b04" :weight bold))
+		  ("MEETING"   . (:foreground "#0087af" :background "#bfefff" :weight bold))
+		  ("CANCELLED" . (:background "#d00000" :weight bold))
+		  ("GRAVEYARD" . (:background "#b0b0b0" :weight bold))
+		 ))
   (setq org-hide-leading-stars t)
   (setq org-src-fontify-natively t)
   (setq org-hide-emphasis-markers t)
@@ -28,6 +38,10 @@
   (setq org-startup-indented t)
  ;; (setq org-cite-global-bibliography "~/MEGA/bibliography/references.bib")
   ;;(setq org-pretty-entities-include-sub-superscripts t)
+  (setq org-agenda-files '("~/Documents/zettelkasten/agenda/"))
+  (setq org-log-done-with-time t)
+  ; Set default column view headings: Task Total-Time Time-Stamp
+  (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
   (setq org-latex-listings t)
   (setq org-fontify-quote-and-verse-blocks t)
   (setq org-fontify-whole-heading-line t)
@@ -38,7 +52,9 @@
   (org-babel-do-load-languages 'org-babel-load-languages
 			       '((R            . t)
 					 (python       . t)
-					 (julia-vterm  . t)))
+					 ;;	 (julia-vterm  . t)
+					 )
+				   )
   (setq org-latex-pdf-process
         '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
   (add-hook 'org-mode-hook (lambda () (setq fill-column 70)))
@@ -49,17 +65,17 @@
    '("~/Documents/bibliography/references.bib"))
   )
 
-(defalias 'org-babel-execute:julia 'org-babel-execute:julia-vterm)
-(defalias 'org-babel-variable-assignments:julia 'org-babel-variable-assignments:julia-vterm)
+;; (defalias 'org-babel-execute:julia 'org-babel-execute:julia-vterm)
+;; (defalias 'org-babel-variable-assignments:julia 'org-babel-variable-assignments:julia-vterm)
 
 ;; org-agenda settings
-(use-package org
-  :init
-  (setq org-agenda-files '("~/Documents/zettelkasten/"))
-  (setq org-log-done-with-time t)
-  ; Set default column view headings: Task Total-Time Time-Stamp
-  (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
-)
+;; (use-package org
+;;   :init
+;;   (setq org-agenda-files '("~/Documents/zettelkasten/"))
+;;   (setq org-log-done-with-time t)
+;;   ; Set default column view headings: Task Total-Time Time-Stamp
+;;   (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+;; )
 
 ;; (use-package org-modern
 ;;   :after org
@@ -77,28 +93,28 @@
 ;; 	)
 ;;   (global-org-modern-mode)
 ;;   )
-(let* ((variable-tuple
-          (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
-                ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
-                ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
-                ((x-list-fonts "Verdana")         '(:font "Verdana"))
-                ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
-                (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
-         (base-font-color     (face-foreground 'default nil 'default))
-         (headline           `(:inherit default :weight bold))
-		 )
+;; (let* ((variable-tuple
+;;           (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
+;;                 ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+;;                 ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+;;                 ((x-list-fonts "Verdana")         '(:font "Verdana"))
+;;                 ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+;;                 (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+;;          (base-font-color     (face-foreground 'default nil 'default))
+;;          (headline           `(:inherit default :weight bold))
+;; 		 )
 
-    (custom-theme-set-faces
-     'user
-     `(org-level-8 ((t (,@headline ,@variable-tuple))))
-     `(org-level-7 ((t (,@headline ,@variable-tuple))))
-     `(org-level-6 ((t (,@headline ,@variable-tuple))))
-     `(org-level-5 ((t (,@headline ,@variable-tuple))))
-     `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
-     `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
-     `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
-     `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
-     `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
+;;     (custom-theme-set-faces
+;;      'user
+;;      `(org-level-8 ((t (,@headline ,@variable-tuple))))
+;;      `(org-level-7 ((t (,@headline ,@variable-tuple))))
+;;      `(org-level-6 ((t (,@headline ,@variable-tuple))))
+;;      `(org-level-5 ((t (,@headline ,@variable-tuple))))
+;;      `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+;;      `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.25))))
+;;      `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.5))))
+;;      `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.75))))
+;;      `(org-document-title ((t (,@headline ,@variable-tuple :height 2.0 :underline nil))))))
 
 
 (use-package org-modern
