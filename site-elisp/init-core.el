@@ -132,6 +132,8 @@
   (smartparens-global-mode)
   :config
   (setq sp-show-pair-from-inside nil)
+  (sp-pair "`" nil :actions :rem)
+  (sp-local-pair 'markdown-mode "```" "```")
   (require 'smartparens-config)
   (custom-set-variables
      '(sp-base-key-bindings 'sp)

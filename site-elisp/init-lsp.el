@@ -21,11 +21,12 @@
   (("C-h ." . lsp-ui-doc-focus-frame))
   :custom
   (lsp-ui-doc-enable t)
-  (lsp-ui-header t)
+  ;; (lsp-ui-header t)
+  ;; (lsp-eldoc-enable-hover t)
   (lsp-doc-use-childframe t)
   (lsp-ui-doc-use-webkit t)
   (lsp-ui-peek-enable t)
-  (lsp-ui-doc-position 'bottom)
+  ;; (lsp-ui-doc-position 'bottom)
   )
 
 (use-package lsp-pyright
@@ -55,6 +56,12 @@
 ;;    (ess-r-mode  . eglot-ensure)
 ;;    (LaTeX-mode  . eglot-ensure))
 ;;   )
+
+(use-package lsp-grammarly
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (require 'lsp-grammarly)
+                       (lsp-deferred))))  ; or lsp
 
 (use-package yasnippet
   :hook

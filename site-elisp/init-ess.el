@@ -88,7 +88,10 @@ assumed that we are running in /R folder and the tests are in the
 (use-package polymode
   :config
   (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
-  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode)))
+  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode))
+  (add-to-list 'polymode-run-these-after-change-functions-in-other-buffers 'lsp-on-change)
+  (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'lsp-before-change)
+  )
 
 ;; (defun r-function (function-name)
 ;;   "Create and name a function in R"

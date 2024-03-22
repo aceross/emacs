@@ -179,6 +179,9 @@
 ;;   :no-require
 ;;   :config (citar-embark-mode))
 
+(require 'oc-biblatex)
+(require 'oc-natbib)
+
 (use-package citar
   :bind
   (("C-c b" . citar-insert-citation)
