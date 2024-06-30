@@ -40,6 +40,11 @@
   (setq lsp-pyright-stub-path (concat (getenv "HOME") "/src/python-type-stubs"))
   )
 
+(use-package markdown-mode
+  :hook (markdown-mode . lsp)
+  :config
+  (require 'lsp-marksman))
+
 (use-package lsp-julia)
 
 ;; (use-package eglot
@@ -57,11 +62,11 @@
 ;;    (LaTeX-mode  . eglot-ensure))
 ;;   )
 
-(use-package lsp-grammarly
-  :ensure t
-  :hook (text-mode . (lambda ()
-                       (require 'lsp-grammarly)
-                       (lsp-deferred))))  ; or lsp
+;; (use-package lsp-grammarly
+;;   :ensure t
+;;   :hook (text-mode . (lambda ()
+;;                        (require 'lsp-grammarly)
+;;                        (lsp-deferred))))  ; or lsp
 
 (use-package yasnippet
   :hook
