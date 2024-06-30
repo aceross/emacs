@@ -39,7 +39,7 @@
   (require 'init-lisp)
  ;; (require 'init-julia)
   (require 'init-text)
-  ;; (require 'init-lsp)
+ ;; (require 'init-lsp)
   )
 
 ;;; init.el ends here

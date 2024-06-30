@@ -36,7 +36,7 @@
   (setq org-startup-with-inline-images t)
   (setq org-src-tab-acts-natively t)
   (setq org-startup-indented t)
- ;; (setq org-cite-global-bibliography "~/MEGA/bibliography/references.bib")
+;;  (setq org-cite-global-bibliography "~/Documents/work/bibliography/references.bib")
   ;;(setq org-pretty-entities-include-sub-superscripts t)
   (setq org-agenda-files '("~/Documents/zettelkasten/agenda/"))
   (setq org-log-done-with-time t)
@@ -62,7 +62,7 @@
   :hook (org-mode . visual-line-mode)
   :custom
   (org-cite-global-bibliography
-   '("~/Documents/bibliography/references.bib"))
+   '("~/Documents/work/bibliography/references.bib"))
   )
 
 ;; (defalias 'org-babel-execute:julia 'org-babel-execute:julia-vterm)
