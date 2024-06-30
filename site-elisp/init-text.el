@@ -181,6 +181,7 @@
 
 (require 'oc-biblatex)
 (require 'oc-natbib)
+(require 'oc-csl)
 
 (use-package citar
   :bind
