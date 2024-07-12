@@ -1,10 +1,13 @@
-;;; Init-ess.el --- Customisations for the Emacs Speaks Statistics package
-;;
+;;; init-ess.el --- Customizations for Emacs Speaks Statistics (ESS)
+
 ;;; Commentary:
 ;;
-;;  Mostly font and readability stuff.
+;;  This file provides customizations and settings for Emacs Speaks Statistics (ESS),
+;;  tailored to enhance R programming workflow within Emacs. It includes keybindings,
+;;  syntax highlighting configurations, and buffer display settings optimised for
+;;  interacting with R scripts, consoles, and environment variables.
 
-;;; Code: 
+;;; Code:
 
 (defun insert-r-pipe-operator()
   "R - |> operator or 'then' pipe operator."
@@ -12,93 +15,68 @@
    (insert "|>")
    (reindent-then-newline-and-indent)))
 
-;; TODO: This is prone to errors and janky. Needs tons of work to act
-;; like running tests in elpy, which is what I want. For the moment, this is fine.
-(defun run-r-tests()
-  "Insert the command for running test in the project. It is always
-assumed that we are running in /R folder and the tests are in the
-/tests folder in a project."
-  (interactive
-   (insert "testthat::test_dir('../tests')")
-   ))
-
 (use-package ess
   :defer t
   :init
   (require 'ess-site)
   :bind
-    (:map ess-mode-map
-          (";"   . ess-insert-assign)
-		  ("C-;" . insert-r-pipe-operator)
-          )
-    (:map inferior-ess-mode-map
-          (";"       . ess-insert-assign)
-		  ("C-;"     . insert-r-pipe-operator)
-          ("C-c r t" . run-r-tests)
-	  )
+  (:map ess-mode-map
+        (";"   . ess-insert-assign)
+        ("C-;" . insert-r-pipe-operator))
+  (:map inferior-ess-mode-map
+        (";"       . ess-insert-assign)
+        ("C-;"     . insert-r-pipe-operator)
+        ("C-c r t" . run-r-tests))
+  :custom
+  (ess-use-flymake nil)
+  (ess-R-font-lock-keywords
+   '((ess-R-fl-keyword:modifiers . t)
+     (ess-R-fl-keyword:fun-defs . t)
+     (ess-R-fl-keyword:keywords . t)
+     (ess-R-fl-keyword:assign-ops . t)
+     (ess-R-fl-keyword:constants . t)
+     (ess-fl-keyword:fun-calls . t)
+     (ess-fl-keyword:numbers . t)
+     (ess-fl-keyword:operators . t)
+     (ess-fl-keyword:delimiters)
+     (ess-fl-keyword:=)
+     (ess-R-fl-keyword:F&T . t)))
+  (inferior-R-font-lock-keywords
+   '((ess-S-fl-keyword:prompt . t)
+     (ess-R-fl-keyword:messages . t)
+     (ess-R-fl-keyword:modifiers . t)
+     (ess-R-fl-keyword:fun-defs . t)
+     (ess-R-fl-keyword:keywords . t)
+     (ess-R-fl-keyword:assign-ops . t)
+     (ess-R-fl-keyword:constants . t)
+     (ess-fl-keyword:matrix-labels . t)
+     (ess-fl-keyword:fun-calls . t)
+     (ess-fl-keyword:numbers . t)
+     (ess-fl-keyword:operators . t)
+     (ess-fl-keyword:delimiters)
+     (ess-fl-keyword:=)
+     (ess-R-fl-keyword:F&T . t)))
+  (ess-help-own-frame 'one)
+  (ess-tab-complete-in-script t)
+  (ess-first-tab-never-complete 'symbol-or-paren-or-punct)
   :config
-  (setq ess-use-flymake nil)
-;;  (setq ess-use-company nil)
-  (setq ess-R-font-lock-keywords
-        '((ess-R-fl-keyword:modifiers . t)
-          (ess-R-fl-keyword:fun-defs . t)
-          (ess-R-fl-keyword:keywords . t)
-          (ess-R-fl-keyword:assign-ops . t)
-          (ess-R-fl-keyword:constants . t)
-          (ess-fl-keyword:fun-calls .t)
-          (ess-fl-keyword:numbers . t)
-          (ess-fl-keyword:operators . t)
-          (ess-fl-keyword:delimiters)
-          (ess-fl-keyword:=)
-          (ess-R-fl-keyword:F&T . t)
-          ))
   (global-set-key (kbd "C-j") 'ess-eval-line-and-step)
-  ;;(global-set-key (kbd "C-M-j") 'ess-eval-region)
-  (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go)
-  ;; font-lock for R interpreter
-  (setq inferior-R-font-lock-keywords
-        '((ess-S-fl-keyword:prompt      . t)
-          (ess-R-fl-keyword:messages    . t)
-          (ess-R-fl-keyword:modifiers   . t)
-          (ess-R-fl-keyword:fun-defs    . t)
-          (ess-R-fl-keyword:keywords    . t)
-          (ess-R-fl-keyword:assign-ops  . t)
-          (ess-R-fl-keyword:constants   . t)
-          (ess-fl-keyword:matrix-labels . t)
-          (ess-fl-keyword:fun-calls . t)
-          (ess-fl-keyword:numbers . t)
-          (ess-fl-keyword:operators . t)
-          (ess-fl-keyword:delimiters)
-          (ess-fl-keyword:=)
-          (ess-R-fl-keyword:F&T . t)))
-    (setq ess-help-own-frame 'one)
-    (setq ess-tab-complete-in-script t)
-    (setq ess-first-tab-never-complete
-          'symbol-or-paren-or-punct)
-    )
+  (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go))
 
-;;TODO:
+(use-package tree-sitter-ess-r
+  :ensure t
+  :after (ess)
+  :hook (ess-r-mode . tree-sitter-ess-r-mode-activate))
+
+;; TODO:
 (defun awc/test-R-project (&optional test-whole-project)
   "Run unittests for R in project.")
-
-(use-package poly-markdown)
-
-(use-package poly-R)
-
-(use-package polymode
-  :config
-  (add-to-list 'auto-mode-alist '("\\.md$" . poly-markdown-mode))
-  (add-to-list 'auto-mode-alist '("\\.Rmd$" . poly-markdown+r-mode))
-  (add-to-list 'polymode-run-these-after-change-functions-in-other-buffers 'lsp-on-change)
-  (add-to-list 'polymode-run-these-before-change-functions-in-other-buffers 'lsp-before-change)
-  )
 
 ;; (defun r-function (function-name)
 ;;   "Create and name a function in R"
 ;;   (interactive "sFunction name: ")
 ;;   (insert (concat function-name " <- function() {\n\n}"))
 ;;   (forward-line -1))
-
 
 ;; (define-skeleton rmd-skeleton-header
 ;;   "Rmd headers with focus on LaTex output."
@@ -117,10 +95,35 @@ assumed that we are running in /R folder and the tests are in the
 ;; (global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
 
 ;; Quarto is Posit's new literate programming paradigm
-(use-package quarto-mode
-  :mode (("\\.qmd" . poly-quarto-mode))
-  :bind (("C-c q p" . quarto-preview))
-  )
+;; (use-package quarto-mode
+;;   :mode (("\\.qmd" . poly-quarto-mode))
+;;   :bind (("C-c q p" . quarto-preview))
+;; )
+
+;; (use-package quarto-mode
+;;   :mode ("\\.qmd\\'" . poly-quarto-mode)
+;;   :bind (("C-c q p" . quarto-preview))
+;;   :config
+;;   ;; Set up Python execution in Quarto mode
+;;   (defun quarto-python-send-chunk ()
+;;     "Send the current Python chunk to the Python interpreter."
+;;     (interactive)
+;;     (save-excursion
+;;       (let ((chunk (quarto--current-code-chunk)))
+;;         (when (string= (quarto-code-chunk-language chunk) "python")
+;;           (let ((code (quarto-code-chunk-body chunk)))
+;;             (python-shell-send-string code))))))
+
+;;   ;; Bind key for sending Python chunks
+;;   ;; (define-key quarto-mode-map (kbd "C-c C-c") 'quarto-python-send-chunk)
+
+;;   ;; Activate virtual environment when opening Quarto files
+;;   (add-hook 'quarto-mode-hook
+;;             (lambda ()
+;;               (let ((venv-path (concat (projectile-project-root) ".venv")))
+;;                 (when (file-exists-p venv-path)
+;;                   (pyvenv-activate venv-path)))))
+;; )
 
 (provide 'init-ess)
 
