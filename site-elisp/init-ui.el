@@ -8,10 +8,27 @@
 
 ;;; Code:
 
-;; TODO: Need to gracefully degrade if font not available
-(set-face-attribute 'default nil
-                    :family "Comic Code Ligatures" :weight 'normal)
-(set-fontset-font t 'han (font-spec :name "Hiragino Sans GB" :size 16))
+;; Function to set default font with fallback
+(defun set-default-font (font-names)
+  "Set the default font to the first available font in FONT-NAMES."
+  (let ((available-font (seq-find (lambda (font) (find-font (font-spec :name font))) font-names)))
+    (when available-font
+      (set-face-attribute 'default nil :family available-font :weight 'normal))))
+
+;; Function to set Han font with fallback
+(defun set-han-font (font-names size)
+  "Set the Han font to the first available font in FONT-NAMES with SIZE."
+  (let ((available-font (seq-find (lambda (font) (find-font (font-spec :name font))) font-names)))
+    (when available-font
+      (set-fontset-font t 'han (font-spec :name available-font :size size)))))
+
+;; List of preferred and fallback fonts
+(setq preferred-default-fonts '("Comic Code Ligatures" "Monaco" "Menlo" "Courier"))
+(setq preferred-han-fonts '("Hiragino Sans GB" "SimSun" "Microsoft YaHei"))
+
+;; Attempt to set the default font and Han font with fallbacks
+(set-default-font preferred-default-fonts)
+(set-han-font preferred-han-fonts 16)
 
 ;; visually show the indentation within the program
 (use-package indent-guide
@@ -170,6 +187,9 @@
                                        "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
                                        "\\\\" "://"))
   (global-ligature-mode t))
+
+(straight-use-package 'tree-sitter)
+(straight-use-package 'tree-sitter-langs)
 
 (provide 'init-ui)
 
