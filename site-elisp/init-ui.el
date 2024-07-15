@@ -1,9 +1,29 @@
-;;; init-ui.el --- User Interface customisations
+;;; init-ui.el --- User Interface customizations
 ;;
 ;;; Commentary:
 ;;
-;;  The customisations in this file relate to the visual aesthetics
-;;  and function of my Emacs configuration.
+;;  This configuration file contains customizations related to the
+;;  visual aesthetics and functionality of the Emacs user interface.
+;;  It includes settings for fonts, themes, modeline, and various
+;;  visual enhancements to improve the overall user experience.
+;;
+;;  Key Features:
+;;  - Font customization with fallback options
+;;  - Indentation guides for better code readability
+;;  - Highlighting changes and other volatile actions
+;;  - Git integration with gutter indicators
+;;  - Smooth scrolling
+;;  - Rainbow delimiters for distinguishing nested expressions
+;;  - Highlighting TODO keywords in code
+;;  - Dynamic theme switching based on time of day
+;;  - Modeline enhancements with `doom-modeline`
+;;  - Which-key integration for discovering keybindings
+;;  - Nerd icons for various modes
+;;  - Enhanced terminal colors
+;;  - Darkroom mode for distraction-free writing
+;;  - Pulsar for visual feedback on various actions
+;;  - Ligature support for programming modes
+;;  - Tree-sitter integration for improved syntax highlighting
 ;;
 
 ;;; Code:
@@ -33,16 +53,17 @@
 ;; visually show the indentation within the program
 (use-package indent-guide
   :ensure t
+  :custom
+  (indent-guide-char "|")
+  :custom-face
+  (indent-guide-face ((t (:foreground "cadet blue"))))
   :config
-  (indent-guide-global-mode)
-  (setq indent-guide-char "|")
-  (set-face-foreground 'indent-guide-face "cadet blue"))
+  (indent-guide-global-mode))
 
 ;; volatile highlights - highlight changes from pasting etc
 (use-package volatile-highlights
   :ensure t
-  :config
-  (volatile-highlights-mode t))
+  :hook (after-init . volatile-highlights-mode))
 
 (use-package git-gutter-fringe
   :config
@@ -54,8 +75,8 @@
 
 (use-package rainbow-delimiters
   :hook
-  (prog-mode . rainbow-delimiters-mode)
-  (ess-mode  . rainbow-delimiters-mode))
+  ((prog-mode . rainbow-delimiters-mode)
+   (ess-mode  . rainbow-delimiters-mode)))
 
 (use-package hl-todo
   :config (global-hl-todo-mode t))
@@ -69,69 +90,52 @@
   (modus-themes-completions '((matches   . (extrabold))
                               (selection . (semibold accented))
                               (popup     . (accented intense))))
-  (modus-operandi-tinted-palette-overrides '((comment fg-dim)))
-  )
+  (modus-operandi-tinted-palette-overrides '((comment fg-dim))))
 
 ;; sometimes want a bit more for themes
 (use-package ef-themes
   :bind ("C-c m m" . ef-themes-toggle))
 
 (use-package doom-modeline
-  :config
-  (setq doom-modeline-height 20)
-  (setq doom-modeline-bar-width 1)
-  (setq doom-modeline-icon t)
-  (setq doom-modeline-major-mode-color-icon t)
-  (setq doom-modeline-lsp-icon t)
-  (setq doom-modeline-time-icon t)
-  (setq doom-modeline-time-live-icon t)
-  (setq doom-modeline-project-detection 'auto)
-  (setq doom-modeline-continuous-word-count-modes
-		'(markdown-mode gfm-mode org-mode))
+  :custom
+  (doom-modeline-height 20)
+  (doom-modeline-bar-width 1)
+  (doom-modeline-icon t)
+  (doom-modeline-major-mode-color-icon t)
+  (doom-modeline-lsp-icon t)
+  (doom-modeline-time-icon t)
+  (doom-modeline-time-live-icon t)
+  (doom-modeline-project-detection 'auto)
+  (doom-modeline-continuous-word-count-modes
+   '(markdown-mode gfm-mode org-mode))
   :hook
   (after-init . doom-modeline-mode))
 
 (use-package circadian
+  :custom
+  (calendar-longitude 1.2576288)
+  (calendar-latitude 51.7519826)
+  (calendar-location-name "Oxford, United Kingdom")
+  (circadian-themes '((:sunrise . modus-operandi-tinted)
+                      (:sunset  . modus-vivendi)))
   :config
-  (setq calendar-longitude 1.2576288)
-  (setq calendar-latitude 51.7519826)
-  (setq calendar-location-name "Oxford, United Kingdom")
-  (setq circadian-themes '((:sunrise . modus-operandi-tinted)
-                           (:sunset  . modus-vivendi)))
   (circadian-setup))
 
 (use-package which-key
   :init (which-key-mode)
   :diminish which-key-mode
-  :config
-  (setq which-key-idle-delay 1))
-
-;; Icons in dired and other places
-;; (use-package all-the-icons
-;;   :if (display-graphic-p)
-;;   :config
-;;   (setq all-the-icons-scale-factor 1.3)
-;;   (setq all-the-icons-dired-monochrome nil))
-
-;; (use-package all-the-icons-dired
-;;   :if (display-graphic-p)
-;;   :hook (dired-mode . all-the-icons-dired-mode)
-;;   :config (setq all-the-icons-dired-monochrome nil))
+  :custom
+  (which-key-idle-delay 1))
 
 (use-package nerd-icons
-  :ensure t
-  ;; :custom
-  ;; The Nerd Font you want to use in GUI
-  ;; "Symbols Nerd Font Mono" is the default and is recommended
-  ;; but you can use any other Nerd Font if you want
-  ;; (nerd-icons-font-family "Symbols Nerd Font Mono")
-  )
+  :ensure t)
 
 (use-package nerd-icons-completion
   :after marginalia
+  :hook
+  (marginalia-mode . nerd-icons-completion-marginalia-setup)
   :config
-  (nerd-icons-completion-mode)
-  (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+  (nerd-icons-completion-mode))
 
 (use-package nerd-icons-dired
   :hook
@@ -140,10 +144,6 @@
 (use-package nerd-icons-corfu
   :after corfu
   :init (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
-
-;; (use-package all-the-icons-completion
-;;   :config
-;;   (all-the-icons-completion-mode))
 
 (use-package eterm-256color
   :hook (term-mode . eterm-256color-mode))
@@ -159,17 +159,16 @@
 (use-package pulsar
   :init
   (pulsar-global-mode 1)
-  :config
-  (setq pulsar-pulse-on-window-change t)
-  (setq pulsar-pulse t)
-  (setq pulsar-face 'pulsar-magenta)
-  (setq pulsar-highlight-face 'pulsar-magenta)
-  (setq pulsar-delay 0.15)
-  (setq pulsar-iterations 10)
+  :custom
+  (pulsar-pulse-on-window-change t)
+  (pulsar-pulse t)
+  (pulsar-face 'pulsar-magenta)
+  (pulsar-highlight-face 'pulsar-magenta)
+  (pulsar-delay 0.15)
+  (pulsar-iterations 10)
   :bind
   ("C-x p l" . pulsar-pulse-line)
-  ("C-x p h" . pulsar-highlight-line)
-  )
+  ("C-x p h" . pulsar-highlight-line))
 
 (use-package ligature
   :config
