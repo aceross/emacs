@@ -40,11 +40,6 @@
   (setq lsp-pyright-stub-path (concat (getenv "HOME") "/src/python-type-stubs"))
   )
 
-(use-package markdown-mode
-  :hook (markdown-mode . lsp)
-  :config
-  (require 'lsp-marksman))
-
 (use-package lsp-julia)
 
 ;; (use-package eglot
