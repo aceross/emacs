@@ -34,12 +34,13 @@
   (require 'init-core)
   (require 'init-ui)
   (require 'init-org)
-  (require 'init-ess)
   (require 'init-python)
+  (require 'init-ess)
   (require 'init-lisp)
  ;; (require 'init-julia)
   (require 'init-text)
- ;; (require 'init-lsp)
+  (require 'init-lsp)
+  (require 'init-quarto)
   )
 
 ;;; init.el ends here

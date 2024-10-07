@@ -93,8 +93,8 @@
   (modus-operandi-tinted-palette-overrides '((comment fg-dim))))
 
 ;; sometimes want a bit more for themes
-(use-package ef-themes
-  :bind ("C-c m m" . ef-themes-toggle))
+;; (use-package ef-themes
+;;   :bind ("C-c m m" . ef-themes-toggle))
 
 (use-package doom-modeline
   :custom

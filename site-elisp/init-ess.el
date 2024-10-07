@@ -9,11 +9,35 @@
 
 ;;; Code:
 
+;;; Init-ess.el --- Customisations for the Emacs Speaks Statistics package
+;;
+;;; Commentary:
+;;
+;;  Mostly font and readability stuff.
+
+;;; Code:
+
 (defun insert-r-pipe-operator()
   "R - |> operator or 'then' pipe operator."
   (interactive
    (insert "|>")
    (reindent-then-newline-and-indent)))
+
+  ;; Define hook functions
+  (defun awc/setup-ess-r-mode ()
+    (local-set-key (kbd "<f9>") #'ess-rdired))
+
+  (defun awc/setup-ess-rdired-mode ()
+    (local-set-key (kbd "<f9>") #'kill-buffer-and-window))
+
+ (defun my-close-ess-view-buffer ()
+    "Close the *R view* buffer and its associated window."
+    (interactive)
+    (let ((view-buffer-name "*R view*")) ;; Adjust buffer name as needed
+      (when (get-buffer view-buffer-name)
+        (let ((window (get-buffer-window view-buffer-name)))
+          (when window
+            (quit-window nil window))))))
 
 (use-package ess
   :defer t
@@ -61,7 +85,11 @@
   (ess-first-tab-never-complete 'symbol-or-paren-or-punct)
   :config
   (global-set-key (kbd "C-j") 'ess-eval-line-and-step)
-  (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go))
+  (global-set-key (kbd "C-M-j") 'ess-eval-region-and-go)
+    :hook
+  ((ess-r-mode . awc/setup-ess-r-mode)
+   (ess-rdired-mode . awc/setup-ess-rdired-mode))
+  )
 
 (use-package tree-sitter-ess-r
   :ensure t
