@@ -57,11 +57,12 @@
 ;;    (LaTeX-mode  . eglot-ensure))
 ;;   )
 
-;; (use-package lsp-grammarly
-;;   :ensure t
-;;   :hook (text-mode . (lambda ()
-;;                        (require 'lsp-grammarly)
-;;                        (lsp-deferred))))  ; or lsp
+(use-package lsp-grammarly
+  :ensure t
+  :hook (text-mode . (lambda ()
+                       (unless (derived-mode-p 'poly-quarto-mode)
+                         (require 'lsp-grammarly)
+                         (lsp-deferred)))))  ; or lsp
 
 (use-package yasnippet
   :hook
