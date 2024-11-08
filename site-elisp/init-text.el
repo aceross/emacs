@@ -17,7 +17,7 @@
   (ispell-check-comments t)
   (aspell-dictionary "en_GB-ise-w_accents")
   :config
-  ;; Customize the appearance of misspelled words
+  ;; Customise the appearance of misspelled words
   (set-face-attribute 'flyspell-incorrect nil
                       :background "light coral"
                       :foreground "firebrick4"
@@ -93,13 +93,36 @@
                 (member (preceding-char) '(?\ ?\t ?\n ?~)))
             cite (concat "~" cite)))))
   :config
+  ;; Start Emacs server for PDF syncing
   (server-start)
   (TeX-source-correlate-mode t)
+
+  ;; Custom section title appearance in LaTeX mode
+  (defun my-latex-custom-sectioning ()
+    "Custom face for LaTeX section titles."
+    (set-face-attribute 'font-latex-sectioning-1-face nil :height 1.6 :weight 'bold)
+    (set-face-attribute 'font-latex-sectioning-2-face nil :height 1.4 :weight 'bold)
+    (set-face-attribute 'font-latex-sectioning-3-face nil :height 1.2 :weight 'bold)
+    (set-face-attribute 'font-latex-sectioning-4-face nil :height 1.1 :weight 'bold))
+
+  ;; Hooks for LaTeX mode
   :hook
   ((LaTeX-mode . flyspell-mode)
-   (LaTeX-mode . LaTeX-math-mode))
+   (LaTeX-mode . LaTeX-math-mode)
+   (LaTeX-mode . my-latex-custom-sectioning)
+   )
   :hook
   (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
+
+;;   ;; Custom section title appearance in LaTeX mode
+;;   (defun my-latex-custom-sectioning ()
+;;     "Custom face for LaTeX section titles."
+;;     (set-face-attribute 'font-latex-sectioning-1-face nil :height 1.6 :weight 'bold)
+;;     (set-face-attribute 'font-latex-sectioning-2-face nil :height 1.4 :weight 'bold)
+;;     (set-face-attribute 'font-latex-sectioning-3-face nil :height 1.2 :weight 'bold)
+;;     (set-face-attribute 'font-latex-sectioning-4-face nil :height 1.1 :weight 'bold))
+
+;; (add-hook 'LaTeX-mode-hook 'my-latex-custom-sectioning)
 
 ;; Preview LaTeX math
 (use-package latex-math-preview)
