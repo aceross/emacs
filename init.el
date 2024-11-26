@@ -40,7 +40,8 @@
  ;; (require 'init-julia)
   (require 'init-text)
   (require 'init-lsp)
-;;  (require 'init-quarto)
+  ;;  (require 'init-quarto)
+  (require 'qmd-mode)
   )
 
 ;;; init.el ends here
