@@ -54,7 +54,11 @@
                 (visual-line-mode 1)))
   :config
   (org-babel-do-load-languages
-   'org-babel-load-languages '((R . t) (python . t))))
+   'org-babel-load-languages '((R . t) (python . t)))
+  :custom
+  (org-cite-global-bibliography
+   '("~/Documents/bibliography/references.bib"))
+  )
 
 ;; Set org-format-latex-options after org-mode is loaded
 (with-eval-after-load 'org
@@ -119,6 +123,9 @@
            :if-new (file+head "${slug}.org" "#+TITLE: ${title}\n#+DATE: %T\n")
            :unnarrowed t)))
   (org-roam-setup))
+
+(use-package ox-pandoc
+  :ensure t)
 
 ;; Citar Org-Roam for Citation Management
 (use-package citar-org-roam
