@@ -201,7 +201,7 @@
   :commands ebib
   :config
   ;; Set up directories for Ebib
-  (setq ebib-default-directory "~/Documents/bibliography/references.bib"
+  (setq ebib-default-directory "~/Documents/bibliography/"
         ebib-bib-search-dirs `(,bibtex-file-path)))
 
 ;; Configuration for Citar, a citation management tool
@@ -210,32 +210,21 @@
   (("C-c b" . citar-insert-citation)
    ("C-c r" . citar-insert-reference))
   :custom
-  ;; Customization for Citar
+  ;; Customisation for Citar
   (org-cite-csl-styles-dir (expand-file-name "~/styles/"))
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
-  (citar-bibliography org-cite-global-bibliography)
-  (citar-at-point-function 'embark-act)
-  (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
-                     (suffix . "    ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
-                     (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
-                     (note . ,(concat "#+TITLE: ${title}\n"
-                                      "#+AUTHOR: ${author editor}\n"
-                                      "#+DATE: ${date}\n"
-                                      "#+SOURCE: ${doi url}\n"
-                                      "#+CUSTOM_ID: ${=key= id}\n"
-                                      "#+cite_export: biblatex ieee\n"
-                                      (concat "#+bibliography: " (car citar-bibliography) "\n\n")
-                                      "* Notes :ignore:\n"
-                                      ":PROPERTIES:\n"
-                                      ":NOTER_DOCUMENT: ${file} \n"
-                                      ":END:\n\n"
-                                      "* Summary :childless:showchildren:export:\n"
-                                      "This is a summary of [cite/t:@${=key=}].\n"
-                                      "** Bibliography :ignore:\n"
-                                      ))))
-  (citar-symbol-separator "  ")
+  (citar-bibliography '("~/Documents/bibliography/references.bib"))
+  (citar-notes-paths '("~/Documents/zettelkasten/zettelkasten/"))
+  ;; (citar-file-note-extensions '("org")) ;; Set the allowed extensions
+  ;; (citar-at-point-function 'embark-act)
+  ;; (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
+  ;;                    (suffix . "    ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
+  ;;                    (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+  ;; 					 (note . "Notes on ${author editor}, ${title}")
+  ;; 					 ))
+  ;; (citar-symbol-separator "  ")
   :config
   ;; Define custom indicators for Citar
   (defvar citar-indicator-files-icons
@@ -280,13 +269,19 @@
               citar-indicator-cited-icons))
   :hook
   ((LaTeX-mode . citar-capf-setup)
-   (org-mode . citar-capf-setup)))
+  (org-mode   . citar-capf-setup))
+  )
+
 
 ;; Configuration for Citar Embark, integration with Embark
+;; (use-package citar-embark
+;;   :hook
+;;   ((LaTeX-mode . citar-embark-mode)
+;;    (org-mode . citar-embark-mode)))
 (use-package citar-embark
-  :hook
-  ((LaTeX-mode . citar-embark-mode)
-   (org-mode . citar-embark-mode)))
+  :after citar embark
+  :no-require
+  :config (citar-embark-mode))
 
 ;; Configuration for LSP Grammarly, a language server for grammar checking
 (use-package lsp-grammarly
