@@ -121,7 +121,13 @@
   (setq org-roam-capture-templates
         '(("d" "default" plain "%?"
            :if-new (file+head "${slug}.org" "#+TITLE: ${title}\n#+DATE: %T\n")
-           :unnarrowed t)))
+           :unnarrowed t)
+        ("n" "literature note" plain "%?"
+         :target
+         (file+head
+          "%(expand-file-name (or citar-org-roam-subdir \"\") org-roam-directory)/${citar-citekey}.org"
+          "#+title: ${citar-citekey} (${citar-date}). ${note-title}.\n#+created: %U\n#+last_modified: %U\n\n")
+         :unnarrowed t)))
   (org-roam-setup))
 
 (use-package ox-pandoc

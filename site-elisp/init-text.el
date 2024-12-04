@@ -205,7 +205,16 @@
         ebib-bib-search-dirs `(,bibtex-file-path)))
 
 ;; Configuration for Citar, a citation management tool
+;; Ensure Citar opens PDF files in a new buffer
+(defun citar-open-pdf-in-buffer (key entry)
+  "Open the PDF file associated with a Citar entry in a new buffer."
+  (let ((file (citar-get-files entry)))
+    (if (and file (file-exists-p (car file)))
+        (find-file (car file)) ;; Open in a new buffer
+      (message "No PDF file found for this entry"))))
+
 (use-package citar
+  :defer t
   :bind
   (("C-c b" . citar-insert-citation)
    ("C-c r" . citar-insert-reference))
@@ -217,15 +226,21 @@
   (org-cite-activate-processor 'citar)
   (citar-bibliography '("~/Documents/bibliography/references.bib"))
   (citar-notes-paths '("~/Documents/zettelkasten/zettelkasten/"))
-  ;; (citar-file-note-extensions '("org")) ;; Set the allowed extensions
-  ;; (citar-at-point-function 'embark-act)
-  ;; (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
-  ;;                    (suffix . "    ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
-  ;;                    (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
-  ;; 					 (note . "Notes on ${author editor}, ${title}")
-  ;; 					 ))
-  ;; (citar-symbol-separator "  ")
+  (citar-file-note-extensions '("org")) ;; Set the allowed extensions
+  (citar-at-point-function 'embark-act)
+  (citar-notes-create-on-selection t)
+  (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
+                     (suffix . "    ${=key= id:15}    ${=type=:12}    ${tags keywords:*}")
+                     (preview . "${author editor} (${year issued date}) ${title}, ${journal journaltitle publisher container-title collection-title}.\n")
+                     (note . ,(concat "Notes on ${author editor} ${title}\n"
+                                      "#+source: ${doi url}\n"
+                                      "#+roam_key: cite:${=key= id}\n"
+                                      "#+PDF: ${file}\n\n"
+                                      "* Overview\n\n%?"))))
+  (citar-symbol-separator "  ")
   :config
+  ;; Use the custom function to open PDFs in a buffer
+  (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
   ;; Define custom indicators for Citar
   (defvar citar-indicator-files-icons
     (citar-indicator-create
@@ -272,12 +287,7 @@
   (org-mode   . citar-capf-setup))
   )
 
-
 ;; Configuration for Citar Embark, integration with Embark
-;; (use-package citar-embark
-;;   :hook
-;;   ((LaTeX-mode . citar-embark-mode)
-;;    (org-mode . citar-embark-mode)))
 (use-package citar-embark
   :after citar embark
   :no-require
