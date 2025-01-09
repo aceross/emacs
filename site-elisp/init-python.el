@@ -14,7 +14,8 @@
   :config
   (defun my/set-python-interpreter ()
     "Set the Python interpreter to Jupyter if available, otherwise to python3."
-    (if (executable-find "jupyter")
+    (if (and (executable-find "jupyter")
+             (string-match-p "console" (shell-command-to-string "jupyter --version")))
         (setq python-shell-interpreter "jupyter"
               python-shell-interpreter-args "console --simple-prompt")
       (setq python-shell-interpreter "python3"
@@ -24,23 +25,23 @@
 
   (setq python-shell-prompt-detect-failure-warning nil
         python-indent-offset 4
-        python-shell-completion-native-enable nil) ;; Disable native completions globally
-  (add-to-list 'python-shell-completion-native-disabled-interpreters
-               "jupyter-console")
-  (add-to-list 'python-shell-completion-native-disabled-interpreters
-               "jupyter")
-  (add-to-list 'python-shell-completion-native-disabled-interpreters
-               "python3") ;; Disable native completions for python3
+        python-shell-completion-native-enable nil)
+  (dolist (interpreter '("jupyter-console" "jupyter" "python3"))
+    (add-to-list 'python-shell-completion-native-disabled-interpreters interpreter))
+
   (defun fix-python-password-entry ()
+    "Fix password entry in Python shells."
     (push 'comint-watch-for-password-prompt comint-output-filter-functions))
+
   (defun my/python-mode-hook ()
-    "Hook to set up python-mode with the correct virtual environment."
+    "Set up python-mode with virtual environment if available."
     (when (bound-and-true-p pyvenv-virtual-env)
       (setq python-shell-interpreter (concat pyvenv-virtual-env "/bin/python")))))
 
 (use-package pyvenv
+  :hook (python-mode . pyvenv-mode)
   :config
-  (pyvenv-mode t))
+  (setq pyvenv-tracking-ask-before-change t))
 
 ;; Optional: Automatically activate a virtual environment when opening a project
 (use-package projectile
