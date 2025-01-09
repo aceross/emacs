@@ -428,6 +428,8 @@
          ("C-x <left>" . windmove-left)
          ("C-x <right>" . windmove-right)))
 
+(setenv "TERM" "eterm-color")
+
 (provide 'init-core)
 
 ;;; init-core.el ends here
