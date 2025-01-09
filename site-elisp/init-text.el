@@ -204,14 +204,22 @@
   (setq ebib-default-directory "~/Documents/bibliography/"
         ebib-bib-search-dirs `(,bibtex-file-path)))
 
+(defun sync-ebib-to-zotero ()
+  "Save Ebib and trigger Zotero import."
+  (interactive)
+  (ebib-save-databases)
+  (shell-command "zotero-cli import --file ~/Documents/bibliography/references.bib"))
+
+
 ;; Configuration for Citar, a citation management tool
 ;; Ensure Citar opens PDF files in a new buffer
-(defun citar-open-pdf-in-buffer (key entry)
-  "Open the PDF file associated with a Citar entry in a new buffer."
-  (let ((file (citar-get-files entry)))
-    (if (and file (file-exists-p (car file)))
-        (find-file (car file)) ;; Open in a new buffer
-      (message "No PDF file found for this entry"))))
+;; (defun citar-open-pdf-in-buffer (key entry)
+;;   "Open the first PDF file associated with a Citar entry in a new buffer."
+;;   (let* ((files (citar-get-files entry))
+;;          (file (and files (car files)))) ;; Get the first file
+;;     (if (and file (file-exists-p file))
+;;         (find-file file) ;; Open in a new buffer
+;;       (message "No valid PDF file found for this entry: %s" key))))
 
 (use-package citar
   :defer t
@@ -236,11 +244,11 @@
                                       "#+source: ${doi url}\n"
                                       "#+roam_key: cite:${=key= id}\n"
                                       "#+PDF: ${file}\n\n"
-                                      "* Overview\n\n%?"))))
+                                      "* Overview\n"))))
   (citar-symbol-separator "  ")
   :config
   ;; Use the custom function to open PDFs in a buffer
-  (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
+ ;; (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
   ;; Define custom indicators for Citar
   (defvar citar-indicator-files-icons
     (citar-indicator-create
@@ -282,9 +290,9 @@
               citar-indicator-links-icons
               citar-indicator-notes-icons
               citar-indicator-cited-icons))
-  :hook
-  ((LaTeX-mode . citar-capf-setup)
-  (org-mode   . citar-capf-setup))
+  ;; :hook
+  ;; ((LaTeX-mode . citar-capf-setup)
+  ;;  (org-mode   . citar-capf-setup))
   )
 
 ;; Configuration for Citar Embark, integration with Embark
