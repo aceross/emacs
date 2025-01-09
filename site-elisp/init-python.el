@@ -43,12 +43,12 @@
   :config
   (setq pyvenv-tracking-ask-before-change t))
 
-;; Optional: Automatically activate a virtual environment when opening a project
 (use-package projectile
   :config
-  (setq projectile-project-search-path '("~/Documents/work/")) ;; Set your project directory
+  (setq projectile-project-search-path '("~/Documents/work/"))
   (projectile-mode +1)
-  (add-hook 'projectile-after-switch-project-hook 'my/projectile-after-switch-project-hook))
+  (add-hook 'projectile-after-switch-project-hook
+            'my/projectile-after-switch-project-hook))
 
 (defun my/projectile-after-switch-project-hook ()
   "Hook to activate virtualenv when switching projects."
@@ -56,7 +56,7 @@
     (when (file-exists-p venv-path)
       (pyvenv-activate venv-path))))
 
-(add-hook 'quarto-mode-hook (lambda () (pyvenv-activate (concat (projectile-project-root) ".venv"))))
+;; (add-hook 'quarto-mode-hook (lambda () (pyvenv-activate (concat (projectile-project-root) ".venv"))))
 
 (provide 'init-python)
 ;;; init-python.el ends here.
