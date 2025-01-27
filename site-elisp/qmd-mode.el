@@ -24,7 +24,7 @@
   ;; File extensions
   '("\\.qmd$")
   ;; Additional functions to run
-  '(qmd-setup)
+  nil ;; Leave this empty and use `qmd-mode-hook` instead
   "A major mode for editing Quarto (.qmd) files.")
 
 (defun qmd-setup ()
@@ -79,7 +79,7 @@
                                   (match-end 0))
                                 (save-excursion
                                   (re-search-forward "^```" nil t)
-                                  (match-beginning 0))))))
+                                  (match-beginning 0)))))))
 
 (defun qmd-setup-repl ()
   "Setup REPL support for Quarto code chunks."
@@ -87,6 +87,7 @@
   (when (string= (qmd-detect-language) "python")
     (pyvenv-mode)))
 
+(add-hook 'qmd-mode-hook #'qmd-setup)
 (add-hook 'qmd-mode-hook #'qmd-setup-lsp)
 (add-hook 'qmd-mode-hook #'qmd-setup-repl)
 
