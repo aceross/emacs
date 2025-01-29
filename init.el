@@ -41,7 +41,7 @@
   (require 'init-text)
   (require 'init-lsp)
   ;;  (require 'init-quarto)
-  (require 'qmd-mode)
+  (require 'quarto-mode)
   )
 
 ;;; init.el ends here
