@@ -1,0 +1,8 @@
+*.elc
+auto-save-list/
+.cache/
+elpa/
+straight/
+var/
+projectile-bookmarks.eld
+
