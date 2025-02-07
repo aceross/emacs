@@ -43,27 +43,14 @@
 
 (use-package lsp-julia)
 
-;; (use-package eglot
-;;   :config
-;;   (add-to-list 'eglot-server-programs '(c-mode      . ("clangd")))
-;;   (add-to-list 'eglot-server-programs '(python-mode . ("pyright-langserver" "--stdio")))
-;;  ;; (add-to-list 'eglot-server-programs '(ess-r-mode  . ("languageserver")))
-;;   (add-to-list 'eglot-server-programs '(LaTeX-mode  . ("digestif")))
-;;   :custom
-;;   (eglot-autoshutdown t)
-;;   :hook
-;;   ((python-mode . eglot-ensure)
-;;    (c-mode      . eglot-ensure)
-;;    (ess-r-mode  . eglot-ensure)
-;;    (LaTeX-mode  . eglot-ensure))
-;;   )
-
-(use-package lsp-grammarly
+(use-package lsp-ltex
   :ensure t
   :hook (text-mode . (lambda ()
-                       (unless (derived-mode-p 'poly-quarto-mode)
-                         (require 'lsp-grammarly)
-                         (lsp-deferred)))))  ; or lsp
+                       (require 'lsp-ltex)
+                       (lsp)))  ; or lsp-deferred
+  ;; :init
+  ;; (setq lsp-ltex-version "18.4.0")
+  )  ; make sure you have set this
 
 (use-package yasnippet
   :hook
