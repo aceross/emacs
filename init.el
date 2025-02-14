@@ -42,6 +42,7 @@
   (require 'init-lsp)
   ;;  (require 'init-quarto)
   (require 'quarto-mode)
+  (require 'init-gptel)
   )
 
 ;;; init.el ends here
