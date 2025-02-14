@@ -301,18 +301,5 @@
   :no-require
   :config (citar-embark-mode))
 
-;; Configuration for LSP Grammarly, a language server for grammar checking
-(use-package lsp-grammarly
-  :init
-  (setq lsp-grammarly-dialect "british")
-  (setq lsp-grammarly-domain "academic")
-  (setq lsp-grammarly-audience "expert")
-  :custom
-  (lsp-grammarly-suggestions-oxford-comma t)
-  :hook
-  (text-mode . (lambda ()
-                 (require 'lsp-grammarly)
-                 (lsp))))
-
 (provide 'init-text)
 ;;; init-text.el ends here
