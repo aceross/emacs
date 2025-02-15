@@ -62,13 +62,19 @@
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
 
+  (use-package exec-path-from-shell
+  :ensure t
+  :config
+  (when (or (daemonp) (memq window-system '(mac ns x)))
+    (exec-path-from-shell-initialize)))
+
   ;; Default indentation and tabs settings
   (setq-default indent-tabs-mode t)
   (setq-default tab-width 4)
 
   ;; Misc settings
   (defalias 'yes-or-no-p 'y-or-n-p)
-  (delete-selection-mode t)
+  ;; (delete-selection-mode t)
   (recentf-mode t)
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
@@ -429,6 +435,14 @@
          ("C-x <right>" . windmove-right)))
 
 (setenv "TERM" "eterm-color")
+
+(require 'ansi-color)
+(defun my/compilation-filter-ansi-color ()
+  "Apply ANSI color codes to the current compilation buffer region."
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region compilation-filter-start (point))))
+(add-hook 'compilation-filter-hook 'my/compilation-filter-ansi-color)
+
 
 (provide 'init-core)
 
