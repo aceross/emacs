@@ -28,9 +28,10 @@
   :commands (org-mode)
   :custom
   (org-todo-keywords
-   '((sequence "TODO(t)" "PROGRESS(p)" "WAITING(w)" "DELEGATED(d)"
-               "REVIEW(r)" "OVERDUE(o)" "MEETING(m)" "|"
-               "DONE(d)" "CANCELLED(c)" "GRAVEYARD(g)")))
+      '((sequence
+         "TODO(t)" "IN-PROGRESS(i)" "WAITING(w)" "DELEGATED(e)" "REVIEW(r)"
+         "|"
+         "DONE(d)" "CANCELLED(c)" "GRAVEYARD(g)")))
   (org-hide-leading-stars t)
   (org-src-fontify-natively t)
   (org-hide-emphasis-markers t) ; Consolidated setting
@@ -66,10 +67,10 @@
 
 ;; Custom Faces for Org Levels
 (custom-set-faces
-  '(org-level-1 ((t (:inherit outline-1 :height 1.8))))
-  '(org-level-2 ((t (:inherit outline-2 :height 1.5))))
-  '(org-level-3 ((t (:inherit outline-3 :height 1.3))))
-  '(org-level-4 ((t (:inherit outline-4 :height 1.2))))
+  '(org-level-1 ((t (:inherit outline-1 :height 1.5))))
+  '(org-level-2 ((t (:inherit outline-2 :height 1.4))))
+  '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
+  '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
   '(org-level-5 ((t (:inherit outline-5 :height 1.0)))))
 
 ;; ORG-MODERN
@@ -127,7 +128,9 @@
          (file+head
           "%(expand-file-name (or citar-org-roam-subdir \"\") org-roam-directory)/${citar-citekey}.org"
           "#+title: ${citar-citekey} (${citar-date}). ${note-title}.\n#+created: %U\n#+last_modified: %U\n\n")
-         :unnarrowed t)))
+         :unnarrowed t)
+
+		))
   (org-roam-setup))
 
 (use-package ox-pandoc
