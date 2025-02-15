@@ -6,11 +6,26 @@
 ;;
 ;;; Code:
 (use-package python
+  :init
+    (defun python-comint-filter (output)
+    "Filter out '__PYTHON_EL_' when sending region to inferior Python shell.
+See also: https://stackoverflow.com/questions/75103221/emacs-remove-python-el-eval-message"
+  (let* ((regexp "^.*__PYTHON_EL_\\(.*\\)\\(.*\\)[[:space:]]*$")
+         (lines (split-string output "\n"))
+         (filtered-lines (cl-remove-if (lambda (line)
+                                      (or (string-match-p regexp line)
+                                          (string-match-p "^\\s-*$" line)))
+                                    lines)))
+
+    (if (equal (length lines) (length filtered-lines))
+        output
+      (mapconcat 'identity filtered-lines "\n"))))
   :mode (("\\.py\\'" . python-mode)
          ("\\.wsgi\\'" . python-mode))
   :interpreter ("python3" . python-mode)
   :hook ((inferior-python-mode . fix-python-password-entry)
-         (python-mode . my/python-mode-hook))
+         (python-mode . my/python-mode-hook)
+		 (comint-preoutput-filter-functions . python-comint-filter))
   :config
   (defun my/set-python-interpreter ()
     "Set the Python interpreter to Jupyter if available, otherwise to python3."
