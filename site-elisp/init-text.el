@@ -8,20 +8,18 @@
 (use-package flyspell
   :defer t
   :custom
-  ;; Use Aspell for spell checking
-  (ispell-program-name "/usr/bin/aspell")
+  ;; Use Aspell for spell checking based on system type
   (ispell-program-name (if (eq system-type 'darwin)
                            "/opt/homebrew/bin/aspell"
-						 "/usr/bin/aspell"))
+                         "/usr/bin/aspell"))
   (ispell-dictionary "en_GB-ise-w_accents")
   (ispell-check-comments t)
   (aspell-dictionary "en_GB-ise-w_accents")
   :config
   ;; Customise the appearance of misspelled words
-  (set-face-attribute 'flyspell-incorrect nil
-                      :background "light coral"
-                      :foreground "firebrick4"
-                      :weight 'bold)
+  ;; (set-face-attribute 'flyspell-incorrect nil
+  ;;                     :foreground "firebrick"
+  ;;                     :weight 'bold)
   ;; Define regions to skip during spell checking
   (add-to-list 'ispell-skip-region-alist
                '(":\\(PROPERTIES\\|LOGBOOK\\):" . ":END:"))
@@ -38,7 +36,6 @@
 (use-package consult-flyspell
   :after flyspell
   :custom
-  ;; Customize Consult Flyspell settings
   (consult-flyspell-select-function nil)
   (consult-flyspell-set-point-after-word t)
   (consult-flyspell-always-check-buffer nil))
@@ -59,7 +56,9 @@
   (pdf-tools-install)
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   :hook
-  (pdf-view-mode . (lambda () (linum-mode -1))))
+  (pdf-view-mode . (lambda ()
+                   (linum-mode -1)
+                   (pdf-view-continuous-mode 1))))
 
 (use-package nov
   :ensure t
@@ -81,6 +80,7 @@
   (TeX-parse-self t)
   (TeX-auto-save t)
   (TeX-math-close-double-dollar t)
+  (TeX-command-extra-options "--synctex=1")
   (TeX-source-correlate-method 'synctex)
   (TeX-source-correlate-start-server t)
   (TeX-view-program-selection '((output-pdf "PDF Tools")))
@@ -96,33 +96,20 @@
   ;; Start Emacs server for PDF syncing
   (server-start)
   (TeX-source-correlate-mode t)
-
   ;; Custom section title appearance in LaTeX mode
   (defun my-latex-custom-sectioning ()
-    "Custom face for LaTeX section titles."
-    (set-face-attribute 'font-latex-sectioning-1-face nil :height 1.6 :weight 'bold)
-    (set-face-attribute 'font-latex-sectioning-2-face nil :height 1.4 :weight 'bold)
-    (set-face-attribute 'font-latex-sectioning-3-face nil :height 1.2 :weight 'bold)
-    (set-face-attribute 'font-latex-sectioning-4-face nil :height 1.1 :weight 'bold))
-
-  ;; Hooks for LaTeX mode
+    "Set LaTeX section faces to inherit from Org-mode heading faces."
+    (set-face-attribute 'font-latex-sectioning-1-face nil :inherit 'org-level-1)
+    (set-face-attribute 'font-latex-sectioning-2-face nil :inherit 'org-level-2)
+    (set-face-attribute 'font-latex-sectioning-3-face nil :inherit 'org-level-3)
+    (set-face-attribute 'font-latex-sectioning-4-face nil :inherit 'org-level-4)
+    ;; Optionally, if you use a fifth level:
+    (set-face-attribute 'font-latex-sectioning-5-face nil :inherit 'org-level-5))
   :hook
   ((LaTeX-mode . flyspell-mode)
    (LaTeX-mode . LaTeX-math-mode)
    (LaTeX-mode . my-latex-custom-sectioning)
-   )
-  :hook
-  (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
-
-;;   ;; Custom section title appearance in LaTeX mode
-;;   (defun my-latex-custom-sectioning ()
-;;     "Custom face for LaTeX section titles."
-;;     (set-face-attribute 'font-latex-sectioning-1-face nil :height 1.6 :weight 'bold)
-;;     (set-face-attribute 'font-latex-sectioning-2-face nil :height 1.4 :weight 'bold)
-;;     (set-face-attribute 'font-latex-sectioning-3-face nil :height 1.2 :weight 'bold)
-;;     (set-face-attribute 'font-latex-sectioning-4-face nil :height 1.1 :weight 'bold))
-
-;; (add-hook 'LaTeX-mode-hook 'my-latex-custom-sectioning)
+   (TeX-after-compilation-finished-functions . TeX-revert-document-buffer)))
 
 ;; Preview LaTeX math
 (use-package latex-math-preview)
@@ -167,7 +154,16 @@
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+  :init
+  (setq markdown-command "multimarkdown")
+  :config
+  ;; Inherit Org-mode heading styles
+  (set-face-attribute 'markdown-header-face-1 nil :inherit 'org-level-1)
+  (set-face-attribute 'markdown-header-face-2 nil :inherit 'org-level-2)
+  (set-face-attribute 'markdown-header-face-3 nil :inherit 'org-level-3)
+  (set-face-attribute 'markdown-header-face-4 nil :inherit 'org-level-4)
+  (set-face-attribute 'markdown-header-face-5 nil :inherit 'org-level-5)
+  (set-face-attribute 'markdown-header-face-6 nil :inherit 'org-level-6))
 
 ;; Configuration for Writegood Mode, a tool for improving writing
 (use-package writegood-mode
@@ -202,7 +198,7 @@
   :config
   ;; Set up directories for Ebib
   (setq ebib-default-directory "~/Documents/bibliography/"
-        ebib-bib-search-dirs `(,bibtex-file-path)))
+        ebib-bib-search-dirs (list bib-files-directory)))
 
 (defun sync-ebib-to-zotero ()
   "Save Ebib and trigger Zotero import."
@@ -210,31 +206,20 @@
   (ebib-save-databases)
   (shell-command "zotero-cli import --file ~/Documents/bibliography/references.bib"))
 
-
 ;; Configuration for Citar, a citation management tool
-;; Ensure Citar opens PDF files in a new buffer
-;; (defun citar-open-pdf-in-buffer (key entry)
-;;   "Open the first PDF file associated with a Citar entry in a new buffer."
-;;   (let* ((files (citar-get-files entry))
-;;          (file (and files (car files)))) ;; Get the first file
-;;     (if (and file (file-exists-p file))
-;;         (find-file file) ;; Open in a new buffer
-;;       (message "No valid PDF file found for this entry: %s" key))))
-
 (use-package citar
   :defer t
   :bind
   (("C-c b" . citar-insert-citation)
    ("C-c r" . citar-insert-reference))
   :custom
-  ;; Customisation for Citar
   (org-cite-csl-styles-dir (expand-file-name "~/styles/"))
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
   (org-cite-activate-processor 'citar)
   (citar-bibliography '("~/Documents/bibliography/references.bib"))
   (citar-notes-paths '("~/Documents/zettelkasten/zettelkasten/"))
-  (citar-file-note-extensions '("org")) ;; Set the allowed extensions
+  (citar-file-note-extensions '("org"))
   (citar-at-point-function 'embark-act)
   (citar-notes-create-on-selection t)
   (citar-templates `((main . "${author editor:30}     ${date year issued:4}     ${title:48}")
@@ -247,8 +232,6 @@
                                       "* Overview\n"))))
   (citar-symbol-separator "  ")
   :config
-  ;; Use the custom function to open PDFs in a buffer
- ;; (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
   ;; Define custom indicators for Citar
   (defvar citar-indicator-files-icons
     (citar-indicator-create
@@ -257,7 +240,7 @@
               :face 'nerd-icons-green
               :v-adjust -0.1)
      :function #'citar-has-files
-     :padding "  "  ;; Increase padding for icon visibility
+     :padding "  "
      :tag "has:files"))
   (defvar citar-indicator-links-icons
     (citar-indicator-create
@@ -290,9 +273,8 @@
               citar-indicator-links-icons
               citar-indicator-notes-icons
               citar-indicator-cited-icons))
-  ;; :hook
-  ;; ((LaTeX-mode . citar-capf-setup)
-  ;;  (org-mode   . citar-capf-setup))
+  ;; (Optional) Uncomment and adjust the following to open PDFs in a new buffer
+  ;; (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
   )
 
 ;; Configuration for Citar Embark, integration with Embark
@@ -300,6 +282,16 @@
   :after citar embark
   :no-require
   :config (citar-embark-mode))
+
+(use-package unfill
+  :ensure t)
+
+(use-package visual-fill-column
+  :ensure t
+  :custom
+  (visual-fill-column-width 80)
+  :hook
+  (text-mode . visual-fill-column-mode))
 
 (provide 'init-text)
 ;;; init-text.el ends here
