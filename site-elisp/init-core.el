@@ -361,12 +361,6 @@
         orderless-style-dispatchers (list #'+orderless-consult-dispatch
                                           #'orderless-affix-dispatch)))
 
-;; (use-package orderless
-;;   :custom
-;;   (completion-styles '(orderless basic))
-;;   (completion-category-defaults nil)
-;;   (completion-category-overrides '((file (styles basic partial-completion)))))
-
 (use-package marginalia
   :after vertico
   :bind (("M-A" . marginalia-cycle)
@@ -435,6 +429,9 @@
          ("C-x <right>" . windmove-right)))
 
 (setenv "TERM" "eterm-color")
+
+(use-package vterm
+  :ensure t)
 
 (require 'ansi-color)
 (defun my/compilation-filter-ansi-color ()
