@@ -1,14 +1,3 @@
-;;; init-ess.el --- Customizations for Emacs Speaks Statistics (ESS)
-
-;;; Commentary:
-;;
-;;  This file provides customizations and settings for Emacs Speaks Statistics (ESS),
-;;  tailored to enhance R programming workflow within Emacs. It includes keybindings,
-;;  syntax highlighting configurations, and buffer display settings optimised for
-;;  interacting with R scripts, consoles, and environment variables.
-
-;;; Code:
-
 ;;; Init-ess.el --- Customisations for the Emacs Speaks Statistics package
 ;;
 ;;; Commentary:
@@ -24,20 +13,20 @@
    (reindent-then-newline-and-indent)))
 
   ;; Define hook functions
-  (defun awc/setup-ess-r-mode ()
-    (local-set-key (kbd "<f9>") #'ess-rdired))
+(defun awc/setup-ess-r-mode ()
+  (local-set-key (kbd "<f9>") #'ess-rdired))
 
-  (defun awc/setup-ess-rdired-mode ()
-    (local-set-key (kbd "<f9>") #'kill-buffer-and-window))
+(defun awc/setup-ess-rdired-mode ()
+  (local-set-key (kbd "<f9>") #'kill-buffer-and-window))
 
- (defun my-close-ess-view-buffer ()
-    "Close the *R view* buffer and its associated window."
-    (interactive)
-    (let ((view-buffer-name "*R view*")) ;; Adjust buffer name as needed
-      (when (get-buffer view-buffer-name)
-        (let ((window (get-buffer-window view-buffer-name)))
-          (when window
-            (quit-window nil window))))))
+(defun my-close-ess-view-buffer ()
+  "Close the *R view* buffer and its associated window."
+  (interactive)
+  (let ((view-buffer-name "*R view*")) ;; Adjust buffer name as needed
+    (when (get-buffer view-buffer-name)
+      (let ((window (get-buffer-window view-buffer-name)))
+        (when window
+          (quit-window nil window))))))
 
 (use-package ess
   :defer t
@@ -48,11 +37,15 @@
         (";"   . ess-insert-assign)
         ("C-;" . insert-r-pipe-operator))
   (:map inferior-ess-mode-map
-        (";"       . ess-insert-assign)
-        ("C-;"     . insert-r-pipe-operator)
-        ("C-c r t" . run-r-tests))
+        (";"   . ess-insert-assign)
+        ("C-;" . insert-r-pipe-operator))
   :custom
+  (ess-eval-visibly 'nowait)
+  (inferior-ess-fix-misaligned-output t)
   (ess-use-flymake nil)
+  (comint-process-echoes nil)
+  (comint-scroll-to-bottom-on-input t)
+  (comint-move-point-for-output t)
   (ess-R-font-lock-keywords
    '((ess-R-fl-keyword:modifiers . t)
      (ess-R-fl-keyword:fun-defs . t)
@@ -96,62 +89,23 @@
   :after (ess)
   :hook (ess-r-mode . tree-sitter-ess-r-mode-activate))
 
-;; TODO:
-(defun awc/test-R-project (&optional test-whole-project)
-  "Run unittests for R in project.")
+(defun fix-ess-repl-display ()
+  "Fix display issues in the ESS REPL."
+  (setq-local comint-preoutput-filter-functions
+              (cons (lambda (output)
+                      (replace-regexp-in-string "\r" "\n" output))
+                    comint-preoutput-filter-functions)))
 
-;; (defun r-function (function-name)
-;;   "Create and name a function in R"
-;;   (interactive "sFunction name: ")
-;;   (insert (concat function-name " <- function() {\n\n}"))
-;;   (forward-line -1))
+(add-hook 'inferior-ess-mode-hook 'fix-ess-repl-display)
 
-;; (define-skeleton rmd-skeleton-header
-;;   "Rmd headers with focus on LaTex output."
-;;   "---\n"
-;;   "title: " str | (buffer-name) "\n"
-;;   "author: " (user-full-name) "\n"
-;;   "documentclass: article\n"
-;;   "---\n"
-;;   )
+(use-package polymode
+  :ensure t)
 
-;; (defun rmd-insert-r-chunk (header)
-;;   "Insert an r-chunk in markdown mode and name using HEADER."
-;;   (interactive "sLabel: ")
-;;   (insert (concat "```{r " header ", echo=FALSE}\n\n```"))
-;;   (forward-line -1))
-;; (global-set-key (kbd "C-c i") 'rmd-insert-r-chunk)
+(use-package poly-markdown
+  :ensure t)
 
-;; Quarto is Posit's new literate programming paradigm
-;; (use-package quarto-mode
-;;   :mode (("\\.qmd" . poly-quarto-mode))
-;;   :bind (("C-c q p" . quarto-preview))
-;; )
-
-;; (use-package quarto-mode
-;;   :mode ("\\.qmd\\'" . poly-quarto-mode)
-;;   :bind (("C-c q p" . quarto-preview))
-;;   :config
-;;   ;; Set up Python execution in Quarto mode
-;;   (defun quarto-python-send-chunk ()
-;;     "Send the current Python chunk to the Python interpreter."
-;;     (interactive)
-;;     (save-excursion
-;;       (let ((chunk (quarto--current-code-chunk)))
-;;         (when (string= (quarto-code-chunk-language chunk) "python")
-;;           (let ((code (quarto-code-chunk-body chunk)))
-;;             (python-shell-send-string code))))))
-
-;;   ;; Bind key for sending Python chunks
-;;   ;; (define-key quarto-mode-map (kbd "C-c C-c") 'quarto-python-send-chunk)
-
-;;   ;; Activate virtual environment when opening Quarto files
-;;   (add-hook 'quarto-mode-hook
-;;             (lambda ()
-;;               (let ((venv-path (concat (projectile-project-root) ".venv")))
-;;                 (when (file-exists-p venv-path)
-;;                   (pyvenv-activate venv-path)))))
-;; )
+(use-package poly-R
+  :ensure t)
 
 (provide 'init-ess)
 
