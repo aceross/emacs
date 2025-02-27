@@ -1,14 +1,14 @@
-;;; init-ui.el --- User Interface customizations
+;;; init-ui.el --- User Interface customisations
 ;;
 ;;; Commentary:
 ;;
-;;  This configuration file contains customizations related to the
+;;  This configuration file contains customisations related to the
 ;;  visual aesthetics and functionality of the Emacs user interface.
 ;;  It includes settings for fonts, themes, modeline, and various
 ;;  visual enhancements to improve the overall user experience.
 ;;
 ;;  Key Features:
-;;  - Font customization with fallback options
+;;  - Font customisation with fallback options
 ;;  - Indentation guides for better code readability
 ;;  - Highlighting changes and other volatile actions
 ;;  - Git integration with gutter indicators
