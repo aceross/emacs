@@ -54,6 +54,9 @@
                 (setq fill-column 70)
                 (visual-line-mode 1)))
   :config
+  (require 'org-habit) 
+  (add-to-list 'org-modules 'org-habit) ;; Ensure org-habit loads with org-mode
+  (setq org-habit-graph-column 60)
   (org-babel-do-load-languages
    'org-babel-load-languages '((R . t) (python . t)))
   :custom
