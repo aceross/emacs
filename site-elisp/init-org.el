@@ -60,8 +60,9 @@
   (org-babel-do-load-languages
    'org-babel-load-languages '((R . t) (python . t)))
   :custom
-  (org-cite-global-bibliography
-   '("~/Documents/bibliography/references.bib"))
+  (org-cite-global-bibliography '("~/Documents/bibliography/references.bib"))
+  (org-agenda-clockreport-parameter-plist
+   '(:maxlevel 2 :link t :fileskip0 t :compact t :narrow 80)) 
   )
 
 ;; Set org-format-latex-options after org-mode is loaded
@@ -166,6 +167,11 @@
   :hook (org-mode . org-superstar-mode)
   :custom
   (org-superstar-headline-bullets-list '("◉" "○" "✸" "✿")))
+
+(use-package org-pomodoro
+  :after org
+  :bind (:map org-mode-map
+              ("C-c p" . org-pomodoro)))
 
 ;; Dynamic Faces Based on Theme
 (defun set-org-todo-faces ()
