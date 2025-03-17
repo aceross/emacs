@@ -39,6 +39,9 @@
   (org-src-tab-acts-natively t)
   (org-startup-indented t)
   (org-agenda-files '("~/Documents/zettelkasten/agenda/"))
+  (org-clock-in-switch-to-state "IN-PROGRESS") ;; Automatically switch to "IN-PROGRESS" when clocking in
+  (org-clock-out-switch-to-state "WAITING") ;; Automatically switch to "WAITING" when clocking out
+  (org-agenda-clockreport-parameter-plist '(:maxlevel 2 :link t :fileskip0 t :compact t :narrow 80))
   (org-log-done-with-time t)
   (org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
   (org-latex-listings t)
@@ -49,6 +52,7 @@
   (org-image-actual-width nil)
   ;; (org-format-latex-options (plist-put org-format-latex-options :scale 1.65))
   (org-latex-pdf-process '("latexmk -pdflatex='pdflatex -interaction nonstopmode' -pdf -bibtex -f %f"))
+  (org-cite-global-bibliography '("~/Documents/bibliography/references.bib"))
   :hook
   (org-mode . (lambda ()
                 (setq fill-column 70)
@@ -59,10 +63,6 @@
   (setq org-habit-graph-column 60)
   (org-babel-do-load-languages
    'org-babel-load-languages '((R . t) (python . t)))
-  :custom
-  (org-cite-global-bibliography '("~/Documents/bibliography/references.bib"))
-  (org-agenda-clockreport-parameter-plist
-   '(:maxlevel 2 :link t :fileskip0 t :compact t :narrow 80)) 
   )
 
 ;; Set org-format-latex-options after org-mode is loaded
@@ -172,6 +172,13 @@
   :after org
   :bind (:map org-mode-map
               ("C-c p" . org-pomodoro)))
+
+(defun awc/org-agenda-auto-clockreport ()
+  "Automatically refresh clock reports in the Org Agenda."
+  (when (eq major-mode 'org-agenda-mode)
+    (org-agenda-clockreport-mode 1)))
+
+(add-hook 'org-agenda-mode-hook #'awc/org-agenda-auto-clockreport)
 
 ;; Dynamic Faces Based on Theme
 (defun set-org-todo-faces ()
