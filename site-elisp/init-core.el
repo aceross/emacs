@@ -25,6 +25,7 @@
 (use-package dash)
 
 (use-package emacs
+  :straight nil
   :init
   (setq inhibit-startup-screen t
         initial-scratch-message nil
