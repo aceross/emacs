@@ -13,6 +13,8 @@
 
 (defgroup quarto nil "Editing Quarto documents." :group 'text)
 
+(require 'quarto-python)
+
 (defcustom quarto-preview-flags ""
   "Extra arguments for Quarto preview, with shell-style quoting.
 Shell expansion is not performed.  Use a prefix argument when starting
@@ -149,6 +151,8 @@ The browser remains available, but no longer refreshes until restarted."
   "Save this Quarto document and open a live preview inside Emacs.
 Reuse its server and browser if already running.  With prefix RESTART,
 restart the server (for example after changing `quarto-preview-flags').
+Python chunks use the project's virtual environment or
+`quarto-preview-python', without changing other Emacs sessions.
 Saving the document triggers Quarto's live refresh.  Use
 `quarto-stop-preview' to stop; killing the source buffer also stops it."
   (interactive "P")
@@ -164,7 +168,10 @@ Saving the document triggers Quarto's live refresh.  Use
         (user-error "Embedded preview currently requires a local .qmd file"))
       (let* ((program (or (executable-find "quarto")
                           (user-error "Cannot find quarto on exec-path")))
-             (args (quarto-preview--arguments buffer-file-name quarto-preview-flags)))
+             (args (quarto-preview--arguments buffer-file-name quarto-preview-flags))
+             (python (if (and (not restart) (process-live-p quarto-preview--process))
+                         (process-get quarto-preview--process 'quarto-python)
+                       (quarto-preview--python buffer-file-name))))
         (save-buffer)
         (when restart (quarto-stop-preview))
         (if (process-live-p quarto-preview--process)
@@ -179,6 +186,8 @@ Saving the document triggers Quarto's live refresh.  Use
             (with-current-buffer quarto-preview--browser
               (setq quarto-preview--url nil)))
           (let* ((default-directory (file-name-directory buffer-file-name))
+                 (compilation-environment
+                  (append (quarto-preview--python-environment python) compilation-environment))
                  (name (format "*Quarto preview: %s*" (abbreviate-file-name buffer-file-name)))
                  (log (compilation-start
                        (mapconcat #'shell-quote-argument (cons program args) " ")
@@ -186,6 +195,7 @@ Saving the document triggers Quarto's live refresh.  Use
                  (process (get-buffer-process log)))
             (setq quarto-preview--process process)
             (process-put process 'quarto-source source)
+            (process-put process 'quarto-python python)
             (process-put process 'quarto-frame (selected-frame))
             (let ((sentinel (process-sentinel process)))
               (set-process-sentinel
@@ -194,6 +204,7 @@ Saving the document triggers Quarto's live refresh.  Use
                          (quarto-preview--finished proc event))))
             (with-current-buffer log
               (setq-local quarto-preview--source source)
+              (when python (setq-local header-line-format (list " Quarto Python: " python)))
               (add-hook 'compilation-filter-hook #'quarto-preview--watch-output nil t)
               (quarto-preview--watch-output))
             (add-hook 'kill-buffer-hook #'quarto-stop-preview nil t)))))))
