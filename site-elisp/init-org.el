@@ -183,10 +183,11 @@
 (add-hook 'org-agenda-mode-hook #'awc/org-agenda-auto-clockreport)
 
 ;; Dynamic Faces Based on Theme
-(defun set-org-todo-faces ()
-  "Set org todo faces based on theme background."
-  (let ((bg (if (display-graphic-p)
-                (frame-parameter nil 'background-mode)
+(defun set-org-todo-faces (&optional frame)
+  "Set org todo faces based on FRAME's theme background.
+FRAME defaults to the selected frame when called without arguments."
+  (let ((bg (if (display-graphic-p frame)
+                (frame-parameter frame 'background-mode)
               "light"))) ; Fallback for terminal use
     (setq org-todo-keyword-faces
           `(("WAITING" . (:foreground ,(if (string-equal bg "dark") "#ffffff" "#000000") :weight bold))
