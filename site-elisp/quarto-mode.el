@@ -13,10 +13,17 @@
 ;; It provides:
 ;;   - A command (C-c C-c) to send the current code block to the appropriate REPL.
 ;;   - A build command (C-c C-b) to render the current Quarto document.
-;;   - A preview command (C-c C-p) to preview the current document.
+;;   - An embedded live preview (C-c C-p); C-u C-c C-p restarts it.
 ;;; Code:
 
 (require 'polymode)
+;;; quarto-mode.el --- Polymode support for Quarto files -*- lexical-binding: t; -*-
+
+;;; Code:
+
+(require 'polymode)
+(require 'poly-markdown)
+(require 'poly-R)
 (require 'markdown-mode)
 (require 'ess)        ;; for ess-r-mode
 (require 'python)     ;; for python-mode
@@ -105,21 +112,7 @@ Runs: `quarto render <current-file> <quarto-build-flags>` asynchronously."
     (compilation-start cmd 'compilation-mode)))
 
 ;; --- Command: Preview Quarto Document ---
-(defcustom quarto-preview-flags ""
-  "Extra flags to pass to the Quarto preview command."
-  :group 'quarto
-  :type 'string)
-
-(defun quarto-preview-document ()
-  "Preview the current Quarto document using Quarto.
-Runs: `quarto preview <current-file> <quarto-preview-flags>` asynchronously."
-  (interactive)
-  (let* ((file (buffer-file-name))
-         (cmd (format "quarto preview %s %s"
-                      (shell-quote-argument file)
-                      quarto-preview-flags)))
-    (message "Executing: %s" cmd)
-    (compilation-start cmd 'compilation-mode)))
+(require 'quarto-preview)
 
 ;; --- Bind the Commands in poly-quarto-mode ---
 (define-key poly-quarto-mode-map (kbd "C-c C-c") 'quarto-send-code-block-to-repl)

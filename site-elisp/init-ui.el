@@ -190,6 +190,14 @@
 (straight-use-package 'tree-sitter)
 (straight-use-package 'tree-sitter-langs)
 
+;; Keep embedded previews fitted to their window when splitting or resizing.
+;; Emacs 31.1 does not register this hook when loading xwidget.el.
+(with-eval-after-load 'xwidget
+  (when (and (featurep 'xwidget-internal)
+             (fboundp 'xwidget-webkit-adjust-size-in-frame))
+    (add-hook 'window-size-change-functions
+              #'xwidget-webkit-adjust-size-in-frame)))
+
 (provide 'init-ui)
 
 ;;; init-ui.el ends here
