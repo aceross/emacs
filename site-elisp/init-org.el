@@ -1,4 +1,4 @@
-;;; init-org.el --- Optimised configuration file for Emacs org-mode
+;;; init-org.el --- Optimised configuration file for Emacs org-mode -*- lexical-binding: nil; -*-
 ;;
 ;; Author: Aaron Ceross
 ;;

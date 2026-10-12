@@ -1,4 +1,4 @@
-;; init-ai.el -- AI integrations for Emacs
+;;; init-gptel.el --- AI integrations for Emacs -*- lexical-binding: nil; -*-
 (use-package gptel
   :straight t
   :config

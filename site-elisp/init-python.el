@@ -1,4 +1,4 @@
-;;; init-python.el --- Module for Python mode customisation
+;;; init-python.el --- Module for Python mode customisation -*- lexical-binding: nil; -*-
 ;;
 ;;; Commentary:
 ;;

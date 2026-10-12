@@ -1,3 +1,5 @@
+;;; init-lisp.el --- Common Lisp configuration -*- lexical-binding: nil; -*-
+
 (defconst sbcl-executable-path (executable-find "sbcl")
   "The sbcl executable path on this system.")
 

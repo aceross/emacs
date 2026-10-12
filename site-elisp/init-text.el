@@ -1,4 +1,4 @@
-;;; init-text.el --- Configuration for text editing and bibliography management
+;;; init-text.el --- Configuration for text editing and bibliography management -*- lexical-binding: nil; -*-
 
 ;;; Commentary:
 

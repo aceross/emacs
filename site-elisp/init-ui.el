@@ -1,4 +1,4 @@
-;;; init-ui.el --- User Interface customisations
+;;; init-ui.el --- User Interface customisations -*- lexical-binding: nil; -*-
 ;;
 ;;; Commentary:
 ;;
