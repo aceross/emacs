@@ -1,0 +1,226 @@
+#+TITLE: Linux Emacs with embedded WebKit
+#+DATE: 2026-10-12
+
+* Installation
+
+Emacs 31.1 is installed at =~/.local/opt/emacs-31.1-xwidgets=.
+Start it with =emacs-xwidgets= (launcher in =~/.local/bin=), or use
+=emacs-xwidgets -Q= for a clean session. The default =emacs= command
+still resolves to =/snap/bin/emacs=; the Snap installation is retained.
+
+This build uses PGTK on Wayland, xwidgets, native compilation, tree-sitter,
+dynamic modules, SQLite, SVG and WebP. No Emacs source patches or WebKit
+workarounds were applied. Tested on Ubuntu 26.04.1 with WebKitGTK
+2.52.6-0ubuntu0.26.04.1, GCC/libgccjit 15.2 and tree-sitter 0.25.9.
+
+* Open a Quarto preview inside Emacs
+
+1. Open a local =.qmd= document in =emacs-xwidgets=, using an HTML output format.
+2. Press =C-c C-p= (=quarto-preview-document=), in prose or an R/Python chunk.
+   This saves the document, starts Quarto and opens its reported preview URL
+   in an Emacs window alongside the source once the server is ready.
+3. Save edits with =C-x C-s=; Quarto rebuilds and refreshes the browser.
+
+Repeated =C-c C-p= reuses the running preview, including while the initial
+render is in progress. It also reopens a closed browser buffer. Use
+=C-u C-c C-p= to restart the server, for example after changing preview flags.
+=M-x quarto-stop-preview= stops it from the source, a code chunk, the browser
+or its process log. Killing the source buffer also stops its server.
+
+=quarto-preview-flags= accepts extra arguments such as =--port 48737= or
+=--profile draft=, with shell-style quoting and no shell expansion.
+The command controls the local host and browser opening, and rejects flags
+that disable serving, watching or the ready-URL log. Each source buffer has
+its own server and log named =*Quarto preview: <file>*=. Render failures appear
+there; the command does not install document dependencies. R execution and
+plotting are now verified with R 4.6.0, =knitr= 1.52 and =rmarkdown= 2.32.
+
+The implementation is in =site-elisp/quarto-preview.el=, loaded by
+=quarto-mode.el=. Restart Emacs after updating the configuration. Builds
+without graphical xwidgets receive an explanatory error. This supplies an
+embedded browser workflow; document execution still uses Quarto's configured
+R or Python environment.
+
+* Python chunks and project environments
+
+For documents containing Python chunks, =C-c C-p= selects the nearest
+=.venv= or =venv= between the document directory and its project root.
+=.venv= wins when both exist in the same directory. Repository and Python
+project markers define the boundary, allowing a root =.venv= to serve
+documents inside =reports/= even when that directory has its own
+=_quarto.yml=. A missing or broken environment produces an error rather
+than silently choosing the system Python. R-only documents are unaffected.
+
+Each project's environment needs Quarto's execution dependencies. For a
+new project, a minimal setup is:
+
+#+begin_src sh
+python3 -m venv .venv
+.venv/bin/python -m pip install ipykernel nbclient PyYAML
+# If the document uses Matplotlib:
+.venv/bin/python -m pip install matplotlib
+#+end_src
+
+For an existing project, add these dependencies through its usual package
+manager and lockfile. The Emacs command does not install packages. Use the
+standard =python3= Jupyter kernel (for example =jupyter: python3= in YAML).
+A separately named kernel must have a kernelspec pointing at the intended
+environment; selecting Quarto's Python does not rewrite named kernelspecs.
+
+For an environment stored elsewhere, set =quarto-preview-python= in the
+project's =.dir-locals.el=:
+
+#+begin_src emacs-lisp
+((nil . ((quarto-preview-python . "/path/to/environment/bin/python"))))
+#+end_src
+
+An explicit relative path is resolved from the detected project root.
+Keep the environment's =bin/python= path, even when it is a symlink.
+Reopen the document or run =M-x normal-mode= after editing directory locals.
+Use =C-u C-c C-p= to restart an existing preview with a changed environment.
+The preview log's header shows the selected interpreter.
+
+The selection applies only to that preview process. It sets =QUARTO_PYTHON=
+for Jupyter and =RETICULATE_PYTHON= for mixed R/Python execution, prepends the
+environment's executables to =PATH=, and prefers its Jupyter configuration.
+It does not activate a global pyvenv or change another running preview.
+Mixed R/Python documents also need R's =reticulate= package; that package
+was absent on this machine, so mixed execution has not been validated.
+See Quarto's [[https://quarto.org/docs/projects/virtual-environments.html][virtual environment guide]] and
+[[https://quarto.org/docs/advanced/environment-vars.html][environment variable reference]].
+
+* Validation
+
+The clean GUI session ran with =GDK_BACKEND=wayland=. JavaScript executed
+successfully, and the user confirmed that the test page text was visible.
+Emacs frame-image export omitted the WebKit pixels, so that export was not
+used as evidence of successful rendering.
+
+The browser checks passed in both a clean session and an isolated copy of
+this configuration using the installed build and existing packages. Package
+rebuilding was disabled during the configuration test.
+
+| Check                                      | Result |
+|--------------------------------------------+--------|
+| Quarto HTML load (Quarto 1.4.530)            | Pass   |
+| JavaScript button and input focus          | Pass   |
+| Native key event delivered to HTML input   | Pass   |
+| Emacs scroll command and anchor navigation | Pass   |
+| Frame resize                               | Pass   |
+| Move preview between split windows        | Pass   |
+| Move preview to another frame and back    | Pass   |
+| Live refresh after editing the qmd file    | Pass   |
+| Configuration startup                     | Pass   |
+| Vertico, Corfu and completion candidates   | Pass   |
+| vterm module and shell command output      | Pass   |
+| PDF render, text extraction and page 2     | Pass   |
+| Native compilation and compiled execution | Pass   |
+
+The browser suite contains 12 checks per run. The PDF test opened the
+22-page system manual =/usr/share/doc/fig2dev/manual.pdf= in =pdf-view-mode=,
+rendered a PNG and decoded it with Emacs, extracted text, and navigated to
+page 2. Native compilation of a small Lisp function returned the expected 42.
+
+These are smoke tests, not a guarantee of long-session WebKit stability.
+The same widget was moved between frames; simultaneous display in multiple
+frames was not tested. macOS requires its own build/capability check.
+
+The integrated =C-c C-p= command was also exercised in a GUI with this
+configuration: automatic browser opening, real R/Python chunk bindings,
+paths containing spaces, saving and live refresh, reuse during initial
+rendering, stop/restart, refresh after restarting on the same port, reopening
+a closed browser, and stopping the server when the source is killed all
+passed. The initial fixture used =engine: markdown= to isolate the preview
+workflow from language dependencies; a failed R render confirmed that its
+diagnostic log is displayed. After installing =knitr= and =rmarkdown=, a
+second fixture executed an R chunk and rendered a plot inside the browser.
+Changing the R expression from =6 * 7= to =8 * 7= and saving updated the
+rendered output from 42 to 56 without restarting the preview or manually
+refreshing. The plot image also loaded successfully, and closing the source
+stopped the server.
+
+Python execution was then tested with two temporary projects, each with its
+own real =.venv= and a package identifying that environment. Both embedded
+previews reported the correct =sys.executable= and =sys.prefix=, imported
+their own package, computed 42 and displayed a Matplotlib plot. Saving a
+change in the first project updated its output to 56 while the second
+preview retained its own environment and output. Emacs's global environment
+remained unchanged, and killing the sources stopped both servers. These
+checks used Python 3.14.4, ipykernel 7.4.0, nbclient 0.11.0, PyYAML 6.0.3
+and Matplotlib 3.11.2; only the temporary test environments were installed.
+
+Fourteen focused ERT tests cover argument handling, fragmented/coloured
+output, indirect buffers, obsolete process callbacks, project boundaries,
+environment selection, broken environments and subprocess isolation:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -L ~/.emacs.d/site-elisp \
+  -l ~/.emacs.d/test/quarto-preview-test.el \
+  -l ~/.emacs.d/test/quarto-python-test.el -f ert-run-tests-batch-and-exit
+#+end_src
+
+* Configuration fixes needed for validation
+
+- =site-elisp/init-ui.el= registers the WebKit resize hook after loading
+  =xwidget=. Emacs 31.1's hook registration waits for =xwidget-webkit-mode=
+  as a feature, which is not provided by =xwidget.el=. The local hook is
+  guarded so that builds without xwidgets continue to work.
+- =site-elisp/init-org.el=: =set-org-todo-faces= now accepts the optional
+  frame argument supplied by =after-make-frame-functions=. Previously,
+  creating a frame raised =wrong-number-of-arguments=.
+- Installed Ubuntu's =elpa-pdf-tools-server= 1.3.0-1 to supply the missing
+  =/usr/bin/epdfinfo=. The existing PDF Tools Lisp package discovers it on
+  startup and passed the rendering test without a package update.
+- =site-elisp/init-text.el= disables line numbers with
+  =display-line-numbers-mode= in PDF buffers. The removed =linum-mode=
+  function caused a PDF mode hook error under Emacs 31.1. Continuous
+  scrolling is configured through =pdf-view-continuous=; the old hook also
+  called a nonexistent =pdf-view-continuous-mode= function.
+
+Existing edits to =init-ess.el= and =quarto-mode.el= were preserved.
+The seven modules that lacked binding declarations now explicitly use
+=lexical-binding: nil=, preserving their dynamic-binding behaviour and
+removing the missing-header startup warnings.
+
+* Build provenance and reproduction
+
+Official source: [[https://ftp.gnu.org/gnu/emacs/emacs-31.1.tar.xz][GNU Emacs 31.1 tarball]].
+The detached signature was checked with GNU's published keyring: good
+signature from Sean Whitton, fingerprint
+=9B917007AE030E36E4FC248B695B7AE4BF066240=.
+
+SHA-256:
+=1da5790d9580c81932b5bf700633114468da7b3412d69faa767daebf974f4586=
+
+Additional build dependencies installed through Ubuntu apt (other image,
+XML, TLS, curses and WebP development dependencies were already present):
+
+#+begin_src sh
+sudo apt-get install --no-install-recommends \
+  libgtk-3-dev libwebkit2gtk-4.1-dev libgccjit-15-dev \
+  libtree-sitter-dev libsqlite3-dev librsvg2-dev libgif-dev \
+  libharfbuzz-dev libacl1-dev libsystemd-dev libasound2-dev libxpm-dev
+sudo apt-get install --no-install-recommends elpa-pdf-tools-server
+#+end_src
+
+From a separate build directory beside the extracted =emacs-31.1= source:
+
+#+begin_src sh
+../emacs-31.1/configure \
+  --prefix="$HOME/.local/opt/emacs-31.1-xwidgets" \
+  --with-pgtk --with-xwidgets --with-native-compilation \
+  --with-tree-sitter --with-modules --with-sqlite3 --with-rsvg --with-webp
+make -j12
+make install
+#+end_src
+
+Build logs, acceptance results and test fixtures are saved under
+=~/.local/opt/emacs-31.1-xwidgets/share/emacs-xwidgets-validation/=. Test
+scripts record their original =/tmp/emacs-xwidgets-build/= paths; recreate
+that scratch layout before reusing them. The source and build tree remain
+in =/tmp/emacs-xwidgets-build/= until temporary-file cleanup. The installed
+executable does not depend on that scratch directory.
+
+Upstream documents WebKit compatibility issues in [[https://github.com/emacs-mirror/emacs/blob/emacs-31.1/etc/PROBLEMS][etc/PROBLEMS]]. This
+machine passed the checks above with Ubuntu's current libraries. Recheck
+after substantial WebKit updates. General [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Xwidgets.html][xwidget documentation]].

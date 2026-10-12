@@ -1,0 +1,306 @@
+#+TITLE: Handoff prompt: refresh Emacs for research and development
+#+DATE: 2026-10-12
+
+Continue improving my Emacs configuration in =/home/awc/.emacs.d=.
+I like working in Emacs but have recently spent more time in VS Code. I want
+the conveniences of a modern IDE alongside Emacs's editing, extensibility,
+interactive programming, and research/writing strengths. Improve complete
+workflows, not just the package list. Keep the existing configuration and
+working habits where they make sense; do not replace it with a distribution
+or perform a wholesale rewrite.
+
+This handoff records the state on 12 October 2026. Verify it against the
+files and installed tools before changing anything. Some items below are
+observed configuration gaps; others are improvements to evaluate, not
+package or architecture choices already approved.
+
+* Workflow and priorities
+
+The strongest evidence in this configuration is for R/ESS, Python, Quarto,
+Org and org-roam, Markdown, LaTeX, bibliography management, PDF reading,
+Git, and integrated terminals. Common Lisp/SLY should keep working. Julia
+and C/C++ have partial configuration; establish their importance before
+expanding their tooling. Linux is the immediate target, with macOS
+portability also relevant.
+
+Prioritize reliable project environments and interactive research,
+completion/navigation/diagnostics, executable documents, and convenient
+project operations. Preserve the existing Org notes, bibliography, agenda,
+and research repositories. Ask only for preferences that materially affect
+the design and cannot be inferred; continue independent work meanwhile.
+
+* Work already completed: preserve and build on it
+
+1. Linux Emacs 31.1 was built with PGTK/Wayland, xwidgets, native compilation,
+   tree-sitter, dynamic modules, and SQLite. It is installed separately at
+   =~/.local/opt/emacs-31.1-xwidgets= and launched through
+   =~/.local/bin/emacs-xwidgets=. Default =emacs= still resolves to Snap.
+   Do not rebuild it or switch the default merely because this is a new
+   session. The installed build passed the initial acceptance checks.
+2. Embedded WebKit works with the installed WebKitGTK 2.52.6. JavaScript,
+   focus, scrolling, links, resizing, moving between windows/frames, and
+   Quarto live refresh were exercised. The user confirmed visible page
+   text. Emacs frame-image export omitted WebKit pixels, so a blank export
+   is not evidence that the browser is blank. Long-session stability and
+   macOS equivalence remain unverified.
+3. =C-c C-p= now saves a local Quarto document and opens an embedded live
+   preview beside the source. Repeated invocation reuses the server/browser;
+   =C-u C-c C-p= restarts; =M-x quarto-stop-preview= stops it. Killing the
+   source stops its server. Source focus is preserved and saving triggers
+   Quarto's own live reload. Chunk buffers, paths with spaces, split/coloured
+   process output, browser reopening, and same-port restarts were tested.
+4. Python preview selection finds the nearest project =.venv= or =venv=,
+   bounded by the project root, with =quarto-preview-python= as an explicit
+   per-project override. It preserves the environment's executable path
+   rather than resolving its symlink. It applies =QUARTO_PYTHON=,
+   =RETICULATE_PYTHON=, and related environment settings only to the preview
+   subprocess. Missing/broken project environments give an explanatory
+   error. R-only documents do not require a Python environment.
+5. Two isolated Python projects rendered real chunks and Matplotlib plots
+   with their own interpreters and packages; live refresh and simultaneous
+   environment isolation passed. These tests installed dependencies only
+   into temporary test environments, not into all my research projects.
+   Each real project still needs =ipykernel=, =nbclient=, =PyYAML=, and its
+   document dependencies. A named Jupyter kernel can select an interpreter
+   independently; do not assume =QUARTO_PYTHON= repairs its kernelspec.
+6. I installed =knitr= and =rmarkdown=. R execution, plots, and live refresh
+   were tested successfully. Mixed R/Python execution has not been tested:
+   R's =reticulate= was absent at the last check.
+7. Fixed the xwidget resize-hook registration, the Org frame callback's
+   optional argument, and obsolete PDF mode hooks. Installed Ubuntu's
+   =elpa-pdf-tools-server= to provide =epdfinfo=. Configuration startup,
+   completion smoke checks, vterm, PDF rendering/text/page navigation,
+   and native compilation passed.
+8. Seven modules now explicitly declare =lexical-binding: nil= to preserve
+   their dynamic binding and remove Emacs 31 startup warnings. This was
+   not a conversion to lexical binding. New preview modules use lexical
+   binding. Do not blindly replace every =nil= with =t=.
+
+Read these first:
+
+- =/home/awc/.emacs.d/doc/linux-xwidgets.org=: build provenance, usage,
+  dependencies, tests, and limitations.
+- =init.el=, =early-init.el=, and all =site-elisp/init-*.el= modules.
+- =site-elisp/quarto-mode.el=, =site-elisp/quarto-preview.el=, and
+  =site-elisp/quarto-python.el=.
+- =test/quarto-preview-test.el= and =test/quarto-python-test.el=:
+  fourteen ERT tests passed at handoff.
+
+This refresh includes earlier user edits to =init-ess.el= and part of
+=quarto-mode.el=, alongside the completed fixes above. They are all part of
+the baseline to preserve. Inspect =git status=, diffs, and recent commits
+before editing; the state may have changed since this handoff was written.
+Native compilation caches under =eln-cache/= are ignored and should remain
+outside version control.
+
+* First priority: one consistent project environment
+
+Unify project detection and environment selection across Python files,
+Quarto render/preview, interactive REPLs, language servers, test commands,
+formatting/linting, debugging, terminals, and Org Babel where applicable.
+The new preview helper is a working starting point, not proof that the
+other entry points already use the same interpreter.
+
+Concrete issues to address:
+
+- =init-python.el= still activates pyvenv globally on Projectile switches.
+  It does not handle switching to a project without =.venv= coherently.
+  Interpreter assignments are global, and selecting a Jupyter console
+  through =jupyter --version= is a fragile heuristic. Inspect the REPL
+  output filter, which removes blank lines as well as internal markers.
+- Choose a coherent use of Projectile or built-in project.el, or explicitly
+  connect them. Currently project commands span both while environment
+  activation is tied to a Projectile hook. Do not migrate for its own sake.
+- Support existing =pyproject.toml= and project package-manager conventions;
+  allow environments outside the repository. Avoid silently rebuilding,
+  upgrading, or installing packages into unrelated research environments.
+- Make the selected project/interpreter and failures easy to inspect.
+  Reuse processes within a project but keep unrelated projects separate.
+- =C-c C-b= currently invokes a simple =quarto render= shell command. Give
+  it the same source-buffer handling, saving, environment selection,
+  argument handling, and useful diagnostics as the preview workflow.
+- Validate mixed R/Python Quarto documents once =reticulate= is available.
+  Make named-kernel mismatches diagnosable. Respect existing R project
+  environments such as renv when present; do not impose one on every project.
+
+Acceptance: open two projects with distinct Python environments. Confirm
+imports, completion, REPL execution, render/preview, tests, and relevant
+tools use the intended environment. Switch to a project without an
+environment and verify it cannot silently inherit the previous project's
+interpreter. Include nested reports and paths containing spaces.
+
+* Second priority: useful interactive R/Python and Quarto editing
+
+Make line/region/chunk execution predictable, with project-specific
+processes, visible results/errors, interruption, and restart commands.
+Audit =quarto-send-code-block-to-repl=: it currently parses fences with
+regexes and sends to an existing language shell without robust process
+selection/startup. Exercise invocation at chunk boundaries, in prose,
+and in indirect polymode buffers. Avoid unsolicited execution on opening
+a document.
+
+Repair and validate the existing ESS object/environment/plot tools instead
+of treating them as finished just because they are configured:
+
+- =awc/r-httpgd-open= hardcodes port 14191, while initialization uses
+  =httpgd::hgd()= and a fixed half-second timer. Obtain the actual ready URL
+  from the relevant R session, including any required token/path. Reuse
+  that session's device/viewer and handle delayed startup and missing
+  dependencies. Do not install R packages implicitly on every plot action.
+- Verify =str=, =head=, =summary=, optional =glimpse=/=skim=, and the object
+  listing against the correct R process, including an empty workspace.
+- Provide a practical route for inspecting Python objects/data frames and
+  figures. Decide whether a simple REPL plus viewers is sufficient or
+  whether a Jupyter integration materially improves my work.
+
+Keep full Quarto render/preview distinct from interactive chunk execution:
+an embedded browser is not a notebook kernel, debugger, or environment
+manager. Notebook-style rich output and =.ipynb= editing are candidates to
+evaluate against actual need, not grounds for adding several frameworks.
+Preserve fast, stable cursor movement and editing across prose/R/Python.
+
+* Third priority: coherent IDE behaviour
+
+The existing stack includes Vertico, Consult, Orderless, Marginalia,
+Embark, Corfu, Cape, Yasnippet, lsp-mode/lsp-ui, Pyright, and Flycheck.
+Keep the parts that work. Compare alternatives only where there is a
+concrete advantage; do not run competing LSP clients for the same buffer.
+
+- Test real completion, signature/help display, definition/reference
+  navigation, project symbols, rename, code actions, and diagnostics.
+  Verify first-file startup: the Pyright package is declared =:after
+  lsp-mode= even though its hook is meant to start Python LSP.
+- Reconcile diagnostics: Flycheck is globally enabled, but =M-g f= invokes
+  =consult-flymake=. Avoid duplicate checking or an empty problems command.
+- Make Python/R language servers see the same project environment as
+  execution. Check the hardcoded Python stub directory before retaining it.
+- Configure project-appropriate linting, formatting, import organisation,
+  and test commands. Respect project configuration and avoid competing
+  formatters. Decide on format-on-save behaviour explicitly where needed.
+- Add a small, working debugger workflow if useful for the priority
+  languages: launch, breakpoint, step, inspect, continue, and stop. Verify
+  the executable and working directory rather than only installing a UI.
+- Evaluate Emacs 31's built-in tree-sitter against the current external
+  tree-sitter/tree-sitter-langs/tree-sitter-ess-r stack. Migrate only where
+  grammar availability, language hooks, and polymode compatibility pass.
+- Review LTeX/Flyspell/writegood scope. Prose checks should not overwhelm
+  code chunks or start inappropriate servers in indirect buffers.
+
+* Fourth priority: everyday project and window ergonomics
+
+Create a discoverable, consistent set of commands for finding/switching
+projects, project search, buffers, build/test/run, terminal, REPL, preview,
+diagnostics, and Git. Keep ordinary Emacs navigation and useful bindings.
+Use the existing which-key/Transient capabilities where appropriate.
+
+Audit keymaps in their real modes. Examples worth checking: =C-c g= is
+assigned to gptel after =C-c gg= and =C-c ge= writing commands; =C-c p=
+has completion and Org Pomodoro meanings; =M-p= is globally rebound; Org
+skeleton commands use =C-q= prefixes. Document intentional local overrides
+and resolve genuinely unreachable commands.
+
+Provide project terminals with the right working directory/environment
+and predictable reuse. Improve display rules so source, REPL, preview,
+help, diagnostics, and compilation buffers do not repeatedly steal focus
+or disrupt useful layouts. Assess lightweight project workspaces/session
+restoration without restoring obsolete processes blindly. Check file
+search and large repositories before adding a file tree or more visual UI.
+Magit and Git gutter support already exist; test and integrate them.
+
+* Fifth priority: research, writing, and notes
+
+- Test the end-to-end bibliography-to-citation-to-PDF-to-literature-note
+  workflow in Org, Quarto/Markdown, and LaTeX. Existing tools include Citar,
+  Embark, RefTeX, Ebib, org-ref, org-roam, and citar-org-roam; assign clear
+  roles and remove duplication only when justified.
+- Establish the bibliography source of truth and export/import direction
+  before changing integrations. =sync-ebib-to-zotero= currently assumes a
+  =zotero-cli import= command; verify its existence and semantics. Do not
+  import, overwrite, or bulk-reorganize my library as an incidental test.
+- Check citation syntax, PDF attachment paths, note templates/backlinks,
+  and org-roam indexing. Preserve existing notes and citation keys.
+- Validate AUCTeX builds and PDF Tools forward/inverse SyncTeX, not just
+  opening a PDF. Make server startup idempotent. Review overlap with the
+  globally enabled LaTeX preview pane.
+- Make agenda/capture/clocking and research capture discoverable. Validate
+  templates and directories. Reconcile overlapping Org visual packages
+  where they cause problems, rather than redesigning my notes system.
+
+* Foundation, portability, and maintenance
+
+Work on these alongside the workflow improvements, with measured changes:
+
+- Make clean startup and package installation reproducible. Audit the
+  straight.el bootstrap clone/checkout path and quoting, load order,
+  built-in versus external package declarations, and duplicate/dead setup.
+  No =straight/versions/= lockfile directory was found during this review;
+  establish a tested package snapshot and a documented update/rollback path.
+  Do not blindly upgrade every package at once.
+- Fix actual Emacs 31 obsolete settings and warnings; do not hide broad
+  warning classes as a substitute. If converting a module to lexical
+  binding, audit dynamic variables, closures, hooks, and behaviour first.
+- Measure startup and responsiveness before changing GC or deferral.
+  Review conflicting startup/GC settings and the =default-frame-alist=
+  assignment that replaces earlier entries in =early-init.el=.
+- Check GUI/daemon/terminal PATH handling: the shell-import condition names
+  mac/ns/x but omits pgtk. Keep platform paths, fonts, executables, and
+  optional tools configurable and diagnose missing capabilities clearly.
+- Review recovery behaviour: backups, auto-save, and lockfiles are currently
+  disabled. Provide an intentional recovery strategy with files kept out of
+  project directories. Review local-variable/Babel execution settings in
+  context, without introducing repetitive prompts into trusted workflows.
+- Keep gptel optional and compatible with the installed package. The model
+  setting is currently the literal string "gpt-4"; verify current backend
+  and model configuration before updating it. Keep credentials out of the
+  repository/logs and make any project-context sending user-initiated.
+- Document Linux dependencies and the installed xwidget build's maintenance
+  path. Check macOS capabilities separately when a Mac is available. A
+  missing xwidget capability should have a deliberate fallback or clear
+  explanation, not an unhandled error. Switching the default Linux launcher
+  can be considered after normal-use validation; retaining Snap is useful
+  for rollback.
+
+* How to carry out the work
+
+Begin with a concise, prioritized assessment against this handoff. Separate
+confirmed defects, configuration that exists but is untested, and optional
+enhancements. Propose a coherent architecture and work in small stages,
+starting with project environments and R/Python/Quarto workflows. Research
+current official documentation before adopting package migrations or APIs.
+Do not stop after merely listing packages or offering a plan: implement
+the next well-supported stage and validate it, while keeping larger
+preference-dependent choices explicit.
+
+Use isolated test configurations and disposable projects where possible.
+Do not kill or mutate my normal Emacs server, unsaved buffers, running
+research jobs, or unrelated project environments. Do not silently install
+all suggested external tools. Preserve the tested build and preview path.
+
+Baseline regression command:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -L /home/awc/.emacs.d/site-elisp \
+  -l /home/awc/.emacs.d/test/quarto-preview-test.el \
+  -l /home/awc/.emacs.d/test/quarto-python-test.el \
+  -f ert-run-tests-batch-and-exit
+#+end_src
+
+GUI evidence from the preceding session was stored under
+=/tmp/emacs-xwidgets-build/=, =/tmp/quarto-embedded-check/=,
+=/tmp/quarto-r-preview-check/=, and =/tmp/quarto-python-preview-check/=.
+Those directories may have been cleaned; do not depend on them for normal
+operation. Installed build-validation records are described in
+=doc/linux-xwidgets.org=.
+
+For each stage, verify representative user actions, failure paths, and
+process cleanup. Cover clean/configured startup, two projects/environments,
+R and Python execution, relevant LSP functions, Quarto preview/reload,
+terminal, PDF/LaTeX as touched, and multi-window behaviour. Do not claim a
+feature works solely because its package loads. Add focused regression
+tests for meaningful logic; avoid redundant tests for cosmetic edits.
+
+Deliver the actual configuration changes, a short rationale for architecture
+choices, a practical keybinding/workflow guide, required external
+dependencies, validation results, rollback instructions, and a clearly
+prioritized list of remaining work. Keep =doc/linux-xwidgets.org= accurate
+and add a broader workflow guide as the refresh progresses.
