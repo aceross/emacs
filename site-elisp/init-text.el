@@ -50,6 +50,7 @@
   :custom
   (pdf-annot-activate-created-annotations t "automatically annotate highlights")
   (pdf-view-display-size 'fit-width)
+  (pdf-view-continuous t)
   (pdf-view-use-scaling t)
   (pdf-view-use-imagemagick nil)
   :config
@@ -57,8 +58,7 @@
   (define-key pdf-view-mode-map (kbd "C-s") 'isearch-forward)
   :hook
   (pdf-view-mode . (lambda ()
-                   (linum-mode -1)
-                   (pdf-view-continuous-mode 1))))
+                   (display-line-numbers-mode -1))))
 
 (use-package nov
   :ensure t
