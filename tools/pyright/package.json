@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "pyright": "1.1.414"
+  },
+  "name": "emacs-pyright-tools",
+  "private": true
+}

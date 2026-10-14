@@ -10,14 +10,19 @@
         lsp-prefer-flymake nil          ;; use flycheck instead
         lsp-idle-delay 0.3)
   :hook
-  ;; Let lsp-pyright handle python-mode; don't hook python here.
-  ((ess-r-mode . lsp-deferred)
-   (LaTeX-mode . lsp-deferred)
+  ;; Python and R start after directory locals select their environments.
+  ;; Their project helpers exclude indirect Quarto chunks.
+  ((LaTeX-mode . lsp-deferred)
    (c-mode     . lsp-deferred)
    (c++-mode   . lsp-deferred)
    (julia-mode . lsp-deferred)
    (lsp-mode   . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred))
+  :commands (lsp lsp-deferred)
+  :config
+  ;; This installed optional client calls (cl-remove-if #'nil ...), aborting
+  ;; ALL first LSP starts.  Upstream now uses #'null.  Keep it out of automatic
+  ;; loading until a deliberate package update; query-language editing is unused.
+  (setq lsp-client-packages (remq 'lsp-ts-query lsp-client-packages)))
 
 (use-package lsp-ui
   :after lsp-mode
@@ -32,17 +37,12 @@
 
 ;; Python: use Pyright
 (use-package lsp-pyright
-  :after lsp-mode
-  :ensure t
+  :commands lsp-pyright-locate-python
   :custom
-  ;; adjust if needed
   (lsp-pyright-langserver-command "pyright")
   (lsp-pyright-use-library-code-for-types t)
-  (lsp-pyright-stub-path (concat (getenv "HOME") "/src/python-type-stubs"))
-  :hook
-  (python-mode . (lambda ()
-                   (require 'lsp-pyright)
-                   (lsp-deferred))))
+  (lsp-pyright-multi-root nil))
+;; awc-python starts Pyright after directory locals, including on the first file.
 
 ;; Julia
 (use-package lsp-julia
@@ -56,8 +56,10 @@
   (lsp-ltex-language "en-GB")
   :hook
   (text-mode . (lambda ()
-                 (require 'lsp-ltex)
-                 (lsp-deferred))))
+                 (unless (or (buffer-base-buffer)
+                             (equal (file-name-extension (or buffer-file-name "")) "qmd"))
+                   (require 'lsp-ltex)
+                   (lsp-deferred)))))
 
 ;; Snippets
 (use-package yasnippet

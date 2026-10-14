@@ -11,7 +11,7 @@
 
 ;;; Code:
 
-(require 'transient)  ;; used for the object inspection menu
+(require 'transient)
 
 ;;;; Basic helpers
 
@@ -26,6 +26,10 @@
   ;; Assignment and pipes
   (local-set-key (kbd ";")   #'ess-insert-assign)
   (local-set-key (kbd "C-;") #'awc/insert-r-pipe-operator)
+
+  (local-set-key (kbd "C-c C-z") #'awc-r-run)
+  (local-set-key (kbd "C-c C-k") #'awc-r-interrupt)
+  (local-set-key [remap R] #'awc-r-run)
 
   ;; Evaluation commands, RStudio-style
   (local-set-key (kbd "C-j")   #'ess-eval-line-and-step)
@@ -55,47 +59,9 @@
   "Close the `*R view*` buffer and its window, if present."
   (interactive)
   (let ((view-buffer-name "*R view*"))
-    (when-let ((buf (get-buffer view-buffer-name)))
-      (when-let ((win (get-buffer-window buf)))
+    (when-let* ((buf (get-buffer view-buffer-name)))
+      (when-let* ((win (get-buffer-window buf)))
         (quit-window nil win)))))
-
-;;;; Object inspection and environment listing
-
-(defun awc/r-symbol-at-point ()
-  "Return the R symbol at point as a string, or nil if none."
-  (when-let ((sym (symbol-at-point)))
-    (symbol-name sym)))
-
-(defun awc/r--ensure-symbol (sym)
-  "Ensure SYM is non-nil; otherwise signal an error."
-  (unless sym
-    (user-error "No symbol at point"))
-  sym)
-
-(defun awc/r-inspect-str (sym)
-  "Call `str()` on SYM in the R process."
-  (interactive (list (awc/r--ensure-symbol (awc/r-symbol-at-point))))
-  (ess-command (format "str(%s)\n" sym) "*R Inspect*"))
-
-(defun awc/r-inspect-glimpse (sym)
-  "Call `dplyr::glimpse()` on SYM in the R process."
-  (interactive (list (awc/r--ensure-symbol (awc/r-symbol-at-point))))
-  (ess-command (format "dplyr::glimpse(%s)\n" sym) "*R Inspect*"))
-
-(defun awc/r-inspect-skim (sym)
-  "Call `skimr::skim()` on SYM in the R process."
-  (interactive (list (awc/r--ensure-symbol (awc/r-symbol-at-point))))
-  (ess-command (format "skimr::skim(%s)\n" sym) "*R Inspect*"))
-
-(defun awc/r-inspect-head (sym)
-  "Call `head()` on SYM in the R process."
-  (interactive (list (awc/r--ensure-symbol (awc/r-symbol-at-point))))
-  (ess-command (format "head(%s)\n" sym) "*R Inspect*"))
-
-(defun awc/r-inspect-summary (sym)
-  "Call `summary()` on SYM in the R process."
-  (interactive (list (awc/r--ensure-symbol (awc/r-symbol-at-point))))
-  (ess-command (format "summary(%s)\n" sym) "*R Inspect*"))
 
 (transient-define-prefix awc/r-object-menu ()
   "R object inspection menu."
@@ -106,59 +72,20 @@
    ("h" "head"    awc/r-inspect-head)
    ("m" "summary" awc/r-inspect-summary)])
 
-(defun awc/r-env-list ()
-  "List objects in the global environment with class and size in a buffer."
-  (interactive)
-  (let* ((cmd "as.data.frame(sapply(ls(envir = .GlobalEnv), function(x) {
-  obj <- get(x, envir = .GlobalEnv)
-  c(class = paste(class(obj), collapse = ','),
-    type = typeof(obj),
-    length = length(obj))
-}), stringsAsFactors = FALSE)\n")
-         (buf (get-buffer-create "*R Env*")))
-    (with-current-buffer buf
-      (read-only-mode -1)
-      (erase-buffer)
-      (insert "Objects in .GlobalEnv:\n\n"))
-    (ess-command cmd buf)
-    (with-current-buffer buf
-      (goto-char (point-min))
-      (ess-mode)
-      (read-only-mode 1))
-    (display-buffer buf)))
-
-;;;; httpgd plot viewer
-
-(defun awc/r-httpgd-init ()
-  "Start an httpgd device in the current R session."
-  (interactive)
-  (ess-command "if (!requireNamespace('httpgd', quietly = TRUE)) install.packages('httpgd')\n")
-  (ess-command "httpgd::hgd()\n"))
-
-(defun awc/r-httpgd-open ()
-  "Open the httpgd plot viewer in xwidget if available, else in the browser."
-  (interactive)
-  (let ((url "http://127.0.0.1:14191"))
-    (cond
-     ((featurep 'xwidget-internal)
-      (xwidget-webkit-browse-url url))
-     (t
-      (browse-url url)))))
-
-(defun awc/r-httpgd-init-and-open ()
-  "Start an httpgd device (if needed) and open the viewer."
-  (interactive)
-  (awc/r-httpgd-init)
-  (run-with-timer 0.5 nil #'awc/r-httpgd-open))
-
 ;;;; ESS core configuration
 
 (use-package ess
   :defer t
   :init
   (require 'ess-site)
+  ;; straight activates ESS before :init.  These helpers require ess-site,
+  ;; so loading them above the package declaration breaks a fresh startup.
+  (require 'awc-r)
+  (require 'awc-r-httpgd)
+  (require 'awc-r-lsp)
   :hook
   ((ess-r-mode      . awc/setup-ess-r-mode)
+   (ess-r-mode      . awc-r-lsp-prepare-buffer)
    (ess-rdired-mode . awc/setup-ess-rdired-mode)
    (inferior-ess-mode . awc/fix-ess-repl-display))
   :custom
@@ -208,18 +135,6 @@
 (use-package polymode :defer t)
 (use-package poly-markdown :defer t)
 (use-package poly-R :defer t)
-
-;;;; LSP for R (languageserver via eglot - currently unused)
-
-;; You are using lsp-mode via init-lsp.el.
-;; If you ever switch to eglot, this is a starting point:
-;;
-;; (use-package eglot
-;;   :defer t
-;;   :hook (ess-r-mode . eglot-ensure)
-;;   :config
-;;   (add-to-list 'eglot-server-programs
-;;                '(ess-r-mode . ("R" "--slave" "-e" "languageserver::run()"))))
 
 (provide 'init-ess)
 

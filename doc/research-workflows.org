@@ -1,0 +1,512 @@
+#+TITLE: Emacs research workflows: project environments
+#+DATE: 2026-10-14
+
+* Scope and assessment
+
+This covers the first two implementation stages of =emacs-refresh-handoff.org=.
+Baseline was clean commit =d744302=; the fourteen existing preview tests
+passed before changes. The separately installed Emacs 31.1 build and Snap
+launcher were preserved. No normal Emacs server or research environment was
+used for testing.
+
+Confirmed defects addressed:
+- Projectile switches activated Python globally and never deactivated it for
+  projects without a venv. Interpreter assignments and REPL output filtering
+  were global; legitimate blank lines were removed.
+- Quarto render did not save or resolve indirect source buffers and did not
+  select the preview interpreter.
+- Python LSP registration depended on lsp-mode being loaded first. The
+  installed optional =lsp-ts-query= client additionally called
+  =(cl-remove-if #'nil ...)=, aborting every first LSP launch. Its automatic
+  loading is excluded pending a deliberate package update; upstream uses
+  =#'null=. This is unrelated to Python or R tree-sitter highlighting.
+- The system =/usr/local/bin/pyright-langserver= wrapper targets system Python
+  but its package is left under Python 3.10; it fails with ModuleNotFoundError.
+  A configuration-local Pyright 1.1.414 installation now supplies the server.
+- =M-g f= opened Flymake although the active checker was Flycheck.
+- PGTK was missing from shell PATH import, and early frame sizing discarded
+  the previously specified menu/tool/scroll-bar parameters. Three single-binding
+  ESS helpers now use the current =when-let*= spelling to remove Emacs 31
+  obsolete-macro warnings.
+
+The second stage adds project-owned R sessions, repairs the httpgd viewer,
+and validates mixed R/Python Quarto with reticulate and renv. The former plot
+helper installed packages on invocation, guessed a port and waited half a
+second; all three behaviors are replaced. The installed ESS also leaves an
+async flag set after delimited background output. The new wrapper clears that
+flag after its own command completes, without changing other ESS commands.
+
+The third stage adds project-specific R language servers. Real completion,
+definition/reference navigation and Flycheck diagnostics pass in two renv
+environments with different package contents. Server processes, stderr logs,
+and completion caches are isolated by project or buffer as appropriate.
+
+Still unvalidated end to end: bibliography/PDF/note integration, SyncTeX,
+named Org sessions, repository formatting policies, debugger workflows, and
+macOS. Indirect Quarto chunks retain native ESS completion.
+
+Optional choices remain optional: a different LSP client, tree-sitter
+migration, notebook/Jupyter UI, file tree, persistent workspaces, or additional
+Julia/C++ tooling. The existing editing and completion stack is retained.
+
+* One interpreter selection
+
+=site-elisp/awc-project.el= supplies the boundary, interpreter selection,
+subprocess environment and stable process names. Projectile remains available
+for project discovery/switching. Both Projectile and project.el use the same
+boundary function; project.el retains its VC backend when the root agrees.
+
+The nearest =.git=, =.hg=, =pyproject.toml=, =.projectile=, =renv.lock= or
+=*.Rproj= defines a boundary.
+These take precedence over nested =_quarto.yml= files. Without one, a Quarto
+project or a local venv can mark a standalone project. A nested Python project
+or repository prevents searching into its parent's environment.
+
+From the source directory up to that boundary, select the nearest =.venv= or
+=venv=, with =.venv= first at the same level. A broken environment is an error.
+Never resolve =bin/python='s symlink: its invoked path selects the environment.
+No shell activation or global interpreter mutation is performed.
+
+For an existing Poetry, conda, uv or other environment outside the repository,
+set the existing executable in =.dir-locals.el=:
+
+#+begin_src emacs-lisp
+((nil . ((awc-project-python . "/path/to/environment/bin/python"))))
+#+end_src
+
+A relative path starts at the detected project root. Poetry users can obtain
+the existing path with =poetry env info --executable=; there is no automatic
+=poetry install=, =uv sync= or package-manager invocation on opening files.
+An explicitly selected system interpreter is allowed. =quarto-preview-python=
+is a compatibility alias for this same setting, so existing directory locals
+now apply to Python execution and tools as well as Quarto.
+
+The shared overrides set =PATH=, =VIRTUAL_ENV=, =QUARTO_PYTHON=,
+=RETICULATE_PYTHON= and Jupyter environment-path preference. They clear
+=PYTHONHOME= and inherited venv/conda activation, removing the advertised old
+activation's bin directory. Unrelated variables, including R configuration,
+are preserved. Arbitrary user =PYTHONPATH= settings are not rewritten.
+
+Python buffers also have local =process-environment= and =exec-path= so deferred
+Pyright and Flycheck see the same environment. Python LSP starts after file
+locals, including files with no local settings. Only Pyright is enabled for
+managed Python files. Independent roots get independent servers. Different
+nested Python environments in one LSP workspace require stopping that workspace
+before switching; REPLs and terminals can coexist by root plus interpreter.
+
+After changing directory locals, use =M-x normal-mode= or reopen the file.
+Restart its LSP workspace and Quarto preview to replace already running
+processes. A fresh Emacs session is recommended when adopting this stage,
+since an older running session may still have pyvenv's global hooks active.
+
+* Commands and normal use
+
+=C-c w= opens the research workflow Transient. Its suffixes are:
+
+| Key | Action                                      |
+|-----+---------------------------------------------|
+| p   | Switch project through Projectile           |
+| f   | Find project file                           |
+| s   | Ripgrep search                              |
+| b   | Project buffers                             |
+| g   | Magit                                       |
+| e   | Inspect selected root, interpreter and tools |
+| t   | Project terminal                            |
+| c   | Run a project shell command                 |
+| r   | Python REPL                                 |
+| i   | Inspect a Python expression                  |
+| T   | Run pytest in the selected Python            |
+| R   | Project R REPL                              |
+| L   | Start/reconnect project R language server   |
+| E   | Actual R session environment / libraries     |
+| V   | R plot viewer                               |
+| I   | R workspace objects                         |
+| B   | Quarto render                               |
+| v   | Embedded Quarto preview                      |
+| k   | Quarto Python dependencies and kernelspecs   |
+| d   | Flycheck diagnostics                        |
+| o   | Pyright organize imports                    |
+| l   | Start Python LSP explicitly                  |
+
+Ordinary =C-x p= project commands, =C-x g= Magit, =M-.= definition and =M-,=
+return remain available. The existing =C-c l= LSP menu provides references,
+rename, symbols and actions. =M-g f= now shows Flycheck's errors.
+
+** Python execution
+
+=C-c C-z= opens/reuses the project REPL without selecting its window.
+=C-u C-c C-z= restarts that REPL and discards its variables.
+=C-j= sends the active region or current line. Native Python send-region and
+send-buffer commands use the same named process; =C-c C-k= interrupts it.
+The process starts at the project root. Output is not stripped or reformatted.
+
+=C-c w i= prints an expression. For data frames, use =df.head()=, =df.info()=
+or =df.describe()=. Native REPL completion works against live objects.
+Interactive figures use the environment's Matplotlib backend; Quarto's
+render/preview remains the verified rich-output route. No Jupyter console is
+selected by heuristic, and there is no new notebook editing framework.
+
+=C-c w T= runs the selected absolute interpreter with =-m pytest= at the root.
+Pytest must already be in that environment. Other project commands use the
+same environment; for example =python -m unittest= or an already-installed
+formatter's module. =C-c w c= intentionally accepts a shell command. By
+contrast Quarto flags and pytest arguments are parsed as arguments, without
+shell expansion. Quoted whitespace, empty arguments and literal shell
+operators are preserved; unmatched quotes fail early.
+
+There is no new format-on-save behavior. Choose and install a formatter in the
+project's usual configuration before invoking it through the project command.
+Existing whitespace cleanup remains in place. A debugger was not added.
+
+** R execution and inspection
+
+=C-c C-z= in an R source or R chunk starts/reuses its project session.
+=C-u C-c C-z= restarts it, discarding that session's variables. =C-c C-k=
+interrupts it; native ESS line/region/function evaluation uses the same
+process. Existing =C-j=, =C-M-j=, assignment, pipe, and F9 bindings remain.
+The workflow menu also provides =C-c w R= from prose or other project files.
+
+Sessions are keyed by canonical project root, R executable and optional
+project Python selection. They start at the project root using normal R
+startup profiles, including renv activation and =.Renviron=. =--no-save
+--no-restore= avoids restoring or writing workspace images; R startup profiles
+still run normally. No renv project is created or restored automatically.
+A project without Python can run R and does not inherit another project's
+=RETICULATE_PYTHON=. Restart after changing an R profile, library or interpreter.
+Explicit external R startup environment variables retain their normal meaning.
+
+Opening a file or moving through chunks does not start an ESS REPL. Native
+ESS completion only uses the project's existing session; standalone R files
+also have the separate language server described below. Other projects cannot
+silently attach to the last R process. Process and inspection buffers retain
+their original owner. Killing a source leaves its shared project R session
+alive; quitting/killing the REPL ends it. Manually launched =M-x R= sessions
+remain available but are not adopted by these project commands.
+
+=C-c i= provides =str=, =head=, =summary=, =dplyr::glimpse= and =skimr::skim=.
+=C-c e= lists this session's objects and handles an empty workspace. Results
+appear asynchronously in a session-specific buffer, with source focus retained.
+Missing objects or optional packages produce readable messages. =C-c w E=
+reports R version, working directory, actual library paths, selected Python
+and the presence of httpgd, reticulate and languageserver.
+
+** R plots
+
+Press =C-c v= in R, or =C-c w V=, before plotting. The command creates one
+owned httpgd device per R session, then selects/reuses it on subsequent calls.
+It binds to loopback on an assigned port with a token, obtains the full viewer
+URL from =httpgd::hgd_url()=, and opens it only after an HTTP 200 response.
+Startup is asynchronous, with a configurable =awc-r-httpgd-timeout= (20 seconds
+by default). A busy R session is left alone: wait for its prompt or interrupt it.
+
+The embedded browser is reused, can be reopened after closing its buffer,
+and retains the originating frame and source focus. Builds without graphical
+xwidgets use =browse-url=. Closing the browser leaves R's device alive;
+=dev.off()= closes the current device. Invoking the viewer again recreates a
+closed device and navigates the existing browser to its new URL. Ending R
+ends its plot server; an old browser page then becomes disconnected.
+
+No plot or inspection command installs packages. The default user R library
+now contains httpgd 2.1.4 and reticulate 1.47.0, installed explicitly for this
+stage. An isolated renv project must list/install its own required packages.
+Use that project's normal package workflow, for example =renv::install("httpgd")=
+when appropriate. Optional dplyr/skimr were not installed.
+
+** R completion, navigation and diagnostics
+
+Opening a local =.R= or =.r= file starts =awc-r= through lsp-mode after file
+and directory locals are applied and the buffer becomes visible. =C-c w L=
+starts/reconnects it explicitly. It uses ESS's =inferior-ess-r-program=,
+the shared project root, and the same optional Python environment. A project
+R executable override should be an absolute path in =.dir-locals.el=.
+Normal R startup reads =.Renviron= and =.Rprofile=, including renv activation.
+The server is a separate process from the ESS console; it does not contain
+objects created interactively in that console or execute the edited script.
+
+Each root gets one server. Files in that root reuse it; other roots get their
+own processes and stderr buffers. A conflicting R executable or Python
+selection within an existing workspace is rejected. Stop that workspace with
+=M-x lsp-workspace-shutdown=, then use =C-c w L= with the new selection.
+After changing packages or startup profiles, use =M-x lsp-workspace-restart=.
+Restarting LSP does not restart the ESS console. Nested Quarto directories
+remain inside the enclosing R/repository project boundary.
+
+Corfu completion uses the server's project libraries. =M-.= follows source
+definitions, =M-,= returns, and =M-x xref-find-references= finds references.
+=C-c w d= / =M-g f= shows Flycheck diagnostics. The server uses lintr and
+respects project =.lintr= settings; no format-on-save policy is added. These
+checks are for standalone R source. Quarto chunk buffers continue using ESS.
+
+The user R library now contains CRAN =languageserver= 0.3.20 and its required
+dependencies, including lintr 3.4.0. An isolated renv project still needs its
+own explicit =renv::install("languageserver")= (and normal snapshot workflow).
+For ordinary R libraries use =install.packages("languageserver")=. No file-open
+or LSP action installs packages or falls back around renv's library selection.
+If unavailable, the project's =*awc-r: ...::stderr*= buffer explains the
+dependency. Inspect connections with =M-x lsp-describe-session=; =C-c w E=
+shows the matching ESS session's actual R libraries and Python setting.
+
+Disable automatic LSP for a project with this =.dir-locals.el= entry:
+
+#+begin_src emacs-lisp
+((ess-r-mode . ((awc-r-lsp-auto-start . nil))))
+#+end_src
+
+It also accepts a global =setq= for opting in only via =C-c w L=. Setting it
+does not stop an already running workspace. To roll back only this stage,
+disable automatic startup, shut down its workspaces, and remove the
+=awc-r-lsp= require/hook from =init-ess.el= plus the =L= menu entry if desired.
+The installed R package can remain unused; ESS and plotting still work.
+
+** Quarto
+
+=C-c C-c= executes the current chunk in its project Python or R REPL. The command reads polymode spans rather than
+searching backward for a fence: opening/closing fences select their own chunk,
+prose gives an explanatory error, and indirect buffers work. Supported chunk
+syntax remains the existing triple-backtick R/Python polymode syntax.
+
+=C-c C-b= saves and renders the base source, including from an indirect chunk.
+=C-u C-c C-b= stops a running render and starts again. An already running render
+is reused otherwise. =M-x quarto-stop-render= works from source/chunk/log.
+Killing the source stops its render. Each log is named by the full source path
+and shows the chosen interpreter; =g= in a compilation log preserves its
+captured environment. Render failures remain visible there.
+
+=C-c C-p= retains the tested embedded preview lifecycle; prefix restarts it,
+and =M-x quarto-stop-preview= or killing its source stops it. Render and preview
+now share interpreter selection and safe flag parsing. Both launch at the
+shared project root with the source's absolute filename. This lets Quarto
+recognize a root renv profile even with a nested =reports/_quarto.yml=.
+Relative extra command-line paths now start at that root. Quarto still resolves
+its project, engine and chunk working directory according to its own settings.
+R-only documents do not require Python and retain their existing R setup.
+
+=C-c w k= reports the selected Python's executable/prefix, imports of
+ipykernel/nbclient/yaml, and kernelspec JSON. Compare a named kernel's =argv[0]=
+to the intended environment: a named kernelspec can override =QUARTO_PYTHON=.
+The command reports information; it never rewrites kernelspecs. Mixed R/Python
+Quarto was validated using =engine: knitr= and reticulate, with the selected
+=RETICULATE_PYTHON= passed to R. Both R-to-Python (=r.value=) and Python-to-R
+(=reticulate::py$value=) value exchange passed. Interactive chunk commands use
+separate ESS and Python consoles; cross-language values in a knitr document
+are shared during full render/preview, not between those interactive consoles.
+
+Python LSP and LTeX do not start against indirect Quarto chunks or the whole
+qmd as though it were Python. Chunks use REPL completion; .py modules use
+Pyright. Full rendering, live preview and interactive REPL state are distinct.
+
+** Terminals and Org
+
+=C-c w t= reuses one vterm per root plus selected interpreter, starting at the
+root. A different environment gets a distinct terminal. A dead terminal's
+scrollback is kept under a finished-buffer name. Shell startup files may
+explicitly override PATH; inspect the actual terminal if you customize them.
+
+Non-session Org Python blocks use the shared interpreter. Explicit =:python=
+headers and named =:session= blocks retain their existing Org behavior. Named
+sessions are not yet managed or isolated by this stage: choose distinct names
+and explicit interpreters when using them. R Babel is unchanged.
+
+* Dependencies, reproduction and rollback
+
+The installed =emacs-xwidgets= build is unchanged; see =linux-xwidgets.org=.
+New Emacs Lisp dependencies: none. Existing packages, including vterm and
+polymode, are reused without an update. Project execution dependencies still
+belong in each project's usual lockfile/environment, not in Emacs itself.
+Quarto Python rendering requires ipykernel, nbclient and PyYAML plus document
+packages. R rendering requires knitr/rmarkdown. Embedded preview requires a
+graphical xwidget build; other builds still give an explanatory error.
+
+The private server uses Node.js (tested with 22.22.1). Its version/integrity are
+recorded in =tools/pyright/package.json= and =package-lock.json=; =node_modules=
+is ignored. Restore exactly this server on another machine with:
+
+#+begin_src sh
+npm ci --prefix ~/.emacs.d/tools/pyright --ignore-scripts --no-audit --no-fund
+#+end_src
+
+The optional directories in =awc-project-tool-directories= precede the system
+PATH for these workflows, after the project's own environment bin directory.
+Nothing is downloaded on opening a file. A failed/missing server is diagnosed
+through the LSP log and the environment report. The old system wrapper remains
+untouched. Server updates are explicit: change its pinned version, re-run the
+workflow tests, and retain the lockfile diff for review. This is a server
+snapshot, not yet a snapshot of all straight.el packages.
+
+Before future changes, save the current working tree or commit the stage.
+To return to the pre-stage configuration, restore only the modified tracked
+files from =d744302= after saving any subsequent edits. The new modules are
+inactive when =init.el=, =init-python.el=, =init-lsp.el= and the Quarto modules
+are restored. New files/tools may remain on disk unused. Start a fresh Emacs;
+restoring files does not undo hooks already installed in a live session.
+Neither rollback nor adoption requires rebuilding Emacs or changing the
+=emacs= launcher. Keep Snap for rollback as before.
+
+* Validation
+
+The focused suite now includes the original fourteen cases, environment and
+render lifecycle cases, first-file setup without local settings, argument
+parsing, and real polymode boundaries. Basic dependency-free run:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -L ~/.emacs.d/site-elisp -L ~/.emacs.d/test \
+  -l quarto-preview-test -l awc-project-test -f ert-run-tests-batch-and-exit
+#+end_src
+
+Run the complete suite using existing straight builds, without loading the
+personal configuration or installing packages:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l ~/.emacs.d/test/run-tests.el
+#+end_src
+
+Also check startup order in a separate, fresh process using the real straight
+activation path. This uses existing builds in straight safe mode:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l ~/.emacs.d/test/ess-startup-check.el
+#+end_src
+
+The initial stage-two startup harness preloaded all package directories, which
+masked an ordering bug: the R helpers required =ess-site= before the ESS
+package declaration activated it. Those helper loads now follow =ess-site=
+inside the declaration. The separate startup check starts with ESS absent
+from =load-path= and verifies activation, helper loading and R keybindings.
+
+The polymode test exercises actual spans, with evaluation captured rather than
+executing user code. All 35 tests passed on 13 October, including project R routing, auxiliary
+buffer ownership, URL/readiness handling and first-chunk initialization.
+
+Two disposable projects with spaces in their paths and nested
+=reports/chapters/= directories each had a distinct real venv and identity
+module. Real imports, executable/prefix identity, project-root working
+directory, REPL reuse, native completion, non-session Babel, pytest and Quarto
+HTML/Matplotlib rendering passed. Missing and broken environments, external
+paths, nested boundaries, argument quoting and indirect-buffer render cleanup
+are covered by ERT. Python test dependencies were installed only in disposable environments.
+
+A separate configured GUI used existing package builds with package installation
+and rebuilding disabled. Completion, definition into each environment, hover,
+signature help, rename-edit generation and Flycheck type diagnostics passed
+with two separate Pyright processes. Project vterm identity/reuse and embedded
+preview identity/source-focus preservation passed. A no-environment project
+did not start Python or LSP. Tests never used the normal Emacs server.
+
+WebKit JavaScript callbacks confirmed each preview's rendered interpreter and
+loaded plot image. Saving changed alpha's output from 42 to 56 while beta kept
+42, and killing each source stopped its server. These checks used asynchronous
+callbacks; blocking waits inside an Emacs evaluation prevented callback
+delivery in the first probe and were corrected in the test harness.
+References, workspace symbols, import organization, preservation of blank
+lines in REPL output, interruption and restart also passed. Import edits are
+asynchronous, so the initial immediate assertion was replaced by checking the
+completed edit. An R-only Quarto file rendered output and a plot successfully
+in a project with no Python environment.
+
+Stage two used R 4.6.0 with httpgd 2.1.4, reticulate 1.47.0 and temporary renv
+1.3.1. Two disposable projects with nested Quarto roots activated separate
+renv libraries and .Renviron markers. Mixed renders and simultaneous previews
+used their own Python interpreters, exchanged values in both directions, and
+loaded both R and Matplotlib plot images. Saving alpha changed its outputs
+from 42/56 to 54/72 while beta retained 42/56.
+
+Real ESS checks covered distinct workspaces, native evaluation/completion,
+empty/nonempty object listings, str/head/summary, missing optional packages,
+missing objects, interruption and restart. A no-Python R project had an empty
+RETICULATE_PYTHON. A library without httpgd produced an explanatory error and
+no device or installation. The viewer passed assigned-port/token readiness,
+delayed startup, loaded plot images, device/browser reuse, and recovery after
+closing its device. The normal Emacs server was never used.
+
+Actual mixed-file interactive execution passed in both projects: R chunks
+from opening/body/closing positions and indirect buffers, plus Python chunks
+sent to freshly started project consoles. Test fixtures use fresh source
+buffers when rewriting files, and wait for asynchronous evaluation output
+before checking values.
+
+The two new R modules byte-compile without warnings. Native ESS requires a
+visibility argument to =ess-eval-region=; the previously missing argument in
+Quarto R execution is now supplied. First-start Python execution waits for
+Emacs 31's initial prompt/bootstrap before sending a chunk.
+
+Isolated warm batch configuration loading took about 1.01 seconds at baseline
+and 1.04 seconds after the main changes. These single runs are a smoke
+comparison, not a startup benchmark; GUI shell PATH import adds separate time.
+No GC tuning or package deferral changes were made on this evidence.
+The final second-stage warm batch load took 1.025 seconds with no use-package
+errors. Both new R modules byte-compiled cleanly; all 35 ERT tests passed.
+
+Stage three (14 October) passes 40 ERT tests plus the separate real-straight
+ESS activation check. The live acceptance harness loads the full configuration
+with package rebuilding/downloads disabled. Two disposable projects have
+spaces in their paths, nested Quarto directories, separate renv libraries,
+and different versions/exports of an =envprobe= test package. Each server's
+startup record confirms the correct cwd, library, .Renviron marker and Python.
+Actual Emacs CAPF results contain only its own package export; xref definitions
+and references remain in the correct project; Flycheck reports the intentional
+assignment diagnostic in each source. Fixing alpha clears only alpha's error.
+Same-project reuse, environment-conflict rejection, independent restart, and
+an explicit missing-package failure also pass. Opening sources starts no ESS
+console. Test servers are stopped at the end; the normal Emacs server is unused.
+
+This test found lsp-mode's global CAPF cache could return alpha's candidates
+in beta at the same prefix position. R buffers now keep private completion
+caches, cleared on connection changes. Project-specific process names also
+prevent the installed stdio client from sharing one stderr buffer across roots.
+
+Reproduce the live check with a fresh disposable directory under =/tmp=.
+It requires the installed Emacs packages, languageserver in an ordinary R
+library, python3 with venv, and renv (installed here only in the test library):
+
+#+begin_src sh
+export AWC_R_LSP_TEST_DIR=/tmp/awc-r-lsp-new-check
+mkdir -p "$AWC_R_LSP_TEST_DIR/R-library"
+Rscript --vanilla -e 'install.packages("renv", lib=file.path(Sys.getenv("AWC_R_LSP_TEST_DIR"), "R-library"), repos="https://cloud.r-project.org")'
+Rscript --vanilla ~/.emacs.d/test/r-lsp-fixtures.R alpha
+Rscript --vanilla ~/.emacs.d/test/r-lsp-fixtures.R beta
+emacs-xwidgets -Q --batch -l ~/.emacs.d/test/r-lsp-integration.el
+#+end_src
+
+Fixture creation refuses existing project directories. It links already
+installed server dependencies into temporary renv libraries and installs only
+the tiny fixture package there; it never installs into research projects.
+The acceptance file can be rerun against the same fixtures. Batch explicitly
+invokes the normal deferred visibility callback because it has no interactive
+idle loop. Corfu popup appearance and long-session responsiveness are not
+claimed by this batch check.
+
+* Remaining work, in order
+
+1. Longer R/LSP/httpgd sessions and macOS/browser fallback validation. Embedded
+   viewers, mixed rendering and two-project R IDE behavior are verified on Linux.
+2. Named Org session isolation; deliberate formatter/linter policy and a small
+   debugger workflow; plain .py LSP behavior after interpreter replacement
+   within one root. Test longer interactive research sessions and figures.
+3. Reproducible straight.el snapshot/bootstrap/update/rollback, centralized
+   backups/auto-save, warnings/GC/daemon audit and recovery testing. Current
+   backups, auto-save and lockfile policy have not been redesigned.
+4. Bibliography source of truth and Zotero import/export direction, followed by
+   citation/PDF/literature-note and SyncTeX acceptance tests. Preserve notes and
+   citation keys; do not use a bulk import as a test.
+5. Remaining keymap collisions (=C-c g=, =C-c p=, =M-p=, Org =C-q=), Org capture
+   and visual overlap, optional gptel configuration, and macOS validation.
+   Confirm Julia/C++ importance before expanding them. Workspace restoration,
+   a file tree and notebook UI require evidence of a useful workflow.
+
+* API references reviewed
+
+- [[https://emacs-lsp.github.io/lsp-pyright/][lsp-pyright configuration and interpreter search functions]].
+- [[https://github.com/REditorSupport/languageserver][R languageserver installation, capabilities and project lintr settings]].
+- [[https://emacs-lsp.github.io/lsp-mode/page/adding-new-language/][lsp-mode client registration]].
+- [[https://github.com/microsoft/pyright/blob/main/docs/installation.md][Pyright installation and supported Emacs clients]].
+- [[https://github.com/emacs-lsp/lsp-mode/blob/master/clients/lsp-ts-query.el][Upstream corrected optional query client]].
+- [[https://quarto.org/docs/projects/virtual-environments.html][Quarto environments]] and
+  [[https://quarto.org/docs/advanced/environment-vars.html][environment variable reference]].
+- [[https://docs.projectile.mx/projectile/projects.html][Projectile project detection]].
+- [[https://nx10.dev/httpgd/reference/hgd.html][httpgd device options]] and
+  [[https://nx10.dev/httpgd/reference/hgd_url.html][viewer URLs]], plus
+  [[https://nx10.dev/httpgd/articles/a00_installation.html][installation requirements]].
+
+Implementation also checked the installed Emacs 31.1 python.el, project.el,
+compile.el, ESS, lsp-mode/lsp-pyright, polymode, Quarto and vterm sources rather than assuming
+current online documentation matched the installed packages.

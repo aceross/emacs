@@ -35,7 +35,7 @@ locally with file watching enabled, without opening an external browser."
 
 (defun quarto-preview--arguments (file flags)
   "Build the preview argument list for FILE and FLAGS."
-  (let ((args (split-string-shell-command flags)) extra)
+  (let ((args (awc-project-split-arguments flags)) extra)
     ;; These options conflict with finding the URL or keeping a live server.
     ;; A custom port, profile, execution options and HTML variants are fine.
     (while args
@@ -185,7 +185,7 @@ Saving the document triggers Quarto's live refresh.  Use
           (when (buffer-live-p quarto-preview--browser)
             (with-current-buffer quarto-preview--browser
               (setq quarto-preview--url nil)))
-          (let* ((default-directory (file-name-directory buffer-file-name))
+          (let* ((default-directory (awc-project-root))
                  (compilation-environment
                   (append (quarto-preview--python-environment python) compilation-environment))
                  (name (format "*Quarto preview: %s*" (abbreviate-file-name buffer-file-name)))

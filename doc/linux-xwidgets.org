@@ -1,5 +1,25 @@
 #+TITLE: Linux Emacs with embedded WebKit
-#+DATE: 2026-10-12
+#+DATE: 2026-10-14
+
+* Research workflow update
+
+The 13 October environment stage is documented in [[file:research-workflows.org][research-workflows.org]].
+It preserves this installed build and preview lifecycle, shares Python
+selection with REPLs, Pyright, render, tests, terminals and non-session Babel,
+and adds =C-c w= for workflow discovery. =quarto-preview-python= is now an
+alias of =awc-project-python=. Existing project settings keep working.
+The next stage adds project-owned R/ESS sessions, token-aware httpgd viewers,
+and verified mixed R/Python render/live preview with separate renv libraries.
+Use =C-c w R= for R, =C-c w V= for plots and =C-c w E= for actual R environment
+information. httpgd 2.1.4 and reticulate 1.47.0 are installed in the user R
+library; isolated renv projects still manage their own dependencies.
+The 14 October stage adds project-specific R language servers (=C-c w L=),
+using ESS's root/executable and normal renv startup. languageserver 0.3.20 is
+installed in the user library. Completion, definition/reference navigation,
+Flycheck diagnostics and independent restart pass in two disposable renv
+projects. The workflow guide includes setup, regression checks and rollback.
+The historical validation below describes the original build/preview work;
+the workflow guide records the new stage's checks and remaining limitations.
 
 * Installation
 
@@ -80,10 +100,11 @@ Reopen the document or run =M-x normal-mode= after editing directory locals.
 Use =C-u C-c C-p= to restart an existing preview with a changed environment.
 The preview log's header shows the selected interpreter.
 
-The selection applies only to that preview process. It sets =QUARTO_PYTHON=
+The selection is applied locally to the preview process. It sets =QUARTO_PYTHON=
 for Jupyter and =RETICULATE_PYTHON= for mixed R/Python execution, prepends the
 environment's executables to =PATH=, and prefers its Jupyter configuration.
 It does not activate a global pyvenv or change another running preview.
+The same resolver now also supplies the workflows described in the guide.
 Mixed R/Python documents also need R's =reticulate= package; that package
 was absent on this machine, so mixed execution has not been validated.
 See Quarto's [[https://quarto.org/docs/projects/virtual-environments.html][virtual environment guide]] and

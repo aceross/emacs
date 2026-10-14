@@ -1,0 +1,40 @@
+;;; quarto-edit-test.el --- Exercise actual polymode spans -*- lexical-binding: t; -*-
+(require 'ert)
+(require 'cl-lib)
+(require 'quarto-mode)
+(require 'awc-python)
+(require 'awc-r)
+
+(ert-deftest quarto-edit-execution-at-boundaries-and-in-prose ()
+  (with-temp-buffer
+    (insert "Prose\n\n```{python}\nvalue = 42\n```\n\nAfter\n\n```{r}\nvalue <- 7\n```\n")
+    (poly-quarto-mode)
+    (let (python-sent r-sent)
+      (cl-letf (((symbol-function 'awc-python-run) (lambda (&rest _) nil))
+                ((symbol-function 'python-shell-send-region)
+                 (lambda (start end &rest _)
+                   (push (buffer-substring-no-properties start end) python-sent)))
+                ((symbol-function 'awc-r-eval-region)
+                 (lambda (start end &rest _)
+                   (push (buffer-substring-no-properties start end) r-sent))))
+        ;; Opening fence, first body character, closing fence.
+        (dolist (line '(3 4 5))
+          (goto-char (point-min)) (forward-line (1- line))
+          (quarto-send-code-block-to-repl))
+        (should (equal python-sent '("value = 42\n" "value = 42\n" "value = 42\n")))
+        (goto-char (point-min)) (forward-line 3)
+        (let* ((span (pm-innermost-span)) (chunk (pm-span-buffer span)))
+          (with-current-buffer chunk
+            (goto-char (nth 1 span)) (quarto-send-code-block-to-repl)))
+        (should (= (length python-sent) 4))
+        (dolist (line '(9 10 11))
+          (goto-char (point-min)) (forward-line (1- line))
+          (quarto-send-code-block-to-repl))
+        (should (equal r-sent '("value <- 7\n" "value <- 7\n" "value <- 7\n")))
+        (goto-char (point-min))
+        (should-error (quarto-send-code-block-to-repl) :type 'user-error)
+        (forward-line 6)
+        (should-error (quarto-send-code-block-to-repl) :type 'user-error)))))
+
+(provide 'quarto-edit-test)
+;;; quarto-edit-test.el ends here

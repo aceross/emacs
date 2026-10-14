@@ -53,7 +53,7 @@
   ;; R / ESS (uses LSP hooks defined above)
   (require 'init-ess)
 
-  ;; Python (REPL tweaks, pyvenv, projectile integration + LSP)
+  ;; Python (project environments, native REPL, Projectile + LSP)
   (require 'init-python)
 
   ;; Common Lisp (SLY, etc.)
@@ -63,6 +63,8 @@
 
   ;; ---- Quarto polymode (R + Python chunks, render/preview helpers) ----
   (require 'quarto-mode)
+
+  (require 'init-workflow)
 
   ;; ---- GPT / AI helpers ----
   (require 'init-gptel))

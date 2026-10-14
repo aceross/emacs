@@ -17,11 +17,6 @@
 ;;; Code:
 
 (require 'polymode)
-;;; quarto-mode.el --- Polymode support for Quarto files -*- lexical-binding: t; -*-
-
-;;; Code:
-
-(require 'polymode)
 (require 'poly-markdown)
 (require 'poly-R)
 (require 'markdown-mode)
@@ -66,50 +61,34 @@ Automatically switches to the appropriate mode for code blocks."
 
 ;; --- Command: Send Current Code Block to REPL ---
 (defun quarto-send-code-block-to-repl ()
-  "Send the current Quarto code block to the appropriate REPL.
-This command only works if the point is in a code block (inner region).
-For R, uses ESS; for Python, uses the Python shell."
+  "Send this polymode chunk to its language REPL.
+Opening/closing fences select their own body; prose signals an error.
+Both languages use their own project session."
   (interactive)
-  (if (not (member major-mode '(ess-r-mode python-mode)))
-      (message "Not in a code block")
-    (let (lang start end code)
-      (save-excursion
-        (when (re-search-backward "^```{\\([^,}]+\\)" nil t)
-          (setq lang (downcase (car (split-string (match-string 1) "[, ]+" t))))
-          (forward-line)
-          (setq start (point))
-          (when (re-search-forward "^```\\s-*$" nil t)
-            (setq end (match-beginning 0))
-            (setq code (buffer-substring-no-properties start end)))))
-      (if (not (and lang code))
-          (message "No valid code block found.")
-        (cond
-         ((string= lang "r")
-          (if (fboundp 'ess-eval-linewise)
-              (ess-eval-linewise code)
-            (message "ESS not available.")))
-         ((string= lang "python")
-          (if (fboundp 'python-shell-send-string)
-              (python-shell-send-string code)
-            (message "Python shell not available.")))
-         (t (message "Unsupported language: %s" lang)))))))
+  (save-restriction
+    (widen)
+    (let* ((span (pm-innermost-span))
+           (body (pcase (car span)
+                   ('head (pm-innermost-span (nth 2 span)))
+                   ('tail (pm-innermost-span (1- (nth 1 span))))
+                   ('body span))))
+      (unless (and body (eq (car body) 'body))
+        (user-error "Place point in an R/Python chunk or on its fence"))
+      (let ((start (nth 1 body)) (end (nth 2 body))
+            (buffer (pm-span-buffer body)))
+        (with-current-buffer buffer
+          (pcase major-mode
+            ('python-mode
+             (require 'awc-python)
+             (awc-python-run)
+             (python-shell-send-region start end))
+            ('ess-r-mode
+             (require 'awc-r)
+             (awc-r-eval-region start end))
+            (_ (user-error "Unsupported chunk language: %s" major-mode))))))))
 
 ;; --- Command: Build Quarto Document ---
-(defcustom quarto-build-flags ""
-  "Extra flags to pass to the Quarto build command."
-  :group 'quarto
-  :type 'string)
-
-(defun quarto-build-document ()
-  "Build the current Quarto document using Quarto.
-Runs: `quarto render <current-file> <quarto-build-flags>` asynchronously."
-  (interactive)
-  (let* ((file (buffer-file-name))
-         (cmd (format "quarto render %s %s"
-                      (shell-quote-argument file)
-                      quarto-build-flags)))
-    (message "Executing: %s" cmd)
-    (compilation-start cmd 'compilation-mode)))
+(require 'quarto-render)
 
 ;; --- Command: Preview Quarto Document ---
 (require 'quarto-preview)

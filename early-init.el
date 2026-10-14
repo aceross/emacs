@@ -16,7 +16,8 @@
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
-(setq default-frame-alist '((width . 155) (height . 42)))
+(push '(width . 155) default-frame-alist)
+(push '(height . 42) default-frame-alist)
 
 ;; Resizing the Emacs frame can be a terribly expensive part of changing the
 ;; font. By inhibiting this, we easily halve startup times with fonts that are

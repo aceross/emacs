@@ -74,6 +74,7 @@
 (ert-deftest quarto-python-overrides-are-local-and-cover-both-engines ()
   (quarto-python-test--project
     (let* ((prefix (expand-file-name ".venv" root))
+           (awc-project-tool-directories nil)
            (python (quarto-python-test--environment prefix))
            (compilation-environment '("QUARTO_PYTHON=/wrong/python" "PATH=/compile/bin"))
            (process-environment '("PATH=/base/bin" "VIRTUAL_ENV=/other" "PYTHONHOME=/wrong" "KEEP=value"))

@@ -68,7 +68,7 @@
   (use-package exec-path-from-shell
   :ensure t
   :config
-  (when (or (daemonp) (memq window-system '(mac ns x)))
+  (when (or (daemonp) (memq window-system '(mac ns x pgtk)))
     (exec-path-from-shell-initialize)))
 
   ;; Default indentation and tabs settings
@@ -214,7 +214,7 @@
          ("M-y" . consult-yank-pop)                ;; orig. yank-pop
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g f" . flycheck-list-errors)
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading

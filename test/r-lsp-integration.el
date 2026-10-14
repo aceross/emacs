@@ -1,0 +1,157 @@
+;;; r-lsp-integration.el --- Live two-project acceptance check -*- lexical-binding: t; -*-
+;; Requires the disposable projects prepared by r-lsp-fixtures.R.  See the guide.
+;; Run in a fresh -Q --batch process; never load into your working Emacs.
+(defvar awc-r-test-directory
+  (file-name-as-directory (or (getenv "AWC_R_LSP_TEST_DIR") "/tmp/awc-r-lsp-check")))
+(defvar awc-r-test-config
+  (file-name-directory (directory-file-name (file-name-directory load-file-name))))
+(setq straight-safe-mode t)
+(require 'server)
+(setq server-name "awc-r-lsp-check"
+      server-socket-dir (expand-file-name "server" awc-r-test-directory))
+(load (expand-file-name "init.el" awc-r-test-config) nil t)
+(when (with-current-buffer "*Messages*"
+        (string-match-p "Error (use-package)" (buffer-string)))
+  (error "Full configuration has a use-package initialization error"))
+(require 'lsp-mode)
+(require 'ert)
+(setq lsp-session-file (expand-file-name "lsp-session" awc-r-test-directory)
+      lsp-restart 'ignore
+      lsp-enable-file-watchers nil)
+
+(defun awc-r-test-wait (predicate description &optional seconds)
+  (let ((deadline (+ (float-time) (or seconds 40))))
+    (while (and (not (funcall predicate)) (< (float-time) deadline))
+      (accept-process-output nil 0.1))
+    (unless (funcall predicate) (error "Timed out: %s" description))))
+
+(defun awc-r-test-open (file)
+  (let ((buffer (find-file-noselect file)))
+    (switch-to-buffer buffer)
+    (should lsp--buffer-deferred)
+    ;; Batch has no command-loop idle ticks; exercise the deferred callback.
+    (lsp--init-if-visible)
+    (awc-r-test-wait (lambda () (and (car (lsp-workspaces))
+                                    (eq 'initialized (lsp--workspace-status (car (lsp-workspaces))))))
+                     "initialization")
+    buffer))
+
+(defun awc-r-test-errors ()
+  (cl-remove-if-not (lambda (err) (equal (flycheck-error-id err) "assignment_linter"))
+                    flycheck-current-errors))
+
+(defun awc-r-test-position (text &optional back)
+  (goto-char (point-min))
+  (search-forward text)
+  (backward-char (or back 0)))
+
+(defun awc-r-test-project (label)
+  (let* ((root (expand-file-name (concat "project " label) awc-r-test-directory))
+         (file (expand-file-name "reports/chapters/analysis.R" root))
+         (buffer (awc-r-test-open file))
+         (workspace (car (lsp-workspaces)))
+         (proc (lsp--workspace-proc workspace))
+         (identity (expand-file-name (format "startup-%s.txt" (process-id proc)) root)))
+    (should (equal (lsp--workspace-root workspace) root))
+    (should (eq (lsp--client-server-id (lsp--workspace-client workspace)) 'awc-r))
+    (should (= (length (lsp-workspaces)) 1))
+    (should (null (awc-r-process))) ; Opening a file must not start an ESS REPL.
+    (let ((lines (with-temp-buffer (insert-file-contents identity)
+                                  (split-string (buffer-string) "\n" t))))
+      (should (equal (car lines) root))
+      (should (string-prefix-p (concat root "/renv/library/") (nth 1 lines)))
+      (should (equal (nth 3 lines) label))
+      (should (equal (nth 4 lines) (concat root "/.venv/bin/python"))))
+    (awc-r-test-position "envprobe::")
+    (let* ((capf (lsp-completion-at-point))
+           (candidates (all-completions "" (nth 2 capf))))
+      (should (member (concat label "_only") candidates))
+      (should-not (member (concat (if (equal label "alpha") "beta" "alpha") "_only") candidates)))
+    (should (memq #'lsp-completion-at-point completion-at-point-functions))
+    (awc-r-test-position "result <- project_calculate" 3)
+    (awc-r-test-wait (lambda () (lsp-request "textDocument/definition" (lsp--text-document-position-params)))
+                     "source indexing")
+    (let* ((backend (xref-find-backend))
+           (identifier (xref-backend-identifier-at-point backend))
+           (definitions (xref-backend-definitions backend identifier))
+           (references (xref-backend-references backend identifier))
+           (location (xref-item-location (car definitions))))
+      (should (eq backend 'xref-lsp))
+      (should (= (length definitions) 1))
+      (should (equal (xref-file-location-file location) file))
+      (should (= (xref-file-location-line location) 2))
+      (should (>= (length references) 1))
+      (dolist (ref references)
+        (should (string-prefix-p root (xref-file-location-file (xref-item-location ref))))))
+    (awc-r-test-wait (lambda () (flycheck-buffer) (awc-r-test-errors)) "Flycheck diagnostics")
+    (let ((err (car (awc-r-test-errors))))
+      (should (= (flycheck-error-line err) 7))
+      (should (equal (flycheck-error-filename err) file))
+      (should (eq (flycheck-error-checker err) 'lsp)))
+    (princ (format "PASS %s: own renv/Python; CAPF; xref definition/references; Flycheck\n" label))
+    (list buffer workspace proc)))
+
+(unwind-protect
+    (let* ((alpha (awc-r-test-project "alpha"))
+           (beta (awc-r-test-project "beta")))
+      (should-not (eq (nth 1 alpha) (nth 1 beta)))
+      (should-not (eq (nth 2 alpha) (nth 2 beta)))
+      (with-current-buffer (car alpha)
+        ;; A saved correction must clear only alpha's diagnostic.
+        (awc-r-test-position "bad =")
+        (replace-match "bad <-")
+        (save-buffer)
+        (awc-r-test-wait (lambda () (null (lsp--get-buffer-diagnostics)))
+                         "server diagnostic clearing")
+        (awc-r-test-wait (lambda () (flycheck-buffer) (null (awc-r-test-errors)))
+                         "diagnostic clearing"))
+      (with-current-buffer (car beta)
+        (should (awc-r-test-errors))
+        (should (process-live-p (nth 2 beta))))
+      (let* ((file (expand-file-name "project alpha/reports/chapters/reuse.R" awc-r-test-directory))
+             (buffer (progn (with-temp-file file (insert "reuse <- 1\n"))
+                            (awc-r-test-open file))))
+        (should (eq (car (lsp-workspaces)) (nth 1 alpha)))
+        (kill-buffer buffer))
+      ;; Restart alpha, preserving beta.  A local selection conflict must fail.
+      (with-current-buffer (car alpha)
+        (let ((old-program inferior-ess-r-program))
+          (unwind-protect
+              (progn (setq-local inferior-ess-r-program "/bin/true")
+                     (should-error (awc-r-start-lsp) :type 'user-error))
+            (setq-local inferior-ess-r-program old-program)))
+        (lsp-workspace-restart (nth 1 alpha))
+        (awc-r-test-wait (lambda () (not (process-live-p (nth 2 alpha)))) "old server exit")
+        (switch-to-buffer (car alpha))
+        (awc-r-start-lsp)
+        (lsp--init-if-visible)
+        (awc-r-test-wait (lambda () (and (car (lsp-workspaces))
+                                        (eq 'initialized (lsp--workspace-status (car (lsp-workspaces))))))
+                         "server restart")
+        (should-not (eq (nth 2 alpha) (lsp--workspace-proc (car (lsp-workspaces))))))
+      (should (process-live-p (nth 2 beta)))
+      ;; A project without languageserver must report its missing dependency,
+      ;; not attach to beta's working server or fall back to the user library.
+      (switch-to-buffer (find-file-noselect
+                         (expand-file-name "missing package/analysis.R" awc-r-test-directory)))
+      (lsp--init-if-visible)
+      (let* ((workspace (car (lsp-workspaces)))
+             (proc (lsp--workspace-proc workspace))
+             (stderr (get-buffer (format "*%s::stderr*"
+                                         (awc-project-process-name "awc-r"
+                                          (concat (nth 2 (awc-r--selection)) "\0"
+                                                  (nth 3 (awc-r--selection))))))))
+        (awc-r-test-wait (lambda () (not (process-live-p proc))) "missing package failure")
+        (should (with-current-buffer stderr
+                  (string-match-p "languageserver is unavailable in this project" (buffer-string)))))
+      (should (process-live-p (nth 2 beta)))
+      (princ "PASS independent servers; reuse; error clearing; conflict rejection; restart isolation\n"))
+  (dolist (workspace (copy-sequence (lsp--session-workspaces (lsp-session))))
+    (lsp-workspace-shutdown workspace))
+  ;; Restore the disposable alpha fixture for rerunning this check.
+  (when-let* ((buffer (get-file-buffer (expand-file-name "project alpha/reports/chapters/analysis.R"
+                                                        awc-r-test-directory))))
+    (with-current-buffer buffer
+      (goto-char (point-min))
+      (when (search-forward "bad <-" nil t) (replace-match "bad =") (save-buffer)))))
+(princ "PASS full init and two-project R LSP acceptance\n")
