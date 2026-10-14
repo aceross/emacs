@@ -8,7 +8,7 @@
   (should (equal (quarto-preview--arguments "/tmp/a report.qmd"
                                            "--metadata title=\"A report\" --port 48733")
                  '("preview" "/tmp/a report.qmd" "--metadata" "title=A report"
-                   "--port" "48733" "--no-browser" "--host" "127.0.0.1"))))
+                   "--port" "48733" "--to" "html" "--no-browser" "--host" "127.0.0.1"))))
 
 (ert-deftest quarto-preview-rejects-flags-that-disable-the-workflow ()
   (dolist (flags '("--quiet" "--no-serve" "--no-watch-inputs" "--no-watch"
@@ -20,7 +20,7 @@
 (ert-deftest quarto-preview-accepts-the-previous-manual-preview-flags ()
   (should (equal (quarto-preview--arguments "/tmp/report.qmd"
                                            "--no-browser --host 127.0.0.1")
-                 '("preview" "/tmp/report.qmd" "--no-browser" "--host" "127.0.0.1"))))
+                 '("preview" "/tmp/report.qmd" "--to" "html" "--no-browser" "--host" "127.0.0.1"))))
 
 (defmacro quarto-preview-test--with-process (&rest body)
   "Run BODY with a temporary source, log and pipe process."
@@ -72,6 +72,15 @@
         (with-current-buffer source (setq quarto-preview--process nil))
         (insert "Browse at http://localhost:48733/\n")
         (quarto-preview--watch-output)))))
+
+(ert-deftest quarto-preview-encodes-quarto-14-urls-with-spaces ()
+  (quarto-preview-test--with-process
+    (cl-letf (((symbol-function 'run-at-time) #'ignore))
+      (with-current-buffer log
+        (insert "Browse at http://localhost:48733/nested space/report name.html\n")
+        (quarto-preview--watch-output))
+      (should (equal (buffer-local-value 'quarto-preview--url source)
+                     "http://127.0.0.1:48733/nested%20space/report%20name.html")))))
 
 (ert-deftest quarto-preview-stop-from-indirect-chunk-stops-base-session ()
   (quarto-preview-test--with-process

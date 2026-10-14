@@ -94,6 +94,8 @@
             (setq buffer-file-name file)
             (erase-buffer) (insert "---\nengine: markdown\n---\nInitial\n")
             (cl-letf (((symbol-function 'executable-find) (lambda (&rest _) "/usr/bin/true"))
+                      ((symbol-function 'quarto-context-resolve)
+                       (lambda (callback &rest _) (funcall callback (list :root root) nil)))
                       ((symbol-function 'compilation-start)
                        (lambda (command &rest _)
                          (should (string-match-p "a\\\\ report.qmd" command))

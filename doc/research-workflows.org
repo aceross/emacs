@@ -43,7 +43,8 @@ and completion caches are isolated by project or buffer as appropriate.
 
 Still unvalidated end to end: bibliography/PDF/note integration, SyncTeX,
 named Org sessions, repository formatting policies, debugger workflows, and
-macOS. Indirect Quarto chunks retain native ESS completion.
+macOS. Quarto's subsequent source-editing stage is described in
+[[file:quarto-source-editor.org][Quarto source editing and document results]].
 
 Optional choices remain optional: a different LSP client, tree-sitter
 migration, notebook/Jupyter UI, file tree, persistent workspaces, or additional
@@ -235,7 +236,8 @@ Corfu completion uses the server's project libraries. =M-.= follows source
 definitions, =M-,= returns, and =M-x xref-find-references= finds references.
 =C-c w d= / =M-g f= shows Flycheck diagnostics. The server uses lintr and
 respects project =.lintr= settings; no format-on-save policy is added. These
-checks are for standalone R source. Quarto chunk buffers continue using ESS.
+checks are for standalone R source. Quarto now uses mapped language documents
+for chunk assistance; see [[file:quarto-source-editor.org][the Quarto guide]].
 
 The user R library now contains CRAN =languageserver= 0.3.20 and its required
 dependencies, including lintr 3.4.0. An isolated renv project still needs its
@@ -260,40 +262,18 @@ The installed R package can remain unused; ESS and plotting still work.
 
 ** Quarto
 
-=C-c C-c= executes the current chunk in its project Python or R REPL. The command reads polymode spans rather than
-searching backward for a fence: opening/closing fences select their own chunk,
-prose gives an explanatory error, and indirect buffers work. Supported chunk
-syntax remains the existing triple-backtick R/Python polymode syntax.
+The current implementation is documented in [[file:quarto-source-editor.org][Quarto source editing and
+document results]]. =C-c C-c= uses one engine-aware runtime per document;
+knitr R/Python chunks share reticulate state. =C-c C-b= renders, =C-c C-p=
+previews HTML, and =C-c q= opens the complete command menu. Source maps provide
+R/Python completion, navigation, diagnostics and safe rename across chunks.
+Quarto's bundled schemas provide YAML assistance. Text, plots and paginated
+tables appear in a document-owned side pane.
 
-=C-c C-b= saves and renders the base source, including from an indirect chunk.
-=C-u C-c C-b= stops a running render and starts again. An already running render
-is reused otherwise. =M-x quarto-stop-render= works from source/chunk/log.
-Killing the source stops its render. Each log is named by the full source path
-and shows the chosen interpreter; =g= in a compilation log preserves its
-captured environment. Render failures remain visible there.
-
-=C-c C-p= retains the tested embedded preview lifecycle; prefix restarts it,
-and =M-x quarto-stop-preview= or killing its source stops it. Render and preview
-now share interpreter selection and safe flag parsing. Both launch at the
-shared project root with the source's absolute filename. This lets Quarto
-recognize a root renv profile even with a nested =reports/_quarto.yml=.
-Relative extra command-line paths now start at that root. Quarto still resolves
-its project, engine and chunk working directory according to its own settings.
-R-only documents do not require Python and retain their existing R setup.
-
-=C-c w k= reports the selected Python's executable/prefix, imports of
-ipykernel/nbclient/yaml, and kernelspec JSON. Compare a named kernel's =argv[0]=
-to the intended environment: a named kernelspec can override =QUARTO_PYTHON=.
-The command reports information; it never rewrites kernelspecs. Mixed R/Python
-Quarto was validated using =engine: knitr= and reticulate, with the selected
-=RETICULATE_PYTHON= passed to R. Both R-to-Python (=r.value=) and Python-to-R
-(=reticulate::py$value=) value exchange passed. Interactive chunk commands use
-separate ESS and Python consoles; cross-language values in a knitr document
-are shared during full render/preview, not between those interactive consoles.
-
-Python LSP and LTeX do not start against indirect Quarto chunks or the whole
-qmd as though it were Python. Chunks use REPL completion; .py modules use
-Pyright. Full rendering, live preview and interactive REPL state are distinct.
+Project environment selection remains shared with the standalone language
+workflows. Interactive document state, language-server state and full render
+state are distinct. The source guide records dependencies, validation scripts
+and the boundaries of this release.
 
 ** Terminals and Org
 
@@ -315,7 +295,7 @@ polymode, are reused without an update. Project execution dependencies still
 belong in each project's usual lockfile/environment, not in Emacs itself.
 Quarto Python rendering requires ipykernel, nbclient and PyYAML plus document
 packages. R rendering requires knitr/rmarkdown. Embedded preview requires a
-graphical xwidget build; other builds still give an explanatory error.
+graphical xwidget build; other builds use an external browser.
 
 The private server uses Node.js (tested with 22.22.1). Its version/integrity are
 recorded in =tools/pyright/package.json= and =package-lock.json=; =node_modules=

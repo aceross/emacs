@@ -20,6 +20,9 @@ Flycheck diagnostics and independent restart pass in two disposable renv
 projects. The workflow guide includes setup, regression checks and rollback.
 The historical validation below describes the original build/preview work;
 the workflow guide records the new stage's checks and remaining limitations.
+The Quarto source-editor stage is now documented in
+[[file:quarto-source-editor.org][quarto-source-editor.org]], including document-owned execution,
+mapped language assistance, linked results and the =C-c q= command menu.
 
 * Installation
 
@@ -57,7 +60,7 @@ plotting are now verified with R 4.6.0, =knitr= 1.52 and =rmarkdown= 2.32.
 
 The implementation is in =site-elisp/quarto-preview.el=, loaded by
 =quarto-mode.el=. Restart Emacs after updating the configuration. Builds
-without graphical xwidgets receive an explanatory error. This supplies an
+without graphical xwidgets use an external browser. This supplies an
 embedded browser workflow; document execution still uses Quarto's configured
 R or Python environment.
 

@@ -10,10 +10,13 @@
 (require 'compile)
 (require 'shell)
 (require 'subr-x)
+(require 'url-util)
+(declare-function xwidget-webkit-current-session "xwidget" ())
 
 (defgroup quarto nil "Editing Quarto documents." :group 'text)
 
 (require 'quarto-python)
+(require 'quarto-context)
 
 (defcustom quarto-preview-flags ""
   "Extra arguments for Quarto preview, with shell-style quoting.
@@ -31,7 +34,7 @@ locally with file watching enabled, without opening an external browser."
 
 (defun quarto-preview--source-buffer ()
   "Return the source even when called from a chunk, browser or log."
-  (or quarto-preview--source (buffer-base-buffer) (current-buffer)))
+  (or quarto-preview--source (quarto-source-buffer)))
 
 (defun quarto-preview--arguments (file flags)
   "Build the preview argument list for FILE and FLAGS."
@@ -52,12 +55,16 @@ locally with file watching enabled, without opening an external browser."
           (user-error "%s conflicts with an embedded live preview" arg))
          (t (push arg extra)))))
     (append (list "preview" file) (nreverse extra)
+            (with-current-buffer (quarto-source-buffer)
+              (append '("--to" "html") (when quarto-profile (list "--profile" quarto-profile))))
             '("--no-browser" "--host" "127.0.0.1"))))
 
 (defun quarto-preview--show (source)
   "Display SOURCE's preview alongside the editing buffer."
   (when (buffer-live-p source)
     (with-current-buffer source
+      (if (not (and (display-graphic-p) (featurep 'xwidget-internal)))
+          (browse-url quarto-preview--url)
       (require 'xwidget)
       (let* ((browser quarto-preview--browser)
              (url quarto-preview--url)
@@ -83,7 +90,7 @@ locally with file watching enabled, without opening an external browser."
             (setq-local quarto-preview--source source)
             (setq-local quarto-preview--url url)
             (with-current-buffer source
-              (setq quarto-preview--browser browser))))))))
+              (setq quarto-preview--browser browser)))))))))
 
 (defun quarto-preview--ready (process)
   "Open the browser once PROCESS has announced its URL."
@@ -112,11 +119,11 @@ Wait for the complete line rather than opening a partially received URL."
              (output (ansi-color-filter-apply
                       (buffer-substring-no-properties (point-min) (point-max)))))
         (when (string-match
-               "Browse at \\(http://\\(?:localhost\\|127\\.0\\.0\\.1\\):[0-9]+/[^[:space:]]*\\)[ \t]*[\r\n]"
+               "Browse at \\(http://\\(?:localhost\\|127\\.0\\.0\\.1\\):[0-9]+/[^\r\n]*\\)[\r\n]"
                output)
           (let ((url (replace-regexp-in-string
                       "\\`http://localhost:" "http://127.0.0.1:"
-                      (match-string 1 output))))
+                      (url-encode-url (string-trim-right (match-string 1 output))))))
             (with-current-buffer source (setq quarto-preview--url url))
             (run-at-time 0 nil #'quarto-preview--ready process)))))))
 
@@ -147,7 +154,7 @@ The browser remains available, but no longer refreshes until restarted."
       (message "Quarto preview stopped"))))
 
 ;;;###autoload
-(defun quarto-preview-document (&optional restart)
+(defun quarto-preview--start (&optional restart context)
   "Save this Quarto document and open a live preview inside Emacs.
 Reuse its server and browser if already running.  With prefix RESTART,
 restart the server (for example after changing `quarto-preview-flags').
@@ -155,9 +162,6 @@ Python chunks use the project's virtual environment or
 `quarto-preview-python', without changing other Emacs sessions.
 Saving the document triggers Quarto's live refresh.  Use
 `quarto-stop-preview' to stop; killing the source buffer also stops it."
-  (interactive "P")
-  (unless (and (display-graphic-p) (featurep 'xwidget-internal))
-    (user-error "Embedded preview needs graphical Emacs with xwidgets; use emacs-xwidgets"))
   (let ((source (quarto-preview--source-buffer)))
     (unless (buffer-live-p source) (user-error "The Quarto source buffer was closed"))
     (with-current-buffer source
@@ -171,7 +175,7 @@ Saving the document triggers Quarto's live refresh.  Use
              (args (quarto-preview--arguments buffer-file-name quarto-preview-flags))
              (python (if (and (not restart) (process-live-p quarto-preview--process))
                          (process-get quarto-preview--process 'quarto-python)
-                       (quarto-preview--python buffer-file-name))))
+                       (if context (plist-get context :python) (quarto-preview--python buffer-file-name)))))
         (save-buffer)
         (when restart (quarto-stop-preview))
         (if (process-live-p quarto-preview--process)
@@ -185,7 +189,7 @@ Saving the document triggers Quarto's live refresh.  Use
           (when (buffer-live-p quarto-preview--browser)
             (with-current-buffer quarto-preview--browser
               (setq quarto-preview--url nil)))
-          (let* ((default-directory (awc-project-root))
+          (let* ((default-directory (or (plist-get context :root) (awc-project-root)))
                  (compilation-environment
                   (append (quarto-preview--python-environment python) compilation-environment))
                  (name (format "*Quarto preview: %s*" (abbreviate-file-name buffer-file-name)))
@@ -204,10 +208,30 @@ Saving the document triggers Quarto's live refresh.  Use
                          (quarto-preview--finished proc event))))
             (with-current-buffer log
               (setq-local quarto-preview--source source)
+              (when (fboundp 'quarto-render-error-links) (quarto-render-error-links))
               (when python (setq-local header-line-format (list " Quarto Python: " python)))
               (add-hook 'compilation-filter-hook #'quarto-preview--watch-output nil t)
               (quarto-preview--watch-output))
             (add-hook 'kill-buffer-hook #'quarto-stop-preview nil t)))))))
+
+(defun quarto-output-start (function restart)
+  "Save and resolve the document before invoking output FUNCTION with RESTART."
+  (with-current-buffer (quarto-preview--source-buffer)
+    (unless (and buffer-file-name (string-match-p "\\.qmd\\'" buffer-file-name))
+      (user-error "Open a saved .qmd document"))
+    (save-buffer)
+    (let ((source (current-buffer)) (frame (selected-frame)))
+      (quarto-context-resolve
+       (lambda (context error)
+         (if error (message "Quarto output: %s" error)
+           (when (and (buffer-live-p source) (frame-live-p frame))
+             (with-selected-frame frame
+               (with-current-buffer source (funcall function restart context))))))))))
+
+(defun quarto-preview-document (&optional restart)
+  "Preview HTML in WebKit, or in the external browser when WebKit is unavailable."
+  (interactive "P")
+  (quarto-output-start #'quarto-preview--start restart))
 
 (provide 'quarto-preview)
 ;;; quarto-preview.el ends here

@@ -1,0 +1,152 @@
+#+TITLE: Quarto source editing and document results
+#+DATE: 2026-10-14
+
+* Daily use
+
+Open an article or report in =.qmd= format. Opening starts language assistance
+after directory locals have been read; it never runs document chunks.
+The header shows the current language/label and document runtime state.
+
+| Key         | Action                                             |
+|-------------+----------------------------------------------------|
+| =C-c q=     | Quarto command menu                                |
+| =C-c C-c=   | Execute the current chunk, including from its fence |
+| =C-c C-b=   | Save and render; prefix stops/restarts a render     |
+| =C-c C-p=   | Live HTML preview; prefix restarts its server       |
+| =C-c q s=   | Execute selection/current language statement        |
+| =C-c q n=   | Execute chunk and advance                          |
+| =C-c q u/a= | Preceding/all eligible chunks                       |
+| =C-c q i=   | Interrupt and cancel this document's queue          |
+| =C-c q R=   | Discard this document's runtime; start on next run  |
+| =C-c q v=   | Redisplay linked results                           |
+| =C-c q d=   | Inspect a named data frame, in pages of 100 rows     |
+| =C-c q l=   | Full output log                                    |
+| =C-c q e=   | Engine, environment, directories and capability status |
+| =C-c q F/g= | Select output format/profile                       |
+| =C-c q P=   | View the last rendered PDF                          |
+
+The menu also inserts, selects, folds and navigates chunks, opens the combined
+Consult outline, inserts authoring templates/citations and reconnects language
+documents. =M-.= and =M-?= navigate definitions and references. =C-c q r= performs
+a mapped rename; =C-c q h= asks for signature help. Corfu offers completion and
+ElDoc displays hover documentation. Markdown's existing table commands remain
+available in prose. Automatic formatting is disabled.
+
+* Editing model
+
+=quarto-document.el= indexes front matter, headings, labels, references and
+fenced blocks. Backticks and tildes must close with the same character and at
+least the opening length. Container indentation is removed from executable
+code. Ordinary examples and unsupported languages are never executable; an
+unclosed block receives a diagnostic and cannot run. Polymode's matchers read
+the same index used by navigation and execution.
+
+Each language has an in-memory projection combining its complete chunks, with
+blank lines for prose/fences and explicit mappings for code positions. The
+projection is never written beside the document. R languageserver and Pyright
+connections include project, language and selected environment in their
+identity. Runtime variables are separate from language-server state. Unicode
+positions are converted using LSP's UTF-16 columns. Updates are debounced;
+responses tied to an obsolete source revision are discarded. Rename and
+completion edits are validated before changing source. Edits spanning fences,
+prose, other chunks or external files are rejected as a whole.
+
+The persistent Node helper uses the installed Quarto editor bundle for YAML
+completion, hover and lint, including front matter, =#|= options and
+=_quarto.yml=. The =quarto-editor-bundle= setting can override discovery.
+An incompatible/missing editor bundle is reported in the status command.
+Metadata parsing is independent of the editor-bundle capability.
+
+Document/project bibliography settings become buffer-local Citar settings.
+=C-c q B= refreshes them after changing metadata. The personal bibliography is
+never edited. =@= completion combines those citation keys with indexed labels.
+Duplicate labels and unresolved Quarto cross-references join YAML and language
+diagnostics in the single =quarto= Flycheck checker. Prose spell checking skips
+chunks, YAML and inline code.
+
+* Execution and results
+
+There is one interactive runtime and serial queue per document. Two documents
+in one project have independent variables, requests, results and restart
+behaviour. =quarto inspect= supplies effective saved configuration; parsed
+unsaved front matter overlays it. Format/profile selection is shared with
+rendering. Changing a running document's environment requires its restart.
+
+Knitr documents start R with the existing ESS executable/environment selection,
+normal =.Renviron= and =.Rprofile=/renv startup, and no saved workspace restore.
+R starts at the project root before code runs in the resolved execution
+directory. R uses =evaluate=; Python uses reticulate's knitr engine in that same
+R process. =r.value= and =reticulate::py$value= therefore share document state.
+
+Jupyter documents start a =jupyter_client= bridge in the selected Python
+environment. An explicit kernelspec is honoured; an unavailable kernel fails
+with an explanation. Without an explicit kernel the Python default is
+=python3=. The status report includes the selected kernel, its argv and the
+actual Python interpreter. A chunk whose language differs from the kernel is
+rejected. Jupyter table inspection currently requires a Python/pandas kernel;
+R tables are supported by the knitr adapter.
+
+Bulk runs skip =eval: false= and stop on errors. Explicit current-chunk execution
+can run an excluded chunk. Interactive feedback remains visible despite
+publication options such as =echo= and =include=. Interactive runs execute the
+requested code; cache/freeze behaviour belongs to full rendering.
+
+Results show queued, running, succeeded, failed, interrupted and stale states.
+Edits conservatively mark affected and subsequent results stale. Each result
+links to its source chunk. Plots are kept in session-specific temporary
+directories, so restarting does not overwrite earlier plot history. Text is
+bounded in the pane; the complete stream remains in the log. Tables are
+read-only views: =n/p= fetch further pages without changing the data frame.
+The side pane is reused and does not take source focus.
+
+Closing a source stops its runtimes and language documents and removes owned
+temporary results. Full render outputs remain normal Quarto outputs. HTML
+preview uses WebKit with an external-browser fallback. Quarto 1.4 URLs
+containing literal spaces are encoded before opening. Successful PDF renders
+open through PDF Tools. Recognised render errors are compilation links.
+
+* Dependencies
+
+Quarto 1.4.530 and the existing Linux Emacs build are retained. No packages are
+installed when a source is opened. Existing Emacs packages supply polymode,
+Corfu, Consult, Flycheck, Transient, Citar, Yasnippet and PDF Tools.
+
+- R environments: =languageserver= for assistance; =jsonlite=, =evaluate= and
+  =knitr= for execution; =reticulate= for mixed documents; =rmarkdown= for render.
+- Python environments: =jupyter_client= and a compatible kernel for Jupyter;
+  =ipykernel=, =nbclient=, =nbformat= and =PyYAML= for Python rendering;
+  =pandas= for the table viewer; document packages such as =matplotlib=.
+- Node.js and the =yaml= package (the installed system package is used here),
+  plus Quarto's bundled =share/editor/tools/vs-code.mjs=.
+- The existing private Pyright installation is preferred to system wrappers.
+- PDF rendering requires the project's usual TeX dependencies.
+
+* Reproducing validation
+
+Run =emacs-xwidgets -Q --batch -l test/run-tests.el= for regression tests and
+=emacs-xwidgets -Q --batch -l test/ess-startup-check.el= for real ESS package
+activation. Tests use installed packages and never install them implicitly.
+
+=test/quarto-assistance-integration.el= uses the two disposable renv/Python
+projects prepared by =test/r-lsp-fixtures.R= (set =AWC_R_LSP_TEST_DIR=). It checks
+real R/Python completion, hover, definition/reference navigation, rename,
+Unicode/moved boundaries and Quarto's own YAML schemas. The Python fixture
+module differs in each environment. Pyright must be allowed to query Python;
+the restricted process sandbox can report EPERM even after a child prints.
+
+=test/quarto-runtime-integration.el= and =test/quarto-output-integration.el=
+use only =/tmp/quarto-runtime-check/project with spaces=. Create its =.venv=
+explicitly, install the Python dependencies above and register a =quarto-fixture=
+kernel with that interpreter's =python -m ipykernel install --sys-prefix --name
+quarto-fixture=. The scripts check mixed state, document isolation, directories,
+plots, errors, interruption, output bounds, tables, HTML/PDF and preview. Kernel
+and preview checks need permission to open local sockets.
+
+=test/quarto-gui-check.el= runs in a separate graphical Emacs with a dedicated
+server and disposable source. It checks actual Corfu candidates, polymode
+transitions, plot output, focus/window reuse, WebKit and editing a substantial
+document. Screenshots and the check log go to =/tmp/quarto-gui-check=.
+
+Visual editing, results embedded beneath chunks, interactive HTML widgets,
+debugging, books/sites/slides and inline-expression language servers remain
+outside this release.

@@ -22,10 +22,18 @@
 (require 'markdown-mode)
 (require 'ess)        ;; for ess-r-mode
 (require 'python)     ;; for python-mode
+(require 'quarto-document)
+(require 'quarto-authoring)
+(require 'quarto-lsp)
+(require 'quarto-diagnostics)
+(require 'quarto-runtime)
+(declare-function tree-sitter-hl-mode "tree-sitter-hl" (&optional arg))
+(declare-function highlight-indent-guides-mode "highlight-indent-guides" (&optional arg))
+(declare-function lsp-disconnect "lsp-mode" ())
 
 ;; --- Disable Tree-sitter and Highlight-Indent-Guides in the Outer Mode ---
 (defun my/poly-markdown-disable-extras ()
-  "Disable tree-sitter-hl, highlight-indent-guides, and LSP in the outer markdown buffer."
+  "Disable conflicting highlighting and ordinary LSP in Quarto buffers."
   (when (bound-and-true-p tree-sitter-hl-mode)
     (tree-sitter-hl-mode -1))
   (when (bound-and-true-p highlight-indent-guides-mode)
@@ -33,21 +41,26 @@
   ;; Optionally disconnect LSP in the outer buffer if active.
   (when (bound-and-true-p lsp-mode)
     (lsp-disconnect)))
-(add-hook 'poly-markdown-mode-hook #'my/poly-markdown-disable-extras)
+(add-hook 'poly-quarto-mode-hook #'my/poly-markdown-disable-extras)
+
+(defun quarto-r-head (ahead) (quarto-document-match "r" 'head ahead))
+(defun quarto-r-tail (ahead) (quarto-document-match "r" 'tail ahead))
+(defun quarto-python-head (ahead) (quarto-document-match "python" 'head ahead))
+(defun quarto-python-tail (ahead) (quarto-document-match "python" 'tail ahead))
 
 ;; --- Define R Innermode ---
 (define-innermode poly-quarto-r-innermode
   :mode 'ess-r-mode
-  :head-matcher "^```{[rR].*}\\(?:\n\\|$\\)"
-  :tail-matcher "^```\\s-*$"
+  :head-matcher #'quarto-r-head
+  :tail-matcher #'quarto-r-tail
   :head-mode 'host
   :tail-mode 'host)
 
 ;; --- Define Python Innermode ---
 (define-innermode poly-quarto-python-innermode
   :mode 'python-mode
-  :head-matcher "^```{[pP]ython.*}\\(?:\n\\|$\\)"
-  :tail-matcher "^```\\s-*$"
+  :head-matcher #'quarto-python-head
+  :tail-matcher #'quarto-python-tail
   :head-mode 'host
   :tail-mode 'host)
 
@@ -61,31 +74,9 @@ Automatically switches to the appropriate mode for code blocks."
 
 ;; --- Command: Send Current Code Block to REPL ---
 (defun quarto-send-code-block-to-repl ()
-  "Send this polymode chunk to its language REPL.
-Opening/closing fences select their own body; prose signals an error.
-Both languages use their own project session."
+  "Execute this complete chunk in its document-owned engine session."
   (interactive)
-  (save-restriction
-    (widen)
-    (let* ((span (pm-innermost-span))
-           (body (pcase (car span)
-                   ('head (pm-innermost-span (nth 2 span)))
-                   ('tail (pm-innermost-span (1- (nth 1 span))))
-                   ('body span))))
-      (unless (and body (eq (car body) 'body))
-        (user-error "Place point in an R/Python chunk or on its fence"))
-      (let ((start (nth 1 body)) (end (nth 2 body))
-            (buffer (pm-span-buffer body)))
-        (with-current-buffer buffer
-          (pcase major-mode
-            ('python-mode
-             (require 'awc-python)
-             (awc-python-run)
-             (python-shell-send-region start end))
-            ('ess-r-mode
-             (require 'awc-r)
-             (awc-r-eval-region start end))
-            (_ (user-error "Unsupported chunk language: %s" major-mode))))))))
+  (quarto-run-chunk))
 
 ;; --- Command: Build Quarto Document ---
 (require 'quarto-render)
@@ -99,10 +90,57 @@ Both languages use their own project session."
 (define-key poly-quarto-mode-map (kbd "C-c C-p") 'quarto-preview-document)
 
 ;; --- Improve Cursor Stability: Disable Electric Indent in Inner Modes ---
-(add-hook 'ess-r-mode-hook
-          (lambda () (setq-local electric-indent-inhibit t)))
-(add-hook 'python-mode-hook
-          (lambda () (setq-local electric-indent-inhibit t)))
+(defun quarto-inner-setup ()
+  "Restrict Quarto's indentation changes to its indirect buffers."
+  (when (and (buffer-base-buffer) (quarto-source-p))
+    (setq-local electric-indent-inhibit t)))
+(add-hook 'ess-r-mode-hook #'quarto-inner-setup)
+(add-hook 'python-mode-hook #'quarto-inner-setup)
+(defun quarto-after-locals ()
+  "Enable assistance after environment and bibliography settings are known."
+  (when (and buffer-file-name (not (buffer-base-buffer)))
+    (when quarto-lsp-auto-start (quarto-lsp-start))
+    (quarto-yaml-refresh (current-buffer))
+    (quarto-authoring-refresh-bibliographies)))
+
+(defun quarto-editing-setup ()
+  "Install Quarto features in the host and language buffers."
+  (setq-local imenu-create-index-function #'quarto-imenu-index
+              flycheck-checker 'quarto
+              header-line-format '(:eval (quarto-source-header))
+              flyspell-generic-check-word-predicate #'quarto-prose-spelling-p
+              completion-at-point-functions '(quarto-yaml-completion-at-point
+                                              quarto-reference-completion-at-point
+                                              quarto-lsp-completion-at-point cape-file)
+              eldoc-documentation-functions '(quarto-yaml-eldoc quarto-lsp-eldoc))
+  (add-hook 'xref-backend-functions (lambda () 'quarto) nil t)
+  (add-hook 'after-change-functions #'quarto-document-after-change nil t)
+  (unless (buffer-base-buffer)
+    (add-hook 'kill-buffer-hook #'quarto-lsp-close nil t)
+    (add-hook 'kill-buffer-hook #'quarto-runtime-close nil t)
+    (add-hook 'find-file-hook #'quarto-after-locals nil t)
+    (add-hook 'hack-local-variables-hook #'quarto-after-locals nil t)))
+(add-hook 'poly-quarto-mode-hook #'quarto-editing-setup)
+
+(defun quarto-source-header ()
+  "Show the current chunk label and document runtime state."
+  (let ((chunk (quarto-chunk-at)))
+    (format " Quarto · %s%s · runtime %s"
+            (if chunk (or (quarto-chunk-language chunk) "example") "prose")
+            (if (and chunk (quarto-chunk-label chunk)) (format " · %s" (quarto-chunk-label chunk)) "")
+            (buffer-local-value 'quarto-runtime--state (quarto-source-buffer)))))
+
+(defun quarto-project-yaml-setup ()
+  (when (and buffer-file-name (string-match-p "_quarto\\(?:-[^.]+\\)?\\.ya?ml\\'" buffer-file-name))
+    (setq-local completion-at-point-functions '(quarto-yaml-completion-at-point)
+                eldoc-documentation-functions '(quarto-yaml-eldoc)
+                flycheck-checker 'quarto)
+    (add-hook 'after-change-functions #'quarto-document-after-change nil t)
+    (quarto-yaml-refresh (current-buffer))))
+(add-hook 'yaml-mode-hook #'quarto-project-yaml-setup)
+(add-hook 'yaml-ts-mode-hook #'quarto-project-yaml-setup)
+(require 'quarto-menu)
+(define-key poly-quarto-mode-map (kbd "C-c q") #'quarto-menu)
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.qmd\\'" . poly-quarto-mode))

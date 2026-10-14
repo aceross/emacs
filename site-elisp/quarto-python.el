@@ -11,17 +11,15 @@
 (require 'subr-x)
 
 (require 'awc-project)
+(require 'quarto-document)
 
 (defalias 'quarto-preview--project-root #'awc-project-root)
 
 (defun quarto-preview--python-chunks-p ()
   "Whether the current source contains executable Python chunks."
-  (save-excursion
-    (save-restriction
-      (widen)
-      (goto-char (point-min))
-      (let ((case-fold-search t))
-        (re-search-forward "^[ \t]*\\(?:```+\\|~~~+\\){python\\(?:[ ,}]\\)" nil t)))))
+  (cl-some (lambda (chunk) (and (equal (quarto-chunk-language chunk) "python")
+                              (quarto-chunk-executable chunk)))
+           (quarto-document-chunks (quarto-document-model))))
 
 (defun quarto-preview--python (file)
   "Select project Python for FILE when the source has Python chunks."
