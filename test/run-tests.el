@@ -18,4 +18,5 @@
 (require 'quarto-runtime-test)
 (require 'awc-r-test)
 (require 'awc-r-lsp-test)
+(require 'awc-lsp-test)
 (ert-run-tests-batch-and-exit)

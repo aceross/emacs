@@ -36,6 +36,25 @@ dynamic modules, SQLite, SVG and WebP. No Emacs source patches or WebKit
 workarounds were applied. Tested on Ubuntu 26.04.1 with WebKitGTK
 2.52.6-0ubuntu0.26.04.1, GCC/libgccjit 15.2 and tree-sitter 0.25.9.
 
+** Fast shell environment import
+
+=exec-path-from-shell= uses a noninteractive Zsh to avoid loading completion
+and prompt setup from =~/.zshrc=. The matching =~/.zshenv= lives outside this
+repository. When restoring this configuration, add the following to that file
+(merge with any existing environment settings):
+
+#+begin_src zsh
+# Executable paths shared by interactive shells and GUI applications.
+# Keep this file free of completion, prompt and other interactive setup.
+typeset -U path
+path=("$HOME/.juliaup/bin" "$HOME/.local/bin" "$HOME/bin" $path)
+export PATH
+#+end_src
+
+On 15 October, environment import dropped from about 646 ms to 14 ms with
+the same executable search order and MANPATH, after removing duplicate PATH
+entries. The package's 500 ms warning threshold remains unchanged.
+
 * Open a Quarto preview inside Emacs
 
 1. Open a local =.qmd= document in =emacs-xwidgets=, using an HTML output format.

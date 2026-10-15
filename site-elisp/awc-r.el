@@ -2,6 +2,22 @@
 (require 'awc-project)
 (require 'ess-site)
 
+(defun awc-r--fontify-repl (original begin end &optional verbose)
+  "Prepare skipped R console output before ORIGINAL fontifies BEGIN to END.
+ESS narrows to each prompt's output.  Emacs cannot prepare syntax for an
+earlier, unparsed region while narrowed to a later one.  Process that gap
+using ESS's own prompt boundaries, preserving isolation between outputs."
+  (when (derived-mode-p 'inferior-ess-r-mode)
+    (save-excursion
+      (save-restriction
+        (widen)
+        (let ((start (max (point-min) syntax-propertize--done)))
+          (when (< start begin)
+            (funcall original start begin verbose))))))
+  (funcall original begin end verbose))
+
+(advice-add 'inferior-ess-fontify-region :around #'awc-r--fontify-repl)
+
 (defvar awc-r--sessions (make-hash-table :test #'equal))
 (defvar awc-r--starting nil)
 (defvar-local awc-r--owner nil "R process owning this auxiliary buffer.")

@@ -2,6 +2,48 @@
 (require 'ert)
 (require 'awc-r-httpgd)
 
+(ert-deftest awc-r-repl-fontification-handles-unparsed-output-before-region ()
+  (dolist (narrowed '(nil t))
+    (with-temp-buffer
+      (inferior-ess-r-mode)
+      ;; Real R consoles use Comint fields, rather than prompt-regexp scans.
+      (setq-local comint-use-prompt-regexp nil)
+      (font-lock-set-defaults)
+      (insert (propertize "Console output with an unmatched \" quote\n> "
+                          'field 'output))
+      (let ((assignment (point)))
+        (insert "x <- 2" (propertize "\n> " 'field 'output))
+        (let ((begin (point)) warnings)
+          (insert "s <- r\"(a \"quoted\" value)\""
+                  (propertize "\n[1] 6\n> " 'field 'output))
+          ;; Reproduce a redisplay request below output that has not yet had
+          ;; its syntax properties prepared.
+          (setq syntax-propertize--done 1)
+          (let ((text (buffer-string))
+                (modified (buffer-modified-p))
+                (original-message (symbol-function 'message)))
+            (cl-letf (((symbol-function 'message)
+                       (lambda (format-string &rest args)
+                         (when (and (stringp format-string)
+                                    (string-match-p "Cannot syntax-propertize" format-string))
+                           (push (apply #'format format-string args) warnings))
+                         (apply original-message format-string args))))
+              (save-restriction
+                (when narrowed (narrow-to-region begin (point-max)))
+                (inferior-ess-fontify-region begin (point-max))
+                (should (= (point-min) (if narrowed begin 1)))))
+            (should-not warnings)
+            (should (equal (buffer-substring-no-properties (point-min) (point-max))
+                           (substring-no-properties text)))
+            (should (eq (buffer-modified-p) modified)))
+          ;; The unmatched quote belongs to earlier output, not this command.
+          (should-not (eq (get-text-property assignment 'face) 'font-lock-string-face))
+          (should (equal (get-text-property (+ begin 6) 'syntax-table)
+                         (string-to-syntax "|")))
+          (goto-char begin)
+          (search-forward "quoted")
+          (should (eq (get-text-property (1- (point)) 'face) 'font-lock-string-face)))))))
+
 (ert-deftest awc-r-project-markers-bound-nested-quarto ()
   (let ((root (make-temp-file "r project " t)))
     (unwind-protect

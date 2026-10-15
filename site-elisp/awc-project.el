@@ -68,7 +68,10 @@ Never search above a nested repository or language project."
                 (lambda (dir)
                   (or (cl-some (lambda (name) (file-exists-p (expand-file-name name dir)))
                                '(".git" ".hg" "pyproject.toml" ".projectile" "renv.lock"))
-                      (directory-files dir nil "\\.Rproj\\'" t))))
+                      ;; New files can have parents that do not exist yet.
+                      ;; Keep searching upward until an existing directory.
+                      (and (file-directory-p dir)
+                           (directory-files dir nil "\\.Rproj\\'" t)))))
                (locate-dominating-file
                 directory
                 (lambda (dir)

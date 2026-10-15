@@ -1,5 +1,7 @@
 ;;; init-core.el --- Core configuration -*- lexical-binding: nil; -*-
 
+(require 'awc-files)
+
 (setq straight-use-package-by-default t)
 (setq straight-vc-git-default-clone-depth 1)
 (setq straight-recipes-gnu-elpa-use-mirror t)
@@ -66,10 +68,13 @@
   (prefer-coding-system 'utf-8)
 
   (use-package exec-path-from-shell
-  :ensure t
-  :config
-  (when (or (daemonp) (memq window-system '(mac ns x pgtk)))
-    (exec-path-from-shell-initialize)))
+    :ensure t
+    ;; ~/.zshenv supplies PATH without the completion/prompt setup in ~/.zshrc.
+    :custom
+    (exec-path-from-shell-arguments nil)
+    :config
+    (when (or (daemonp) (memq window-system '(mac ns x pgtk)))
+      (exec-path-from-shell-initialize)))
 
   ;; Default indentation and tabs settings
   (setq-default indent-tabs-mode t)

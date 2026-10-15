@@ -2,6 +2,8 @@
 
 ;;; Code:
 
+(require 'awc-lsp)
+
 (use-package lsp-mode
   :init
   ;; Prefix for `lsp-command-map'
