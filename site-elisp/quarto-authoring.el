@@ -76,67 +76,7 @@
   (widen)
   (consult-imenu))
 
-(defun quarto-authoring-bibliographies (context)
-  "Use CONTEXT's bibliographies without changing personal Citar settings."
-  (let* ((metadata (plist-get context :metadata)) (values (quarto-get metadata "bibliography"))
-         (dir (file-name-directory (plist-get context :file)))
-         (root (plist-get context :project-directory)) keys)
-    (setq quarto-authoring--bibliographies
-          (mapcar (lambda (file) (let ((path (expand-file-name file dir)))
-                                  (if (file-readable-p path) path (expand-file-name file root))))
-                  (if (stringp values) (list values) values))
-          quarto-authoring--citations nil)
-    (setq-local citar-bibliography quarto-authoring--bibliographies)
-    (dolist (file quarto-authoring--bibliographies)
-      (when (file-readable-p file)
-        (with-temp-buffer
-          (insert-file-contents file)
-          (goto-char (point-min))
-          (while (re-search-forward "^[ \t]*@[[:alpha:]]+[ \t\n]*[{(][ \t\n]*\\([^, \t\n]+\\)," nil t)
-            (push (match-string-no-properties 1) keys)))))
-    (setq quarto-authoring--citations (delete-dups (nreverse keys)))))
-
-(defun quarto-authoring-refresh-bibliographies ()
-  (interactive)
-  (let ((source (quarto-source-buffer)))
-    (quarto-context-resolve
-     (lambda (context error)
-       (if error (message "Quarto bibliography: %s" error)
-         (with-current-buffer source (quarto-authoring-bibliographies context)))))))
-
-(defun quarto-insert-citation ()
-  (interactive)
-  (require 'citar)
-  (let ((citar-bibliography (buffer-local-value 'quarto-authoring--bibliographies (quarto-source-buffer))))
-    (unless citar-bibliography (user-error "No document bibliography; refresh it from C-c q"))
-    (citar-insert-citation)))
-
-(defun quarto-reference-completion-at-point ()
-  (unless (quarto-chunk-at)
-    (let ((end (point)) (start (save-excursion (skip-chars-backward "[:alnum:]_:.+-") (point))))
-      (when (eq (char-before start) ?@)
-        (list start end
-              (append (mapcar #'car (quarto-document-labels (quarto-document-model)))
-                      (buffer-local-value 'quarto-authoring--citations (quarto-source-buffer)))
-              :exclusive 'no)))))
-
-(cl-defmethod xref-backend-identifier-at-point ((_backend (eql quarto)))
-  (if (quarto-chunk-at) (thing-at-point 'symbol t)
-    (save-excursion
-      (skip-chars-backward "[:alnum:]_:.+-")
-      (let ((start (point))) (skip-chars-forward "[:alnum:]_:.+-")
-        (unless (= start (point)) (buffer-substring-no-properties start (point)))))))
-(cl-defmethod xref-backend-definitions ((_backend (eql quarto)) identifier)
-  (if (and (quarto-chunk-at) (fboundp 'quarto-lsp-xrefs))
-      (quarto-lsp-xrefs "textDocument/definition")
-    (let ((label (assoc identifier (quarto-document-labels (quarto-document-model)))))
-      (when label (list (xref-make identifier (xref-make-buffer-location (quarto-source-buffer) (cdr label))))))))
-(cl-defmethod xref-backend-references ((_backend (eql quarto)) identifier)
-  (if (and (quarto-chunk-at) (fboundp 'quarto-lsp-xrefs))
-      (quarto-lsp-xrefs "textDocument/references")
-    (mapcar (lambda (ref) (xref-make identifier (xref-make-buffer-location (quarto-source-buffer) (cdr ref))))
-            (cl-remove-if-not (lambda (ref) (equal identifier (car ref)))
-                              (quarto-document-references (quarto-document-model))))))
+(require 'quarto-references)
 
 (defun quarto-prose-spelling-p ()
   "Keep spell checking outside front matter, chunks and inline code."

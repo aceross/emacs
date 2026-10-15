@@ -295,6 +295,12 @@
 (defun quarto-rename (new-name)
   "Rename within this document, rejecting all unsafe or external edits."
   (interactive (list (read-string "New name: " (thing-at-point 'symbol t))))
+  (if (and (fboundp 'quarto-reference-at-point) (quarto-reference-at-point))
+      (quarto-rename-label new-name)
+    (quarto-rename-code new-name)))
+
+(defun quarto-rename-code (new-name)
+  "Apply the language server's safe document-local rename to NEW-NAME."
   (let* ((source (quarto-source-buffer)) (revision (buffer-chars-modified-tick source))
          (reply (quarto-lsp--request "textDocument/rename" (list :newName new-name)))
          (buffer (car reply)) (workspace-edit (cdr reply)) edits)

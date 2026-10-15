@@ -5,7 +5,8 @@
 (defun quarto-select-format (format)
   (interactive (list (completing-read "Output format (empty for document default): " '("html" "pdf") nil nil)))
   (with-current-buffer (quarto-source-buffer)
-    (setq quarto-format (unless (string-empty-p format) format) quarto-context--value nil)))
+    (setq quarto-format (unless (string-empty-p format) format) quarto-context--value nil)
+    (quarto-references--schedule (current-buffer))))
 (defun quarto-select-profile (profile)
   (interactive
    (list (with-current-buffer (quarto-source-buffer)
@@ -14,7 +15,8 @@
                                     (directory-files root nil "\\`_quarto-.+\\.ya?ml\\'"))))
              (completing-read "Profile (empty for default): " profiles nil nil)))))
   (with-current-buffer (quarto-source-buffer)
-    (setq quarto-profile (unless (string-empty-p profile) profile) quarto-context--value nil)))
+    (setq quarto-profile (unless (string-empty-p profile) profile) quarto-context--value nil)
+    (quarto-references--schedule (current-buffer))))
 
 (defun quarto-document-status ()
   "Report the resolved engine, environment and active document capabilities."
@@ -65,7 +67,7 @@
     ("o" "Outline" quarto-outline)
     ("t" "Authoring template" quarto-insert-template)]
    ["Assistance"
-    ("r" "Safe rename" quarto-rename)
+    ("r" "Safe code / label rename" quarto-rename)
     ("h" "Signature help" quarto-signature-help)
     ("C" "Insert citation" quarto-insert-citation)
     ("B" "Refresh bibliography" quarto-authoring-refresh-bibliographies)

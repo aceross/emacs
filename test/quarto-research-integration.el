@@ -1,0 +1,56 @@
+;;; quarto-research-integration.el --- Real readiness and bibliography refresh -*- lexical-binding: t; -*-
+(load (expand-file-name "quarto-test-setup.el" (file-name-directory load-file-name)) nil t)
+(setq quarto-lsp-auto-start nil)
+
+(ert-deftest quarto-research-real-bibliography-metadata-and-file-refresh ()
+  (let* ((directory (make-temp-file "quarto-research-" t))
+         (file (expand-file-name "paper.qmd" directory)) buffer)
+    (unwind-protect
+        (progn
+          (with-temp-file (expand-file-name "_quarto.yml" directory)
+            (insert "project:\n  type: default\nbibliography: project.bib\n"))
+          (dolist (name '("project" "first" "second"))
+            (with-temp-file (expand-file-name (concat name ".bib") directory)
+              (insert "@article{" name ", title={Title " name "}, author={Smith, Jane}, year={2026}}\n")))
+          (with-temp-file file (insert "---\ntitle: Paper\nbibliography: first.bib\n---\n# Results {#sec-results}\n@fir\n"))
+          (setq buffer (find-file-noselect file))
+          (with-current-buffer buffer
+            (quarto-test-wait (lambda () (member "first" quarto-authoring--citations)) "initial bibliography")
+            (should (member "project" quarto-authoring--citations))
+            (goto-char (point-max)) (search-backward "@fir") (forward-char 4)
+            (let ((capf (quarto-reference-completion-at-point)))
+              (should (member "first" (nth 2 capf)))
+              (should (string-match-p "Smith, Jane.*2026.*Title first"
+                                      (funcall (plist-get (nthcdr 3 capf) :annotation-function) "first"))))
+            (goto-char 1) (search-forward "first.bib") (replace-match "second.bib")
+            (should (timerp quarto-references--timer))
+            ;; Batch Emacs has no interactive idle loop; trigger the queued job.
+            (quarto-authoring-refresh-bibliographies)
+            (quarto-test-wait (lambda () (member "second" quarto-authoring--citations)) "unsaved metadata")
+            (should-not (member "first" quarto-authoring--citations))
+            (with-temp-file (expand-file-name "second.bib" directory)
+              (insert "@book{changed, title={External replacement}}\n"))
+            (quarto-test-wait (lambda () (member "changed" quarto-authoring--citations)) "external bibliography refresh" 8)
+            (goto-char 1) (search-forward "bibliography: second.bib\n") (replace-match "")
+            (quarto-authoring-refresh-bibliographies)
+            (quarto-test-wait (lambda () (equal '("project") quarto-authoring--citations)) "removed document override")
+            (with-temp-file (expand-file-name "_quarto.yml" directory)
+              (insert "project:\n  type: default\nbibliography: first.bib\n"))
+            ;; Batch has no idle command loop, so poll then run the queued job.
+            (quarto-references--poll)
+            (should (timerp quarto-references--timer))
+            (quarto-authoring-refresh-bibliographies)
+            (quarto-test-wait (lambda () (equal '("first") quarto-authoring--citations)) "project metadata refresh")
+            (with-temp-file (expand-file-name "_quarto-draft.yml" directory)
+              (insert "bibliography: second.bib\n"))
+            (quarto-select-profile "draft")
+            (quarto-authoring-refresh-bibliographies)
+            (quarto-test-wait (lambda () (member "changed" quarto-authoring--citations)) "profile bibliography")
+            ;; Quarto's resolved profile replaces this project-level scalar.
+            (should (equal '("changed") quarto-authoring--citations))
+            (should-not quarto-references-error)))
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer (set-buffer-modified-p nil)) (kill-buffer buffer))
+      (delete-directory directory t))))
+
+(ert-run-tests-batch-and-exit)

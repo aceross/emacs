@@ -1,5 +1,5 @@
 #+TITLE: Quarto source editing and document results
-#+DATE: 2026-10-14
+#+DATE: 2026-10-15
 
 * Daily use
 
@@ -28,7 +28,7 @@ The header shows the current language/label and document runtime state.
 The menu also inserts, selects, folds and navigates chunks, opens the combined
 Consult outline, inserts authoring templates/citations and reconnects language
 documents. =M-.= and =M-?= navigate definitions and references. =C-c q r= performs
-a mapped rename; =C-c q h= asks for signature help. Corfu offers completion and
+a mapped code rename or a document-label rename; =C-c q h= asks for signature help. Corfu offers completion and
 ElDoc displays hover documentation. Markdown's existing table commands remain
 available in prose. Automatic formatting is disabled.
 
@@ -86,8 +86,26 @@ profile files use an available YAML major mode, or a Quarto text-mode fallback
 when no YAML mode/grammar is installed; they do not start the prose checker.
 
 Document/project bibliography settings become buffer-local Citar settings.
-=C-c q B= refreshes them after changing metadata. The personal bibliography is
-never edited. =@= completion combines those citation keys with indexed labels.
+=@= completion shows author, year and title beside BibTeX keys, and captions or
+heading text beside document labels. It also works in figure/table chunk
+captions. =M-.= visits an explicit label or the corresponding BibTeX entry.
+Bibliography metadata refreshes after a half-second idle pause; saved external
+edits to bibliographies and project/directory metadata are noticed within about
+two seconds. Format/profile changes also refresh references. =C-c q B= remains
+available for a manual refresh. Unsaved documents can use their own declared
+bibliography; project inheritance starts after the first save. Project,
+directory and document bibliography lists are combined, preserving Quarto
+1.4's behaviour. The personal bibliography is never edited.
+
+Place point on a label declaration or its =@= reference and use =C-c q r=.
+Renaming updates its declaration and indexed references, including chunk
+captions, in one undoable change within this document. Code examples, inline
+code and HTML comments are excluded. Duplicate definitions, citation-key
+collisions, existing destination labels and changed type prefixes are rejected
+before any edits. Labels in other documents and bibliography keys are not
+renamed. If a bibliography becomes unreadable, its last good records remain
+available for completion and navigation.
+
 Duplicate labels and unresolved Quarto cross-references join YAML and language
 diagnostics in the single =quarto= Flycheck checker. Prose spell checking skips
 chunks, YAML and inline code.

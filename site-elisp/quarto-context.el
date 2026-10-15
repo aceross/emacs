@@ -13,14 +13,7 @@
 
 (defun quarto-context-metadata ()
   "Return the current YAML front matter without its delimiters."
-  (with-current-buffer (quarto-source-buffer)
-    (let ((front (quarto-document-front-matter (quarto-document-model))))
-      (if (not front) "{}"
-        (save-excursion (save-restriction
-          (widen) (goto-char (car front)) (forward-line 1)
-          (let ((start (point)))
-            (goto-char (cdr front)) (forward-line -1)
-            (buffer-substring-no-properties start (point)))))))))
+  (quarto-document-metadata))
 
 (defun quarto-context--merge (base overlay)
   "Recursively merge metadata without modifying BASE."
@@ -74,7 +67,9 @@ Unsaved front matter is parsed independently and overlays that metadata."
                                         (with-current-buffer source
                                           (cond
                                            (error (setq quarto-context-error error) (funcall callback nil error))
-                                           ((not (= revision (buffer-chars-modified-tick)))
+                                           ((or (not (= revision (buffer-chars-modified-tick)))
+                                                (not (equal format-choice quarto-format))
+                                                (not (equal profile quarto-profile)))
                                             (funcall callback nil "Document changed while resolving its environment; retry"))
                                            (t
                                             (let* ((formats (quarto-get inspection "formats"))

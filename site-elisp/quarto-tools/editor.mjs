@@ -2,6 +2,7 @@
 import readline from 'node:readline';
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
+import {resolve} from 'node:path';
 const require = createRequire(import.meta.url);
 const YAML = require('yaml');
 console.log = (...args) => console.error(...args);
@@ -75,7 +76,30 @@ for await (const line of input) {
   let request;
   try {
     request = JSON.parse(line);
-    let value = request.method === 'parse'
+    let value = request.method === 'bibliography'
+      ? (() => {
+          // Resolve this one authoring setting from current metadata. An old
+          // saved document override must not survive its deletion in the buffer.
+          const bibliography = [];
+          const collect = (object, directory) => {
+            for (const value of [object?.bibliography, object?.format?.[request.format]?.bibliography]) {
+              if (value == null) continue;
+              const files = typeof value === 'string' ? [value] : value;
+              if (!(Array.isArray(files) && files.every(item => typeof item === 'string'))) {
+                throw Error('bibliography must be a filename or a list of filenames');
+              }
+              // Quarto 1.4 combines inherited bibliography lists.
+              bibliography.push(...files.map(file => resolve(directory, file)));
+            }
+          };
+          collect(request.project, request.project_directory);
+          for (const item of request.directory_metadata || []) {
+            collect(YAML.parse(item.code || '') || {}, item.directory);
+          }
+          collect(YAML.parse(request.code || '') || {}, request.document_directory);
+          return {bibliography: [...new Set(bibliography)]};
+        })()
+      : request.method === 'parse'
       ? YAML.parse(request.code)
       : await (await editorBundle())[request.method](prepareContext(request.context, request.method));
     if (request.method === 'getCompletions') value = compactCompletions(value);

@@ -234,7 +234,7 @@ Use cached project context and unsaved metadata, never inspect on a keystroke."
 
 (defun quarto-yaml-completion-at-point ()
   "Offer cached schema completion; fetch a missing response asynchronously."
-  (when (quarto-yaml-position-p)
+  (when (and (quarto-yaml-position-p) (not (quarto-document-reference-at)))
     (let* ((key (quarto-yaml--key)) (target (quarto-yaml--target))
            (start (plist-get target :start)) (end (plist-get target :end))
            (cached (and (equal key (plist-get quarto-yaml--completion :key))

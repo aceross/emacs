@@ -124,6 +124,7 @@ Automatically switches to the appropriate mode for code blocks."
                                               quarto-lsp-completion-at-point cape-file)
               eldoc-documentation-functions '(quarto-yaml-eldoc quarto-lsp-eldoc))
   (quarto-yaml-setup)
+  (quarto-references-setup)
   (add-hook 'xref-backend-functions (lambda () 'quarto) nil t)
   (add-hook 'after-change-functions #'quarto-document-after-change nil t)
   (unless (buffer-base-buffer)

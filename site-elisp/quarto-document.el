@@ -7,8 +7,8 @@
 
 (defgroup quarto nil "Editing Quarto documents." :group 'text)
 (cl-defstruct quarto-chunk id marker start head-end body-end end language label
-              prefix fence options closed executable)
-(cl-defstruct quarto-document revision chunks headings labels references front-matter diagnostics)
+              prefix fence options closed executable label-definitions)
+(cl-defstruct quarto-document revision chunks headings labels references front-matter diagnostics targets)
 (defvar-local quarto-document--model nil)
 (defvar-local quarto-document--serial 0)
 (defvar-local quarto-document--owner nil)
@@ -48,15 +48,32 @@
         (while (and (not found) (string-match "`+" line cursor))
           (setq cursor (match-end 0))
           (when (equal fence (match-string 0 line)) (setq found cursor)))
-        (when found (cl-loop for index from start below found do (aset result index ?\s)))
+        (when found
+          (setq result (concat (substring result 0 start) (make-string (- found start) ?\s)
+                               (substring result found))))
         (setq offset (or found end))))
     result))
+
+(defun quarto-document--references (text start)
+  "Locate reference keys in TEXT at source START, excluding inline code."
+  (let ((line (quarto-document--mask-inline-code text)) (offset 0) references)
+    ;; Link destinations and URLs are literal text even if they contain @.
+    (while (string-match "\\]([^)\n]*)\\|https?://[^ \t\n<>]+\\|<[^>\n]*>" line offset)
+      (let ((begin (match-beginning 0)) (end (match-end 0)))
+        (setq line (concat (substring line 0 begin) (make-string (- end begin) ?\s) (substring line end))
+              offset end)))
+    (setq offset 0)
+    (while (string-match "\\(?:\\`\\|[^[:alnum:]\\\\]\\)@\\([[:alnum:]_][[:alnum:]_:.+-]*\\|\\)" line offset)
+      (let ((key (match-string 1 line)) (position (+ start (match-beginning 1))) (next (match-end 0)))
+        (push (cons (replace-regexp-in-string "[.:]+\\'" "" key) position) references)
+        (setq offset next)))
+    references))
 
 (defun quarto-document--parse ()
   "Index this widened source once; never execute code or start a process."
   (let ((old (and quarto-document--model (quarto-document-chunks quarto-document--model)))
         (old-positions (make-hash-table :test #'eql))
-        chunks headings labels references diagnostics front open)
+        chunks headings labels references diagnostics targets front open comment-open caption-key caption-indent)
     (dolist (chunk old) (puthash (marker-position (quarto-chunk-marker chunk)) chunk old-positions))
     (goto-char (point-min))
     (when (looking-at "---[ \t]*$")
@@ -71,6 +88,19 @@
              (prefix (quarto-document--prefix line))
              (text (substring line (length prefix)))
              (end (progn (forward-line 1) (point))))
+        (unless open
+          ;; Mask comments without moving source positions.  Literal examples
+          ;; must never become destinations or edits in a label rename.
+          (let ((offset 0) begin finish)
+            (while (and (< offset (length line))
+                        (setq begin (if comment-open offset (string-match "<!--" line offset))))
+              (setq finish (string-match "-->" line (if comment-open begin (+ begin 4)))
+                    comment-open (not finish)
+                    finish (if finish (+ finish 3) (length line)))
+              (setq line (concat (substring line 0 begin) (make-string (- finish begin) ?\s)
+                                 (substring line finish)))
+              (setq offset finish)))
+          (setq text (substring line (length prefix))))
         (cond
          (open
           (let ((fence (quarto-chunk-fence open)))
@@ -79,12 +109,37 @@
                 (progn
                   (setf (quarto-chunk-body-end open) start (quarto-chunk-end open) end
                         (quarto-chunk-closed open) t)
-                  (push open chunks) (setq open nil))
-              (when (and (quarto-chunk-executable open)
-                         (string-match "\\`#|[ \t]*\\([^: \t]+\\):[ \t]*\\(.*\\)" text))
-                (let ((key (match-string 1 text)) (value (quarto-document--option (match-string 2 text))))
-                  (push (cons key value) (quarto-chunk-options open))
-                  (when (equal key "label") (setf (quarto-chunk-label open) value)))))))
+                  (push open chunks) (setq open nil caption-key nil))
+              (if (and caption-key (string-match "\\`#|\\([ \t]+\\)\\(.*\\)" text)
+                       (> (length (match-string 1 text)) caption-indent))
+                  (let ((content (match-string 2 text))
+                        (position (+ start (length prefix) (match-beginning 2))))
+                    (setcdr (assoc caption-key (quarto-chunk-options open))
+                            (string-trim (concat (cdr (assoc caption-key (quarto-chunk-options open))) " " content)))
+                    (setq references (append (quarto-document--references content position) references)))
+                (setq caption-key nil)
+                (when (and (quarto-chunk-executable open)
+                           (string-match "\\`#|[ \t]*\\([^: \t]+\\):[ \t]*\\(.*\\)" text))
+                  (let* ((key (match-string 1 text)) (raw (match-string 2 text))
+                         (position (+ start (length prefix) (match-beginning 2)))
+                         (value (quarto-document--option raw)))
+                    (push (cons key value) (quarto-chunk-options open))
+                    (when (member key '("fig-cap" "tbl-cap"))
+                      (if (member value '("|" ">" "|-" ">-" "|+" ">+"))
+                          (progn
+                            (setq caption-key key
+                                  caption-indent (progn (string-match "\\`#|\\([ \t]*\\)" text)
+                                                        (length (match-string 1 text))))
+                            (setcdr (assoc key (quarto-chunk-options open)) ""))
+                        (when (and (stringp value) (string-match (regexp-quote value) raw))
+                          (setq references (append (quarto-document--references value (+ position (match-beginning 0))) references)))))
+                    (when (equal key "label")
+                      (setf (quarto-chunk-label open) value)
+                      (when (and (stringp value)
+                                 (string-match (concat "\\`[ \t]*[\"']?\\(" (regexp-quote value) "\\)") raw))
+                        (push (list :key value :start (+ position (match-beginning 1))
+                                    :end (+ position (match-end 1)))
+                              (quarto-chunk-label-definitions open))))))))))
          ((string-match "\\`\\(`\\{3,\\}\\|~\\{3,\\}\\)\\(.*\\)\\'" text)
           (let* ((fence (match-string 1 text)) (info (string-trim (match-string 2 text)))
                  (executable (string-match "\\`{\\([[:alnum:]_+-]+\\)\\(?:[ ,]\\([^}]*\\)\\)?}\\'" info))
@@ -101,7 +156,13 @@
                                  "\\(?:[-+*]\\|[0-9]+[.)]\\)[ \t]+\\'"
                                  (lambda (match) (make-string (length match) ?\s)) prefix)
                         :fence fence :language language :label label
-                        :executable (and executable (member language '("r" "python")))))))
+                        :executable (and executable (member language '("r" "python")))))
+            (when (and label
+                       (string-match (concat "\\`" (regexp-quote fence)
+                                             "[ \t]*{[[:alnum:]_+-]+[ ,]+\\(" (regexp-quote label) "\\)") text))
+              (push (list :key label :start (+ start (length prefix) (match-beginning 1))
+                          :end (+ start (length prefix) (match-end 1)))
+                    (quarto-chunk-label-definitions open)))))
          (t
           (when (string-match "\\`\\(#+\\)[ \t]+\\(.+\\)" text)
             (push (list (match-string 2 text) start (length (match-string 1 text))) headings))
@@ -109,19 +170,24 @@
           (let ((offset 0))
             (while (string-match "{#\\([[:alnum:]_:.+-]+\\)\\(?:[ } ]\\)" line offset)
               (push (cons (match-string 1 line) (+ start (match-beginning 1))) labels)
+              (push (list :key (match-string 1 line) :start (+ start (match-beginning 1))
+                          :end (+ start (match-end 1))
+                          :description (string-trim (substring line 0 (match-beginning 0)))) targets)
               (setq offset (match-end 0))))
-          (let ((offset 0))
-            (while (string-match "\\(?:\\`\\|[^[:alnum:]\\\\]\\)@\\([[:alnum:]_][[:alnum:]_:.+-]*\\)" line offset)
-              (let ((key (match-string 1 line)) (position (+ start (match-beginning 1))) (next (match-end 0)))
-                (push (cons (replace-regexp-in-string "[.:]+\\'" "" key) position) references)
-                (setq offset next))))))))
+          (setq references (append (quarto-document--references line start) references))))))
     (when open
       (push (list (quarto-chunk-start open) 'error "Unclosed code fence; execution disabled") diagnostics)
       (setf (quarto-chunk-executable open) nil)
       (push open chunks))
     (dolist (chunk chunks)
       (when (stringp (quarto-chunk-label chunk))
-        (push (cons (quarto-chunk-label chunk) (quarto-chunk-start chunk)) labels)))
+        (push (cons (quarto-chunk-label chunk) (quarto-chunk-start chunk)) labels))
+      (dolist (target (quarto-chunk-label-definitions chunk))
+        (push (append target
+                      (list :chunk (quarto-chunk-id chunk)
+                            :description (or (cdr (assoc "fig-cap" (quarto-chunk-options chunk)))
+                                             (cdr (assoc "tbl-cap" (quarto-chunk-options chunk)))
+                                             (format "%s chunk" (quarto-chunk-language chunk))))) targets)))
     (let ((seen (make-hash-table :test #'equal)))
       (dolist (label (reverse labels))
         (when (gethash (car label) seen)
@@ -138,6 +204,7 @@
     (make-quarto-document :revision (buffer-chars-modified-tick) :chunks (nreverse chunks)
                          :headings (nreverse headings) :labels (nreverse labels)
                          :references (nreverse references) :front-matter front
+                         :targets (nreverse targets)
                          :diagnostics (nreverse diagnostics))))
 
 (defun quarto-document-model ()
@@ -150,6 +217,23 @@
                      (= (quarto-document-revision quarto-document--model) (buffer-chars-modified-tick)))
           (setq quarto-document--model (quarto-document--parse)))
         quarto-document--model))))
+
+(defun quarto-document-metadata ()
+  "Return front matter without fences, including its unfinished last line."
+  (with-current-buffer (quarto-source-buffer)
+    (if-let* ((front (quarto-document-front-matter (quarto-document-model))))
+        (save-excursion (save-restriction
+          (widen) (goto-char (car front)) (forward-line 1)
+          (let* ((start (point))
+                 (closed (re-search-forward "^\\(?:---\\|\\.\\.\\.\\)[ \t]*$" (cdr front) t)))
+            (buffer-substring-no-properties start (if closed (match-beginning 0) (cdr front))))))
+      "")))
+
+(defun quarto-document-reference-at (&optional position)
+  "Return the indexed reference containing POSITION, including an empty @."
+  (let ((pos (or position (point))))
+    (cl-find-if (lambda (ref) (<= (cdr ref) pos (+ (cdr ref) (length (car ref)))))
+                (quarto-document-references (quarto-document-model)))))
 
 (defun quarto-chunk-at (&optional position)
   "Return the chunk containing POSITION, including its fences."
