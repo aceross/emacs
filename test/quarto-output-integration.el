@@ -1,7 +1,7 @@
 ;;; quarto-output-integration.el --- Real nested-directory render and preview -*- lexical-binding: t; -*-
 (load (expand-file-name "quarto-test-setup.el" (file-name-directory load-file-name)) nil t)
 (setq quarto-lsp-auto-start nil)
-(defvar quarto-output-root "/tmp/quarto-runtime-check/project with spaces/")
+(defvar quarto-output-root (file-name-as-directory (or (getenv "QUARTO_TEST_RUNTIME_ROOT") "/tmp/quarto-runtime-check/project with spaces/")))
 (defvar quarto-output-source nil)
 (defvar quarto-output-preview nil)
 (defvar quarto-output-pdf nil)
@@ -39,6 +39,7 @@
   (when (buffer-live-p quarto-output-source)
     (when-let* ((process (buffer-local-value 'quarto-preview--process quarto-output-source)))
       (with-current-buffer (process-buffer process)
-        (write-region (point-min) (point-max) "/tmp/quarto-preview-test.log" nil 'silent)))
+        (write-region (point-min) (point-max)
+                      (expand-file-name "quarto-preview-test.log" (or (getenv "QUARTO_TEST_RUN_DIR") "/tmp")) nil 'silent)))
     (with-current-buffer quarto-output-source (quarto-stop-preview) (quarto-stop-render) (set-buffer-modified-p nil))
     (kill-buffer quarto-output-source)))

@@ -51,7 +51,7 @@ writeLines(c("library(envprobe)", "project_calculate <- function(value) {",
            file.path(root, "reports", "chapters", "analysis.R"))
 writeLines(lib, file.path(base, paste0(label, "-library.txt")))
 cat("READY", root, lib, "\n")
-status <- system2("python3", c("-m", "venv", "--without-pip", shQuote(file.path(root, ".venv"))))
+status <- system2(Sys.getenv("QUARTO_TEST_PYTHON", unset = "python3"), c("-m", "venv", "--without-pip", shQuote(file.path(root, ".venv"))))
 stopifnot(status == 0)
 missing <- file.path(base, "missing package")
 if (!dir.exists(missing)) {

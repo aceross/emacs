@@ -187,6 +187,26 @@ Corfu, Consult, Flycheck, Transient, Citar, Yasnippet and PDF Tools.
 
 * Reproducing validation
 
+The repeatable runner creates its own disposable projects, libraries, Python
+environments and kernels. It never uses a research project as a fixture:
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+python3 test/run-quarto-checks.py --suite all --keep
+#+end_src
+
+=core= runs regressions, ESS startup, the real YAML schemas and readiness/
+bibliography integration checks. =assistance= adds two independent language
+environments; =runtime= adds mixed and Jupyter execution; =output= adds HTML/PDF
+render and preview; =all= includes everything. Use =--emacs=, =--python= and
+=--r-library= to select existing dependencies. Missing dependencies cause a
+clear failure. Explicitly passing =--install-dependencies= permits missing R
+packages and Python test dependencies to be installed under that run's temporary
+directory; it does not install or upgrade Quarto. Logs and failed fixtures are
+retained under the printed =/tmp/quarto-checks-...= path. Successful fixtures
+are removed unless =--keep= is supplied. Output tests require working TeX, and
+language/kernel/preview tests need permission for subprocesses and local sockets.
+
 Run =emacs-xwidgets -Q --batch -l test/run-tests.el= for regression tests and
 =emacs-xwidgets -Q --batch -l test/ess-startup-check.el= for real ESS package
 activation. Tests use installed packages and never install them implicitly.
