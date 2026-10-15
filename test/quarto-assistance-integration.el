@@ -71,7 +71,7 @@
           (when quarto-yaml-error (error "%s" quarto-yaml-error))
           (should (= 3 (line-number-at-pos (caar quarto-yaml-diagnostics)))))
         (goto-char (point-min)) (forward-line 1) (end-of-line)
-        (should (member "html" (nth 2 (quarto-yaml-completion-at-point))))
+        (quarto-test-wait (lambda () (member "html" (nth 2 (quarto-yaml-completion-at-point)))) "YAML format completion")
         (princ "PASS Quarto 1.4 schema completion and validation\n"))
       (dolist (fixture '(("/tmp/schema.qmd" . "```{r}\n#| echo: not-a-boolean\n1 + 1\n```\n")
                          ("/tmp/_quarto.yml" . "project:\n  type: default\nexecute:\n  echo: not-a-boolean\n")))

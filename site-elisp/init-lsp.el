@@ -57,7 +57,8 @@
   :hook
   (text-mode . (lambda ()
                  (unless (or (buffer-base-buffer)
-                             (equal (file-name-extension (or buffer-file-name "")) "qmd"))
+                             (equal (file-name-extension (or buffer-file-name "")) "qmd")
+                             (string-match-p "/_quarto\\(?:-[^.]+\\)?\\.ya?ml\\'" (or buffer-file-name "")))
                    (require 'lsp-ltex)
                    (lsp-deferred)))))
 

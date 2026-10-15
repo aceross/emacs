@@ -30,6 +30,7 @@
 (declare-function tree-sitter-hl-mode "tree-sitter-hl" (&optional arg))
 (declare-function highlight-indent-guides-mode "highlight-indent-guides" (&optional arg))
 (declare-function lsp-disconnect "lsp-mode" ())
+(declare-function yaml-mode "yaml-mode" ())
 
 ;; --- Disable Tree-sitter and Highlight-Indent-Guides in the Outer Mode ---
 (defun my/poly-markdown-disable-extras ()
@@ -96,12 +97,21 @@ Automatically switches to the appropriate mode for code blocks."
     (setq-local electric-indent-inhibit t)))
 (add-hook 'ess-r-mode-hook #'quarto-inner-setup)
 (add-hook 'python-mode-hook #'quarto-inner-setup)
+(defun quarto-after-first-save ()
+  "Resolve project metadata once a new document exists on disk."
+  (remove-hook 'after-save-hook #'quarto-after-first-save t)
+  (quarto-authoring-refresh-bibliographies))
+
 (defun quarto-after-locals ()
   "Enable assistance after environment and bibliography settings are known."
   (when (and buffer-file-name (not (buffer-base-buffer)))
     (when quarto-lsp-auto-start (quarto-lsp-start))
     (quarto-yaml-refresh (current-buffer))
-    (quarto-authoring-refresh-bibliographies)))
+    (if (file-readable-p buffer-file-name)
+        (quarto-authoring-refresh-bibliographies)
+      ;; Schema completion already works from the buffer.  Quarto inspect
+      ;; needs a saved file and must not abort visiting a new document.
+      (add-hook 'after-save-hook #'quarto-after-first-save nil t))))
 
 (defun quarto-editing-setup ()
   "Install Quarto features in the host and language buffers."
@@ -113,6 +123,7 @@ Automatically switches to the appropriate mode for code blocks."
                                               quarto-reference-completion-at-point
                                               quarto-lsp-completion-at-point cape-file)
               eldoc-documentation-functions '(quarto-yaml-eldoc quarto-lsp-eldoc))
+  (quarto-yaml-setup)
   (add-hook 'xref-backend-functions (lambda () 'quarto) nil t)
   (add-hook 'after-change-functions #'quarto-document-after-change nil t)
   (unless (buffer-base-buffer)
@@ -135,10 +146,23 @@ Automatically switches to the appropriate mode for code blocks."
     (setq-local completion-at-point-functions '(quarto-yaml-completion-at-point)
                 eldoc-documentation-functions '(quarto-yaml-eldoc)
                 flycheck-checker 'quarto)
+    (quarto-yaml-setup)
     (add-hook 'after-change-functions #'quarto-document-after-change nil t)
     (quarto-yaml-refresh (current-buffer))))
 (add-hook 'yaml-mode-hook #'quarto-project-yaml-setup)
 (add-hook 'yaml-ts-mode-hook #'quarto-project-yaml-setup)
+
+(define-derived-mode quarto-project-yaml-mode text-mode "Quarto YAML"
+  "Edit Quarto project YAML when no YAML major mode is installed."
+  (setq-local comment-start "# " comment-end "")
+  (quarto-project-yaml-setup))
+
+(defun quarto-project-yaml-auto-mode ()
+  "Use an available YAML mode, with a dependency-free Quarto fallback."
+  (cond ((and (fboundp 'treesit-ready-p) (treesit-ready-p 'yaml t)) (yaml-ts-mode))
+        ((require 'yaml-mode nil t) (yaml-mode))
+        (t (quarto-project-yaml-mode))))
+(add-to-list 'auto-mode-alist '("/_quarto\\(?:-[^.]+\\)?\\.ya?ml\\'" . quarto-project-yaml-auto-mode))
 (require 'quarto-menu)
 (define-key poly-quarto-mode-map (kbd "C-c q") #'quarto-menu)
 

@@ -57,6 +57,34 @@ completion, hover and lint, including front matter, =#|= options and
 An incompatible/missing editor bundle is reported in the status command.
 Metadata parsing is independent of the editor-bundle capability.
 
+In YAML, suggestions appear after two characters and a 250 ms pause. For
+example, =ti= offers =title:=, =to= in an HTML format block offers table-of-contents
+settings, and =#| fig-wi= offers =fig-width:= in knitr documents. Suggestions
+follow the document's engine and current metadata; an option available to knitr
+is not necessarily available to Jupyter. Values are suggested where supplied by
+Quarto's schema; free text such as a title remains ordinary text.
+
+Use the existing Corfu keys to select and accept a suggestion. A short
+description appears alongside each candidate, with nearby documentation after
+half a second on a selected option. ElDoc continues to explain existing options.
+=M-x completion-at-point= (also =C-c p= in this configuration) requests choices
+with an empty prefix. Accepting an option offers its available values. YAML
+suggestions can work before the closing =---= has been typed; assistance never
+inserts that delimiter. Existing colons, values, quotes and container prefixes
+are preserved when completing in the middle of a token.
+
+For a quick check, open a new =.qmd= file, type =---= on its first line, then
+=ti= on the next line and pause. The menu should offer =title:= even before
+the file is saved. Project metadata and bibliography discovery wait until the
+first save; they do not prevent editing or schema completion in a new file.
+
+Requests are asynchronous, and replies for obsolete source/cursor positions
+are discarded. Escape dismisses pending suggestions. =C-c q Y= or
+=M-x quarto-yaml-restart= restarts the helper after repairing its dependencies.
+Other code-completion settings are restored when leaving YAML. Project and
+profile files use an available YAML major mode, or a Quarto text-mode fallback
+when no YAML mode/grammar is installed; they do not start the prose checker.
+
 Document/project bibliography settings become buffer-local Citar settings.
 =C-c q B= refreshes them after changing metadata. The personal bibliography is
 never edited. =@= completion combines those citation keys with indexed labels.
@@ -146,6 +174,14 @@ and preview checks need permission to open local sockets.
 server and disposable source. It checks actual Corfu candidates, polymode
 transitions, plot output, focus/window reuse, WebKit and editing a substantial
 document. Screenshots and the check log go to =/tmp/quarto-gui-check=.
+
+=emacs-xwidgets -Q --batch -l test/quarto-yaml-integration.el= checks the installed
+Quarto schemas, safe acceptance, incomplete front matter, container options,
+hover, compact responses and helper failure/recovery. Run
+=emacs-xwidgets -Q --load test/quarto-yaml-gui-check.el= for actual automatic
+menus, nearby hints, empty-prefix completion and delayed-response checks in an
+isolated GUI. Its log and screenshots go to =/tmp/quarto-yaml-gui=; the test
+Emacs closes itself on success.
 
 Visual editing, results embedded beneath chunks, interactive HTML widgets,
 debugging, books/sites/slides and inline-expression language servers remain

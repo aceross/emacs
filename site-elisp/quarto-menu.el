@@ -70,6 +70,7 @@
     ("C" "Insert citation" quarto-insert-citation)
     ("B" "Refresh bibliography" quarto-authoring-refresh-bibliographies)
     ("L" "Reconnect language documents" quarto-language-restart)
+    ("Y" "Restart YAML assistance" quarto-yaml-restart)
     ("e" "Environment and status" quarto-document-status)]
    ["Results and output"
     ("v" "Results pane" quarto-results-show)

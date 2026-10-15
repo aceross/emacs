@@ -13,6 +13,7 @@
 (require 'quarto-edit-test)
 (require 'quarto-document-test)
 (require 'quarto-assistance-test)
+(require 'quarto-yaml-test)
 (require 'quarto-runtime-test)
 (require 'awc-r-test)
 (require 'awc-r-lsp-test)

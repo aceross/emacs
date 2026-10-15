@@ -1,0 +1,92 @@
+;;; quarto-yaml-integration.el --- Installed Quarto YAML schemas -*- lexical-binding: t; -*-
+(load (expand-file-name "quarto-test-setup.el" (file-name-directory load-file-name)) nil t)
+
+(defun quarto-yaml-test-completion ()
+  (quarto-yaml-completion-at-point)
+  (quarto-test-wait (lambda () (equal (quarto-yaml--key) (plist-get quarto-yaml--completion :key))) "YAML completion" 10)
+  (should-not quarto-yaml-error)
+  (quarto-yaml-completion-at-point))
+
+(defun quarto-yaml-test-accept (capf candidate)
+  (should (member candidate (nth 2 capf)))
+  (delete-region (nth 0 capf) (nth 1 capf))
+  (goto-char (nth 0 capf)) (insert candidate)
+  (funcall (plist-get (nthcdr 3 capf) :exit-function) candidate 'finished))
+
+(ert-deftest quarto-yaml-real-keys-values-and-compact-responses ()
+  (dolist (fixture '(("---\nti|\n---\n" "title: ")
+                     ("---\nformat: h|\n---\n" "html")
+                     ("---\nformat: \"h|\n---\n" "html")
+                     ("---\nformat:\n  html:\n    to|\n---\n" "toc: ")
+                     ("---\nti|" "title: ")
+                     ("---\ntitle: 'λ 😀'\nfo|\n---\n" "format: ")
+                     ("```{r}\n#| fig-wi|\nplot(1)\n```\n" "fig-width: ")
+                     ("~~~{python}\n#| ec|\nprint(1)\n~~~\n" "echo: ")
+                     ("---\nengine: knitr\n---\n> - ~~~~{python}\n>   #| fig-wi|\n>   x = 1\n>   ~~~~\n" "fig-width: ")))
+    (with-temp-buffer
+      (insert (car fixture)) (goto-char 1) (search-forward "|") (delete-char -1)
+      ;; The cursor marker is the last | on an option line, after #|.
+      (when (eq (char-before) ?#) (insert "|") (search-forward "|") (delete-char -1))
+      (let ((before (buffer-string)) (start (float-time)))
+        (quarto-yaml-completion-at-point)
+        (should (< (- (float-time) start) 0.1))
+        (let ((capf (quarto-yaml-test-completion)))
+          (should (member (cadr fixture) (nth 2 capf)))
+          (should (< (length (json-encode (plist-get quarto-yaml--completion :value))) 40000))
+          (should (equal before (buffer-string)))
+          (when (string-match-p "title" (cadr fixture))
+            (let ((doc (funcall (plist-get (nthcdr 3 capf) :company-doc-buffer) (cadr fixture))))
+              (should (buffer-live-p doc))
+              (should (string-match-p "Document title" (with-current-buffer doc (buffer-string)))))))))))
+
+(ert-deftest quarto-yaml-real-acceptance-preserves-surrounding-yaml ()
+  (dolist (fixture '(("---\ntit|le: Keep this title\n---\n" "title" "---\ntitle: Keep this title\n---\n")
+                     ("---\nformat: \"ht|ml\" # Keep comment\n---\n" "html" "---\nformat: \"html\" # Keep comment\n---\n")
+                     ("---\nformat:\n  html:\n    toc-de|pth: 3\n---\n" "toc-depth" "---\nformat:\n  html:\n    toc-depth: 3\n---\n")
+                     ("  ~~~{r}\n  #| fig-wi§dth: 7\n  plot(1)\n  ~~~\n" "fig-width" "  ~~~{r}\n  #| fig-width: 7\n  plot(1)\n  ~~~\n")))
+    (with-temp-buffer
+      (insert (car fixture)) (goto-char 1)
+      (search-forward (if (string-match-p "§" (car fixture)) "§" "|")) (delete-char -1)
+      (quarto-yaml-test-accept (quarto-yaml-test-completion) (cadr fixture))
+      (should (equal (buffer-string) (nth 2 fixture))))))
+
+(ert-deftest quarto-yaml-real-project-empty-prefix-and-hover ()
+  (with-temp-buffer
+    (setq buffer-file-name "/tmp/_quarto.yml")
+    (insert "project:\n  ty")
+    (should (member "type: " (nth 2 (quarto-yaml-test-completion)))))
+  (with-temp-buffer
+    (insert "---\nformat: \n---\n") (goto-char 1) (forward-line 1) (end-of-line)
+    (should (member "html" (nth 2 (quarto-yaml-test-completion)))))
+  (with-temp-buffer
+    (insert "---\nformat:\n  html:\n    toc: true\n---\n")
+    (goto-char 1) (search-forward "toc")
+    (let (help)
+      (quarto-yaml-eldoc (lambda (text) (setq help text)))
+      (quarto-test-wait (lambda () help) "YAML hover")
+      (should (string-match-p "table of contents" help))))
+  (with-temp-buffer
+    (insert "> - ~~~~{python}\n>   #| echo: true\n>   print(1)\n>   ~~~~\n")
+    (goto-char 1) (search-forward "echo")
+    (let (help)
+      (quarto-yaml-eldoc (lambda (text) (setq help text)))
+      (quarto-test-wait (lambda () help) "chunk YAML hover")
+      (should (string-match-p "source code" help)))))
+
+(ert-deftest quarto-yaml-real-helper-failure-and-recovery ()
+  (when (process-live-p quarto-yaml--process)
+    (delete-process quarto-yaml--process))
+  (let ((quarto-editor-bundle "/tmp/nonexistent-quarto-editor-bundle.mjs"))
+    (with-temp-buffer
+      (insert "---\nti\n---\n") (goto-char 7)
+      (let ((start (float-time)))
+        (quarto-yaml-completion-at-point)
+        (should (< (- (float-time) start) 0.1)))
+      (quarto-test-wait (lambda () quarto-yaml-error) "missing helper capability")
+      (should (string-match-p "Cannot find module" quarto-yaml-error))))
+  (when (process-live-p quarto-yaml--process) (delete-process quarto-yaml--process))
+  (with-temp-buffer
+    (insert "---\nti\n---\n") (goto-char 7)
+    (should (member "title: " (nth 2 (quarto-yaml-test-completion))))))
+
+(ert-run-tests-batch-and-exit)
