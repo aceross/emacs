@@ -99,6 +99,17 @@ for await (const line of input) {
           collect(YAML.parse(request.code || '') || {}, request.document_directory);
           return {bibliography: [...new Set(bibliography)]};
         })()
+      : request.method === 'health'
+      ? await (async () => {
+          const bundle = await editorBundle();
+          const response = await bundle.getCompletions({code: '---\nti\n---\n', line: 'ti',
+            position: {row: 1, column: 2}, filetype: 'markdown', path: 'health.qmd',
+            client: 'lsp', engine: 'knitr', formats: ['html'], project_formats: []});
+          if (!response?.completions?.some(item => item.value.trim() === 'title:')) {
+            throw Error('Quarto schema probe did not return title completion');
+          }
+          return {node: process.version, bundle: process.argv[2], ready: true};
+        })()
       : request.method === 'parse'
       ? YAML.parse(request.code)
       : await (await editorBundle())[request.method](prepareContext(request.context, request.method));

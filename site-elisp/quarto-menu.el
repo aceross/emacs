@@ -18,35 +18,22 @@
     (setq quarto-profile (unless (string-empty-p profile) profile) quarto-context--value nil)
     (quarto-references--schedule (current-buffer))))
 
-(defun quarto-document-status ()
-  "Report the resolved engine, environment and active document capabilities."
-  (interactive)
-  (let ((source (quarto-source-buffer)))
-    (quarto-context-resolve
-     (lambda (context error)
-       (when (buffer-live-p source)
-         (with-current-buffer source
-           (let ((buffer (get-buffer-create (format "*Quarto status: %s*" (buffer-name))))
-                 (text (format (concat "Document: %s\nEngine: %s\nFormat: %s\nProfile: %s\n"
-                                       "Project startup: %s\nExecution directory: %s\nSelected Python: %s\n"
-                                       "Runtime: %s\nRuntime identity: %S\nQueued requests: %d\n"
-                                       "Language documents: %s\nLanguage assistance: %s\nYAML assistance: %s\n"
-                                       "Bibliographies: %S\nEnvironment resolution: %s\n")
-                               buffer-file-name (plist-get context :engine) (or quarto-format (plist-get context :format))
-                               (or quarto-profile "default") (plist-get context :root) (plist-get context :directory)
-                               (or (plist-get context :python) "not selected") quarto-runtime--state quarto-runtime--identity
-                               (length quarto-runtime--queue) (mapcar #'car quarto-lsp--documents)
-                               (or quarto-lsp-error "available when each server is initialised")
-                               (or quarto-yaml-error (quarto-yaml--bundle)) quarto-authoring--bibliographies (or error "resolved"))))
-             (with-current-buffer buffer
-               (let ((inhibit-read-only t)) (erase-buffer) (insert text) (special-mode)
-                 (setq-local quarto-document--owner source)))
-             (display-buffer buffer))))))))
+(require 'quarto-health)
 
-(defun quarto-language-restart ()
+(defun quarto-language-restart (&optional language)
+  "Reconnect this document's LANGUAGE, or all languages when omitted."
   (interactive)
   (with-current-buffer (quarto-source-buffer)
-    (quarto-lsp-close) (quarto-lsp-start)))
+    (if (not language) (quarto-lsp-close)
+      (when-let* ((buffer (cdr (assoc language quarto-lsp--documents))))
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (remhash buffer-file-name lsp--virtual-buffer-mappings)
+            (set-buffer-modified-p nil))
+          (kill-buffer buffer))
+        (setq quarto-lsp--buffers (delq buffer quarto-lsp--buffers)
+              quarto-lsp--documents (assoc-delete-all language quarto-lsp--documents))))
+    (quarto-lsp-start)))
 
 (transient-define-prefix quarto-menu ()
   "Quarto source editing and document results."

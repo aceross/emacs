@@ -104,11 +104,29 @@ code and HTML comments are excluded. Duplicate definitions, citation-key
 collisions, existing destination labels and changed type prefixes are rejected
 before any edits. Labels in other documents and bibliography keys are not
 renamed. If a bibliography becomes unreadable, its last good records remain
-available for completion and navigation.
+available and the readiness report explains the problem.
 
 Duplicate labels and unresolved Quarto cross-references join YAML and language
 diagnostics in the single =quarto= Flycheck checker. Prose spell checking skips
 chunks, YAML and inline code.
+
+* Readiness and recovery
+
+=C-c q e= opens an asynchronous readiness report, including for new, unsaved
+documents. It records the cursor's completion context, active mode, Corfu and
+completion hooks. A real schema-completion probe checks the Node helper and
+installed Quarto editor bundle. R/Python readiness requires a live, initialised
+server and lists its advertised completion, hover, navigation and rename
+capabilities. Engine, environment, execution directory, runtime state, queue
+and bibliography errors remain visible even when one check fails.
+
+The report has buttons to check again, repair completion hooks, restart the
+shared YAML helper, reconnect an individual document language, refresh
+references and open logs. Completion repair and language reconnection preserve
+the document's runtime variables and results. The YAML helper is shared, so
+restarting it reconnects schema assistance for all documents. None of these
+checks or recovery actions executes chunks or installs dependencies. Runtime
+restart remains the explicit =C-c q R= command.
 
 * Execution and results
 
@@ -200,6 +218,11 @@ hover, compact responses and helper failure/recovery. Run
 menus, nearby hints, empty-prefix completion and delayed-response checks in an
 isolated GUI. Its log and screenshots go to =/tmp/quarto-yaml-gui=; the test
 Emacs closes itself on success.
+
+=emacs-xwidgets -Q --load test/quarto-research-gui-check.el= checks real annotated
+citation menus, source focus, label renaming, automatic refresh after unsaved
+metadata edits, readiness reporting and recovery buttons. It uses a fresh
+=/tmp/quarto-research-gui-...= directory and closes its separate Emacs on success.
 
 Visual editing, results embedded beneath chunks, interactive HTML widgets,
 debugging, books/sites/slides and inline-expression language servers remain

@@ -2,6 +2,29 @@
 (load (expand-file-name "quarto-test-setup.el" (file-name-directory load-file-name)) nil t)
 (setq quarto-lsp-auto-start nil)
 
+(ert-deftest quarto-research-real-health-and-recovery ()
+  (with-temp-buffer
+    (setq buffer-file-name (expand-file-name "new.qmd" (make-temp-file "quarto-health-" t)))
+    (let ((directory (file-name-directory buffer-file-name)))
+      (unwind-protect
+          (progn
+            (insert "---\nti")
+            (quarto-document-status)
+            (quarto-test-wait (lambda () (string-prefix-p "Ready" quarto-health--yaml)) "schema health probe")
+            (quarto-test-wait (lambda () (not (equal "Checking…" quarto-health--version))) "Quarto version")
+            (should (equal "1.4.530" quarto-health--version))
+            (should-not quarto-runtime--process)
+            (let ((quarto-editor-bundle "/tmp/missing-quarto-editor.mjs"))
+              (quarto-yaml-restart)
+              (quarto-document-status)
+              (quarto-test-wait (lambda () (string-prefix-p "Unavailable" quarto-health--yaml)) "missing bundle report"))
+            (quarto-yaml-restart)
+            (quarto-document-status)
+            (quarto-test-wait (lambda () (string-prefix-p "Ready" quarto-health--yaml)) "helper recovery")
+            (should (string-match-p "Save once" quarto-health--environment)))
+        (when (buffer-live-p quarto-health--report) (kill-buffer quarto-health--report))
+        (delete-directory directory t)))))
+
 (ert-deftest quarto-research-real-bibliography-metadata-and-file-refresh ()
   (let* ((directory (make-temp-file "quarto-research-" t))
          (file (expand-file-name "paper.qmd" directory)) buffer)
