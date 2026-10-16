@@ -142,10 +142,10 @@
 (use-package ox-pandoc
   :ensure t)
 
-;; Citar Org-Roam for Citation Management
+;; Keep the legacy adapter available explicitly.  New literature notes use
+;; awc-research; enabling this globally would replace that Citar notes source.
 (use-package citar-org-roam
-  :after (citar org-roam)
-  :config (citar-org-roam-mode))
+  :commands citar-org-roam-mode)
 
 ;; ORG-PDFTOOLS for integrating with PDFTools
 (use-package org-pdftools

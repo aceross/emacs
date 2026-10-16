@@ -1,0 +1,149 @@
+#+TITLE: Bibliography files across projects and devices
+#+DATE: 2026-10-16
+
+* Working policy
+
+Keep bibliographic metadata in Zotero, literature notes in the Obsidian vault,
+and a small =references.bib= with each manuscript. Keep the same citation key
+in all three places. A manuscript should render from its own files without
+Zotero running or access to a particular computer's home directory.
+
+This records the proposed operating policy after the first successful
+Zotero → Obsidian → Quarto trial. It does not configure synchronization,
+replace existing bibliographies or migrate keys. See the
+[[file:zotero-obsidian-quarto.org][workflow guide]] for the implemented commands.
+
+* Which copy owns what?
+
+| Data | Role | Update rule |
+|------+----------------+-------------|
+| Zotero library | Intended authority for bibliographic metadata and item identity | Correct metadata here; reconcile older bibliography-only records before retiring them |
+| =~/Documents/bibliography/references.bib= | Existing personal bibliography and established keys | Preserve and back up; it has not been replaced by an automatic Zotero export |
+| =~/.emacs.d/var/research/zotero.bib= | Additional records imported by the current Emacs adapter | Import adds missing records; it does not refresh existing metadata |
+| Project =references.bib= | Bibliography snapshot used to build that manuscript | Deliberately add or refresh entries, review the diff and render |
+| Vault Markdown notes | Reading notes and analysis, with unchanged =citekey= properties | Edit the same vault files through Emacs or Obsidian |
+| =var/research/zotero-links.json= | Local key-to-item associations and attachment paths | Back up; it contains both identity information and machine-specific paths |
+
+The personal bibliography and the supplement are currently both needed.
+Neither is a proven complete export of Zotero. Replacing either with a fresh
+library export could lose records or established keys.
+
+* Portable manuscript layout
+
+For a simple manuscript, keep these files together:
+
+#+begin_example
+my-paper/
+  paper.qmd
+  references.bib
+  journal.csl       # only if a custom citation style is used
+#+end_example
+
+Use a relative bibliography path in =paper.qmd=:
+
+#+begin_src yaml
+---
+format: pdf
+bibliography: references.bib
+---
+#+end_src
+
+The absolute personal-bibliography path used in the trial was a useful
+diagnostic shortcut. Replace that dependency with a project bibliography
+before moving or sharing the manuscript. Quarto needs an explicit
+=bibliography= declaration; inserting a key through Emacs does not supply
+the data to the renderer. See [[https://quarto.org/docs/authoring/citations.html][Quarto citation documentation]].
+
+Keep =.qmd=, =references.bib= and any local CSL file together in the project's
+version history. A second device can then use exactly the same reference
+snapshot. For documents in subdirectories, check the resolved bibliography
+path rather than assuming it is relative to the shell's working directory.
+Local PDF attachment paths are not needed to format citations; future project
+exports should omit those machine-specific fields. Include any supporting
+entries needed by BibTeX =crossref= or BibLaTeX =xdata= references.
+
+* Adding and updating references
+
+1. Import or associate the paper with =C-c w n z=. Preserve the established
+   key, including punctuation: =munn23:_ai= and =dwork12:fairne= are valid keys.
+2. Visit the project's =references.bib=. Check whether the key already exists;
+   if absent, use =M-x citar-insert-bibtex= and select the paper. Save.
+3. Declare the bibliography in the document or project metadata. Refresh the
+   Quarto reference list with =C-c q B=, then cite with =C-c b=.
+4. Render and inspect the citation and reference entry. Commit the manuscript
+   and bibliography changes together when using Git.
+
+Treat project entries as snapshots of the library, not independent metadata
+authorities. If metadata is wrong, correct Zotero and deliberately replace
+the affected project entry while retaining its key. The current import
+command does /not/ perform that refresh, so repeatedly importing is not an
+update mechanism. Preserve legacy-only records until they are reconciled.
+
+Give each bibliography one update method. For now, use reviewed snapshots.
+If a project later adopts a Better BibTeX collection export, let that exporter
+own the generated file; do not also append entries or edit metadata in it.
+Keep any necessary manual-only entries in a separately named bibliography.
+Quarto can declare multiple files, but their citation keys must not overlap.
+
+Better BibTeX supports collection exports that refresh after library changes.
+Our policy for a shared generated file is one designated exporting device,
+with the others consuming the committed result. Record the exporter, source
+collection and output path; verify the setup on a replacement device rather
+than assuming library sync recreates the export job. See
+[[https://retorque.re/zotero-better-bibtex/exporting/auto/][Better BibTeX automatic exports]].
+
+* Citation keys across devices
+
+Current Better BibTeX documentation for Zotero 8 and later describes native
+Zotero citation keys that sync with the library; the older distinction
+between pinned and unpinned BBT keys no longer applies. This machine uses
+Zotero 9. Do not follow an older instruction to regenerate or bulk-pin keys
+without checking the installed versions. See the
+[[https://retorque.re/zotero-better-bibtex/][Better BibTeX migration notice]].
+
+There is still a local compatibility issue: our adapter can retain an older
+BibTeX key when Zotero has a different one. That choice lives in the existing
+bibliographies and local association file; it does not write the chosen key
+back into Zotero. A fresh device must not independently invent a replacement
+for a key already used in notes or manuscripts. Reconcile these differences
+explicitly, keeping established citations intact, before enabling imports
+on both devices. Renaming a key is a migration, not a routine metadata update.
+
+* What to sync, and what to configure locally
+
+- Use Zotero's own data sync for library records. Attachment-file sync is a
+  separate setting; seeing a reference on another device does not establish
+  that its PDF is available. Keep the live Zotero database out of ordinary
+  cloud-folder synchronization. See [[https://www.zotero.org/support/sync][Zotero data and file syncing]].
+- Sync the Obsidian vault using the chosen vault-sync method. No method has
+  been selected or configured by this work. Resolve conflicting note edits
+  before switching devices, and retain separate backups.
+- Transfer manuscript sources, their bibliography snapshots and local styles
+  together, preferably through the project's Git repository.
+- Configure the vault directory, global Citar bibliography paths, local
+  Zotero API access and application URI handlers on each device.
+- Prefer Zotero item identity for locating a source. The current note
+  template also embeds absolute PDF file links; those links are specific to
+  the originating machine. Re-import refreshes cached attachment paths, but
+  deliberately does not rewrite an existing note's links.
+- Back up =var/research/= separately: it is ignored by this Emacs repository's
+  Git rules. Do not assume copying the configuration carries its references
+  or key associations. Do not treat the association file as a disposable
+  cache, or merge two devices' copies blindly.
+
+Until key associations are portable, keep new Emacs imports on the established
+device. Other devices can still edit synced notes and render manuscripts from
+their project bibliography snapshots.
+
+* Next implementation: make a second device routine
+
+Separate portable citation-key/item associations from local attachment paths;
+reconcile legacy keys with Zotero's native keys without changing manuscripts;
+and add an explicit command to add or refresh a selected reference in the
+current project's bibliography. That command should report missing keys,
+duplicate keys and missing bibliography declarations before rendering.
+
+Acceptance check: copy a manuscript project to a different path, render it
+with Zotero closed, then on a second configured device open the same literature
+note and Zotero item, resolve the local PDF, and re-import without changing
+any citation key or creating a duplicate note. This has not yet been tested.

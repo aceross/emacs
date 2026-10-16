@@ -19,4 +19,5 @@
 (require 'awc-r-test)
 (require 'awc-r-lsp-test)
 (require 'awc-lsp-test)
+(require 'awc-research-test)
 (ert-run-tests-batch-and-exit)

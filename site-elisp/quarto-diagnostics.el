@@ -1,6 +1,14 @@
 ;;; quarto-diagnostics.el --- One checker for Quarto source diagnostics -*- lexical-binding: t; -*-
 (require 'quarto-document)
 (require 'flycheck)
+
+(defun quarto-diagnostics-working-directory (_checker)
+  "Use an existing ancestor while a new document's directory is unsaved.
+This checker only reads buffer contents.  Do not create directories or
+change the document's own `default-directory' just to run diagnostics."
+  (or (locate-dominating-file default-directory #'file-directory-p)
+      temporary-file-directory))
+
 (defun quarto-diagnostics-start (checker callback)
   (let* ((source (quarto-source-buffer))
          (diagnostics (append (quarto-document-diagnostics (quarto-document-model))
@@ -18,5 +26,6 @@
                                                   :filename buffer-file-name)) diagnostics)))))))
 (flycheck-define-generic-checker 'quarto "Quarto structure, schema and mapped language diagnostics."
   :start #'quarto-diagnostics-start :modes '(markdown-mode ess-r-mode python-mode yaml-mode yaml-ts-mode)
+  :working-directory #'quarto-diagnostics-working-directory
   :predicate (lambda () (or (quarto-source-p) (quarto-yaml-position-p))))
 (provide 'quarto-diagnostics)

@@ -2,6 +2,33 @@
 (require 'ert)
 (require 'quarto-mode)
 
+(ert-deftest quarto-diagnostics-checks-before-parent-directory-exists ()
+  (let* ((root (make-temp-file "quarto-unsaved-check-" t))
+         (directory (expand-file-name "new/nested/" root)))
+    (unwind-protect
+        (with-temp-buffer
+          (setq default-directory directory
+                buffer-file-name (expand-file-name "paper.qmd" directory)
+                major-mode 'markdown-mode)
+          (insert "See @sec-missing.\n")
+          (setq-local flycheck-checker 'quarto
+                      flycheck-check-syntax-automatically nil)
+          (flycheck-mode 1)
+          (flycheck-buffer)
+          (should (eq flycheck-last-status-change 'finished))
+          (should (= 1 (length flycheck-current-errors)))
+          (should (equal (flycheck-error-message (car flycheck-current-errors))
+                         "Unresolved cross-reference: sec-missing"))
+          (should-not (file-exists-p directory))
+          (should (equal default-directory directory))
+          ;; Once created, the same checker uses the document's own directory.
+          (make-directory directory t)
+          (flycheck-buffer)
+          (should (eq flycheck-last-status-change 'finished))
+          (should (= 1 (length flycheck-current-errors)))
+          (should (equal default-directory directory)))
+      (delete-directory root t))))
+
 (ert-deftest quarto-references-rename-uses-exact-source-ranges ()
   (with-temp-buffer
     (insert "![A λ figure](plot.png){#fig-old}\nSee @fig-old, @fig-old-long and @fig-old.\n`😀 @fig-old` and <!-- λ @fig-old --> @fig-old\n<!--\n```{r}\n@fig-old\n```\n-->\n```r\n@fig-old\n```\n")

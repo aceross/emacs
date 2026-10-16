@@ -24,7 +24,10 @@
   ;; This installed optional client calls (cl-remove-if #'nil ...), aborting
   ;; ALL first LSP starts.  Upstream now uses #'null.  Keep it out of automatic
   ;; loading until a deliberate package update; query-language editing is unused.
-  (setq lsp-client-packages (remq 'lsp-ts-query lsp-client-packages)))
+  (setq lsp-client-packages (remq 'lsp-ts-query lsp-client-packages))
+  ;; Grammar checking is optional; starting a coding server must not also
+  ;; start LTeX.  `awc-lsp-start-prose' enables it only in the chosen buffer.
+  (add-to-list 'lsp-disabled-clients 'ltex-ls))
 
 (use-package lsp-ui
   :after lsp-mode
@@ -50,19 +53,12 @@
 (use-package lsp-julia
   :after lsp-mode)
 
-;; Grammar / spell / style checking via LTeX
+;; Optional grammar checking.  Plain notes use Flyspell and Citar without LSP.
 (use-package lsp-ltex
-  :after lsp-mode
+  :defer t
   :ensure t
   :custom
-  (lsp-ltex-language "en-GB")
-  :hook
-  (text-mode . (lambda ()
-                 (unless (or (buffer-base-buffer)
-                             (equal (file-name-extension (or buffer-file-name "")) "qmd")
-                             (string-match-p "/_quarto\\(?:-[^.]+\\)?\\.ya?ml\\'" (or buffer-file-name "")))
-                   (require 'lsp-ltex)
-                   (lsp-deferred)))))
+  (lsp-ltex-language "en-GB"))
 
 ;; Snippets
 (use-package yasnippet

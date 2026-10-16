@@ -1,0 +1,185 @@
+#+TITLE: Zotero to Obsidian and Quarto
+#+DATE: 2026-10-16
+
+* Working example
+
+The first paper is /Fairness through awareness/ by Cynthia Dwork, Moritz
+Hardt, Toniann Pitassi, Omer Reingold and Richard Zemel (2012).
+
+- Existing Zotero citation key: =dwork12:fairne=.
+- Zotero item key: =49B2ZFMQ=; PDF attachment key: =I9N9E943=.
+- [[file:~/Documents/Obsidian Vault/Literature/dwork12-fairne--7ef710a3b6.md][Obsidian literature note]].
+- [[file:../var/research/example/paper.qmd][Quarto example source]] and [[file:../var/research/example/paper.html][rendered HTML]].
+- [[file:../var/research/example/references.bib][One-entry example bibliography]].
+
+The note has links to the Zotero item and local PDF, with empty sections for
+summary, source passages, personal analysis and related notes. It does not
+claim that the paper has been read or summarize its contents.
+
+* Commands
+
+Restart Emacs to load the configuration changes. =C-c w n= opens the
+references and literature-notes menu.
+
+| Menu key | Action |
+|----------+--------|
+| z | Search Zotero and import/associate one selected reference |
+| n | Create or reopen its Obsidian literature note |
+| N | Open associated Markdown or legacy filename-based Org notes |
+| p | Open a local PDF through Citar/PDF Tools |
+| Z | Open the explicitly associated Zotero item |
+| o | Open the current vault note in Obsidian |
+| c | Insert a citation from the current document's bibliography |
+| e | Visit the current bibliography entry |
+
+From a literature note, =n=, =p= and =Z= use its =citekey= property. Otherwise,
+they offer a reference selector. Multiple local PDFs or matching Markdown
+notes produce a choice rather than silently choosing one.
+
+For this example:
+
+1. Use =C-c w n n= and select =dwork12:fairne=.
+2. Use =C-c w n p= to read its PDF, or =C-c w n o= from the note to switch
+   to Obsidian.
+3. Open the example =paper.qmd=. Its =bibliography: references.bib= declares
+   the single exported record. =C-c b= or the Quarto citation command inserts
+   the citation; accept empty pre/postnotes if Citar asks for them.
+4. =C-c C-b= renders the document. The example produces
+   “(Dwork et al. 2012)” and a full bibliography entry.
+
+* Adding another paper
+
+Use =C-c w n z= with a specific title or author, then select one result.
+Zotero must be running with its local API enabled. On this machine it is
+Zotero 9.0.1 via =/snap/bin/zotero-snap=; the user enabled Settings → Advanced
+→ “Allow other applications on this computer to communicate with Zotero.”
+
+The command only reads Zotero. It exports one record through the local API,
+checks its citation key, and searches the existing global Citar bibliographies
+for the same DOI, or title and year. An existing matching key wins, even if
+Zotero uses a different key. Ambiguous matches and key collisions stop before
+writing. Existing bibliography records are not refreshed or reformatted.
+
+A new reference goes into =~/.emacs.d/var/research/zotero.bib=, added alongside
+the existing personal bibliography. Explicit item associations and available
+attachment paths go into =zotero-links.json= in the same directory. Repeated
+imports reuse the established key; changing a Zotero key later does not
+silently rename the local citation.
+
+The local export must agree with Zotero's =citationKey= field when supplied.
+This installation's export preserves its saved key. A different installation
+that returns inconsistent keys is rejected rather than guessed.
+
+Zotero can be closed for ordinary citation insertion, note access and reading
+an already available PDF. Re-importing an associated item refreshes its cached
+attachment paths. A missing PDF is reported; nothing is downloaded or installed.
+
+* Bibliographies in other Quarto projects
+
+See [[file:bibliography-portability.org][bibliography ownership and use across devices]] for the working policy:
+keep a project bibliography beside the manuscript, use relative paths, and
+preserve established keys. Absolute paths to the personal bibliography are
+useful for a local trial but should not become manuscript dependencies.
+
+Importing a paper adds it to the global reference selector. It does not edit
+a project's bibliography or YAML. Quarto continues to offer only the sources
+declared by that document and its project metadata.
+
+To add the paper to a project-owned BibTeX file, visit that file, use
+=M-x citar-insert-bibtex= to insert the selected entry, check that its key is
+not already present, and save. Declare that file in the project's/document's
+=bibliography= setting. This keeps manuscript dependencies explicit. Do not
+manually edit a file maintained by Zotero automatic export.
+
+The demonstration uses a single-entry snapshot. Changes to Zotero metadata
+do not automatically update that snapshot or an existing literature note.
+
+* Preservation and recovery
+
+New notes use a portable filename derived from the citation key plus a short
+hash. The unchanged key lives in the =citekey= YAML property. Moving or renaming
+a Markdown file within the vault therefore retains its association. Existing
+notes with the exact citation key as filename are also recognized.
+
+Creation searches for an existing note first. It preserves disk contents and
+unsaved edits, refuses occupied or escaping target paths, and creates new
+files exclusively. It does not convert or delete Org notes. Org-roam remains
+available; its automatic Citar adapter is no longer enabled because it would
+replace the new notes source. Legacy notes following the existing
+=<citekey>.org= convention remain accessible from the notes menu.
+
+Once this workflow is loaded, vault Markdown buffers receive buffer-local
+backup and auto-save settings. Recovery files are stored under
+=var/research/backups/= and =var/research/autosave/= outside the vault.
+=M-x recover-this-file= recovers an auto-saved version. These settings do not
+change recovery behavior for unrelated files. Existing note buffers opened
+before setup can be reopened to receive these settings.
+
+The supplemental bibliography and association file are replaced atomically
+with a retained backup when changed. Import refuses to replace either file
+while it has unsaved Emacs edits. Keep =var/research/= in normal machine
+backups: it is personal runtime data ignored by this repository's Git rules.
+Import is intended for one Emacs session at a time; it is not a concurrent
+synchronization service.
+
+* Configuration
+
+Literature notes do not automatically start language servers. Citar, ordinary
+spelling checks and Zotero/Obsidian commands work without them. Python and R
+retain their existing LSP integration. LTeX grammar checking is disabled by
+default; =M-x awc-lsp-start-prose= explicitly enables it for one prose buffer.
+The observed LTeX server crash still needs separate diagnosis before using
+that optional command. Decline restart prompts while completing this workflow.
+After this configuration change, restart Emacs to clear the old text-mode
+startup hook and previously running prose servers.
+
+The small adapter is [[file:../site-elisp/awc-research.el][awc-research.el]]. Its customizable settings are:
+
+- =awc-research-vault-directory=: the existing vault.
+- =awc-research-notes-subdirectory=: =Literature= by default.
+- =awc-research-data-directory=: the supplemental bibliography and recovery data.
+- =awc-research-legacy-notes-directories=: existing filename-based Org notes.
+- =awc-research-zotero-library=: =users/0=, or =groups/NUMBER=.
+
+No new Emacs package is required. The implementation uses the installed Citar,
+Markdown, PDF Tools and Quarto stack. App handoff commands use the operating
+system's =obsidian:= and =zotero:= URI handlers. Obsidian was already
+registered. Zotero's Snap lacked a handler, so
+[[file:../tools/zotero/awc-zotero.desktop][the checked launcher]] was installed as
+=~/.local/share/applications/awc-zotero.desktop= and registered for
+=x-scheme-handler/zotero=. The previous association settings are saved at
+=var/research/mimeapps.list.before-zotero-links=. Both app handoff commands
+returned successfully; their on-screen rendering was not inspected.
+
+For rollback, restore the configuration changes in =init-text.el=,
+=init-org.el= and =init-workflow.el= and restart Emacs. Keep the new note and
+the supplemental bibliography; rollback does not require deleting either.
+The former =sync-ebib-to-zotero= command now explains the read-only import
+path instead of calling an assumed upload CLI.
+The desktop launcher is separate from Emacs configuration; removing it also
+requires removing its Zotero scheme association. Preserve unrelated later
+changes to =mimeapps.list= when using the backup as a reference.
+
+* Validation
+
+The live example verified the saved Zotero key, repeated import, note reuse,
+local PDF availability, 13-page PDF inspection, and first-page rendering
+through PDF Tools. Citar inserted the citation in a real Quarto buffer;
+completion resolved the reference; Quarto produced the expected citation and
+bibliography entry. Existing bibliography and note files were checked by hash.
+
+The repeatable suite uses disposable data and never requires a personal
+Zotero library or vault:
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+It includes the ERT preservation cases in [[file:../test/awc-research-test.el][awc-research-test.el]] and
+[[file:../test/awc-research-quarto-integration.el][a reference-to-note-to-render integration test]]. The Zotero response is a
+fixture in that integration test; Citar, Markdown, Quarto bibliography discovery
+and HTML rendering are real. Network access happens only in explicit Zotero
+search/import commands, with a timeout and a specific disabled-API error.
+
+Full vault navigation, Org migration, annotation synchronization, library-wide
+automatic export and LLM integration remain later roadmap stages.

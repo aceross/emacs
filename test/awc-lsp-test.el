@@ -5,6 +5,35 @@
 (require 'lsp-mode)
 (require 'quarto-python-test)
 
+(ert-deftest awc-lsp-prose-start-is-explicit-and-buffer-local ()
+  (let ((lsp-disabled-clients '(ltex-ls another-client))
+        (lsp-enabled-clients nil)
+        (lsp-enable-suggest-server-download t)
+        started)
+    (with-temp-buffer
+      (text-mode)
+      (setq buffer-file-name "/tmp/literature-note.md")
+      (cl-letf (((symbol-function 'lsp)
+                 (lambda (&rest _)
+                   (setq started t)
+                   (should (equal lsp-enabled-clients '(ltex-ls)))
+                   (should (equal lsp-disabled-clients '(another-client)))
+                   (should-not lsp-enable-suggest-server-download))))
+        (awc-lsp-start-prose)
+        (should started)))
+    (should (equal lsp-disabled-clients '(ltex-ls another-client)))
+    (should-not lsp-enabled-clients)
+    (should lsp-enable-suggest-server-download)))
+
+(ert-deftest awc-lsp-prose-start-does-not-take-over-quarto ()
+  (with-temp-buffer
+    (text-mode)
+    (cl-letf (((symbol-function 'lsp)
+               (lambda (&rest _) (ert-fail "Prose LSP must not start for Quarto"))))
+      (dolist (file '("/tmp/paper.qmd" "/tmp/_quarto.yml" "/tmp/_quarto-test.yaml"))
+        (setq buffer-file-name file)
+        (should-error (awc-lsp-start-prose) :type 'user-error)))))
+
 (ert-deftest awc-lsp-new-file-timer-waits-for-save-and-retries-once ()
   (quarto-python-test--project
     (let* ((file (expand-file-name "new/nested/test.R" root))

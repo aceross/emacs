@@ -1,0 +1,355 @@
+#+TITLE: Emacs development roadmap
+#+DATE: 2026-10-16
+#+OPTIONS: toc:2
+
+* Direction
+
+Develop Emacs as the working environment for research, analysis and writing,
+with Obsidian as the primary notes system. Prioritize a complete path from a
+Zotero reference to a PDF, a literature note, a manuscript citation and a
+source-linked research synthesis.
+
+The two user decisions are settled: Obsidian should become the main notes
+system, and the most valuable LLM use is research across selected notes and
+papers. The proposed division of responsibilities is below. Retaining Org
+for agenda, executable documents and repository documentation is a working
+assumption; moving those workflows is a separate decision.
+
+This is a development plan, not an implementation record. Baseline:
+configuration commit =30e744d=. Existing validation is recorded in
+[[file:research-workflows.org][research workflows]] and [[file:quarto-source-editor.org][Quarto source editing]].
+The priorities here supersede the older handoff's future-work ordering.
+
+* Implementation progress
+
+The first single-paper workflow is implemented: Zotero reference, local PDF,
+Obsidian literature note and rendered Quarto citation. See
+[[file:zotero-obsidian-quarto.org][the usage and validation guide]]. Note recovery is scoped to the vault;
+the broader package snapshot/bootstrap work, migration and LLM stages remain.
+
+The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
+The next citation milestone is a project-owned bibliography with stable keys,
+portable item associations and an explicit add/refresh command, verified by
+rendering from another directory and then using the workflow on a second device.
+This portability work is planned; synchronization has not been configured.
+
+* Planning baseline
+
+| Area | Existing foundation | Development need |
+|------+---------------------+------------------|
+| R and Python | Project environments, REPLs, language assistance, terminals and R plots | Long-session reliability, named Org sessions, formatting and debugging |
+| Quarto | Chunk execution, mapped language assistance, YAML support, citations, references, results and preview | Preserve this baseline; extend only against concrete document workflows |
+| Bibliography | Citar, Embark, RefTeX, Ebib and project bibliography resolution | Establish Zotero ownership and validate reference → PDF → note → citation |
+| Notes | Org, org-roam and citar-org-roam; ordinary Markdown editing | Add Obsidian vault workflows and a staged migration |
+| LLM | gptel, an environment API key, a literal model setting and an Org chat default | Define source selection, provenance, session boundaries and evaluation |
+| Maintenance | Modular configuration and disposable Quarto integration checks | Package snapshot, reliable bootstrap, recovery and broader workflow checks |
+
+Concrete findings in the configuration:
+
+- [[file:../site-elisp/init-text.el][init-text.el]] defines =sync-ebib-to-zotero= using an assumed
+  =zotero-cli import= command. That function is not an established sync
+  contract. Citar is currently configured for Org notes, and
+  [[file:../site-elisp/init-org.el][init-org.el]] enables citar-org-roam.
+- [[file:../site-elisp/init-gptel.el][init-gptel.el]] contains only basic setup. Its =C-c g= binding
+  also conflicts with the longer writing-command sequences in =init-text.el=.
+  There is no configured research-source workflow.
+- [[file:../site-elisp/init-core.el][init-core.el]] disables backups, auto-save and lockfiles. Its initial
+  straight.el bootstrap runs checkout in the repositories parent directory;
+  no =straight/versions/= package snapshot is present.
+- The recent Quarto citation and readiness work is already implemented.
+  Zotero integration should build on it, rather than recreate completion
+  and bibliography discovery.
+
+* Responsibilities and data flow
+
+| Component | Proposed responsibility |
+|-----------+-------------------------|
+| Zotero | Bibliographic metadata, library membership and attachment identity |
+| Better BibTeX | Stable citation keys and generated bibliography exports |
+| Obsidian vault | Canonical literature notes, concepts, project notes and reviewed syntheses |
+| Emacs | Edit those same files; search, cite, read, analyse and assemble research context |
+| Org | Agenda, executable documents, configuration documentation and legacy notes during migration |
+| Quarto and LaTeX projects | Manuscript sources and project-specific bibliography dependencies |
+| LLM research sessions | Temporary questions, evidence selections and proposed syntheses |
+
+The intended flow is:
+
+#+begin_example
+Zotero item ──> bibliography export ──> Citar ──> manuscript citation
+    │                                    │
+    └── attachment / item link ──> Obsidian literature note
+                                             │
+selected notes + selected paper passages ──> research session
+                                             │
+                                 reviewed synthesis in the vault
+#+end_example
+
+Emacs and Obsidian should edit one vault on disk. Avoid maintaining a second
+Emacs copy. Keep Zotero library identity, Zotero item key, attachment key and
+BibTeX citation key distinct. A note should retain enough identity to find
+its source even if its filename or display title changes.
+
+* Delivery sequence
+
+Milestones are acceptance gates, not calendar estimates. Each should produce
+a usable workflow before the next expands its scope.
+
+| Order | Deliverable | Dependency | Exit condition |
+|-------+-------------+------------+----------------|
+| 1 | Recovery and reproducible configuration | None | Recover an unsaved fixture; restore a pinned package setup in isolation; resolve affected keybindings |
+| 2 | One reference across Zotero, Emacs and Obsidian | Recovery and identity conventions | Find a reference, open its PDF and Markdown note, and cite it in Quarto |
+| 3 | Daily Obsidian use and a migration pilot | Milestone 2 | Search, capture, link and revisit notes in both editors; migrate a representative sample without broken links |
+| 4 | Research LLM pilot | Stable source links; model and data-handling choice | Answer questions over selected notes and papers with inspectable supporting passages |
+| 5 | Wider migration and workflow refinement | Successful note migration pilot | Move notes in reversible batches; validate citation and PDF workflows in Org and LaTeX as well |
+| 6 | Optional expansion | Measured limitations in daily use | Add retrieval, debugger or document features against an observed need |
+
+Keep milestone 1 small enough to unblock the research work. Longer platform,
+performance and maintenance improvements can continue alongside later stages.
+Wider note migration can proceed alongside LLM evaluation; it does not depend
+on choosing or adopting a model.
+
+* Zotero and citations
+
+** First implementation
+
+Adopt Zotero as the proposed metadata authority and Better BibTeX as the
+export layer. Better BibTeX supports automatic library or collection exports
+and controllable citation keys. Before redirecting existing bibliography
+paths, reconcile their keys and any entries absent from Zotero, preserve a
+snapshot, and test an export to a new path. Preserve established keys;
+changing a key is a migration, not a metadata refresh. For Zotero 8 and later,
+the current [[https://retorque.re/zotero-better-bibtex/][Better BibTeX migration notice]] describes native synced keys and
+supersedes older advice about separately pinning BBT keys.
+See [[https://retorque.re/zotero-better-bibtex/exporting/auto/][automatic exports]] and
+[[https://retorque.re/zotero-better-bibtex/citing/][citation key handling]].
+
+Use Citar as the Emacs entry point for reference search and actions. Its
+existing support for Org, Markdown and LaTeX, and its configurable resource
+and note interfaces, make it the natural place to connect Obsidian notes.
+See [[https://github.com/emacs-citar/citar][Citar documentation]].
+
+Required actions:
+
+- Find references by author, title, year or key; insert the appropriate
+  citation syntax for the current document.
+- Open the Zotero item, choose an attachment, or visit/create its literature
+  note. Repeated note creation should find the existing note.
+- Respect project bibliographies and flag a selected item missing from the
+  manuscript's bibliography. Make adding it a deliberate export operation.
+- Report missing attachments, stale exports and ambiguous keys clearly.
+  Existing bibliography-based citation insertion should work with Zotero closed.
+
+Prefer bibliography files for the first citation path. Add a read-only local
+Zotero API adapter when item or attachment lookup needs it; verify the
+installed client's capabilities first. The official local API provides an
+interface to the local library without opening its SQLite database directly.
+See [[https://www.zotero.org/support/dev/web_api/v3/local_api][Zotero local API documentation]].
+
+Retire or replace =sync-ebib-to-zotero= once this direction is implemented.
+Keep Ebib for explicitly owned project bibliographies if useful; editing a
+generated Zotero export must not be presented as a durable library update.
+
+** PDF reading and annotations
+
+Support PDF Tools for reading in Emacs and an action to open the source in
+Zotero. Choose one annotation authority before adding annotation import;
+Zotero is the proposed default. Validate export of selected annotations with
+page references into a literature note. Do not assume PDF Tools highlights
+and Zotero annotations synchronize automatically.
+
+Acceptance fixtures should include multiple attachments, a missing local
+PDF, Unicode and spaces in paths, duplicate-looking references, and a group
+library item if group libraries are used. Verify that a metadata correction
+preserves an established citation key and that rendered citations resolve.
+
+* Obsidian as the primary notes system
+
+** Daily workflow
+
+Configure the vault path once and provide a notes menu for finding, creating,
+searching and linking notes; following backlinks; opening today's note; and
+opening the current note in Obsidian. Scope indexing and search to the chosen
+vault, with attachments, caches and configuration directories treated separately.
+
+Evaluate [[https://github.com/licht1stein/obsidian.el][obsidian.el]] first: it documents note navigation, links,
+backlinks, aliases, tags and vault switching. Check its completion behavior
+with the existing Vertico/Corfu stack and its refresh behavior after external
+edits. Retain ordinary Markdown editing and Consult search as the fallback.
+The package documents one active vault at a time; multiple simultaneous vaults
+would need a separate design.
+
+Respect the vault's link and property conventions. Obsidian supports both
+wikilinks and Markdown links, structured properties and application URIs;
+that does not imply every plugin-specific feature will work inside Emacs.
+Test aliases, heading/block links, attachments and duplicate filenames against
+the actual vault. Leave graph views, Canvas and plugin rendering in Obsidian
+initially. See [[https://obsidian.md/help/links][internal links]], [[https://obsidian.md/help/properties][properties]] and
+[[https://obsidian.md/help/uri][Obsidian URIs]].
+
+Define a small literature-note template: title, citation key, Zotero item
+identity/link, tags, reading status, source passages, personal analysis and
+related notes. Preserve unknown properties when editing. Generate metadata
+without overwriting the user's analysis; keep imported annotations in a
+clearly bounded section with identifiers for repeat imports.
+
+Change Citar's note adapter to target Markdown in the vault and stop routing
+new literature notes through citar-org-roam. Org task capture can link to a
+vault note; it should not create a competing copy of the research note.
+
+** Migration from org-roam
+
+1. Inventory note types and links, including Org IDs, citation links, custom
+   properties, attachments, code blocks and agenda content. Classify material
+   that should remain Org before conversion.
+2. Convert a small representative copy into a staging vault. Produce a
+   manifest mapping old file/Org ID to new file and heading/block target.
+3. Rewrite links using that manifest; report unresolved targets and filename
+   collisions. Check equations, tables, citations and executable blocks
+   manually where conversion changes their meaning.
+4. Validate both editors and incoming links from manuscripts. Direct new
+   research capture to Obsidian after the pilot passes.
+5. Migrate in batches with backups and a link report. Keep the old notes
+   available as an archive; retire org-roam automation only after callers
+   and incoming links have replacements.
+
+No continuous bidirectional Org/Markdown conversion is planned. It would
+create two editable versions with different semantics. Vault synchronization
+between devices is also separate from Emacs integration: use one chosen
+mechanism and test external edits, conflict handling and recovery. With
+lockfiles currently disabled, concurrent editing deserves explicit testing.
+
+* LLM integration for research
+
+** Scope and interface
+
+The first product should answer a bounded research question over sources
+chosen by the user. Example: select three papers and two notes, ask how their
+definitions differ, inspect the cited passages, and save a reviewed comparison
+as an Obsidian note.
+
+Use gptel as the first client candidate. It already exists here and documents
+selected context, multiple backends and reviewable edits. Its added context
+is normally live and can be global, so a research workflow needs explicit
+session ownership and a record of the text actually sent. Verify the installed
+package API before configuring against current examples.
+See [[https://github.com/karthink/gptel#usage][gptel usage and context documentation]].
+
+The research integration should supply the following behavior:
+
+1. *Select sources.* Choose vault notes, Citar references and optional text
+   selections. Display the source list, model/backend and included passages
+   before sending. Opening a note must not send it anywhere.
+2. *Prepare evidence.* Extract selected PDF text with page boundaries and
+   note text with heading anchors. Flag scans requiring OCR and poor reading
+   order; tables, equations and figures may require separate inspection.
+3. *Bound the context.* Send complete selected sources when they fit. For
+   larger selections, offer local passage search within that selection and
+   show what is included. Make omissions and truncation visible.
+4. *Answer with provenance.* Require source identifiers and locators for
+   substantive source claims; distinguish quotation, paraphrase and inference.
+   Explain when the selected material does not answer the question.
+5. *Inspect and save.* Clicking a source opens the note heading or PDF page.
+   Save a synthesis only through an explicit action, with question, source
+   list, date, backend/model and review status. Applying changes to an existing
+   note should show a diff.
+
+Citation keys and bibliography entries must come from the selected records.
+The model must not invent them. Citation presence alone does not establish
+that a passage supports a claim; the interface must make that check easy.
+
+** Architecture and limits
+
+Keep source preparation separate from the model client. A local evidence
+record should include source identity, path, source revision or content hash,
+locator and extraction method. Use PDF page index as a reliable locator,
+recording printed page labels separately when known. Cached extracts and
+indexes are disposable; edits, replacement PDFs and deletions invalidate them.
+
+Keep each research session's source selection isolated. Before adding files,
+resolve paths against the selected vault/library scope. A note's links or
+instructions inside a paper must not expand that scope or trigger commands.
+The pilot needs no shell, filesystem-write or library-write tools for the model.
+Credentials belong in an environment or credential store, not saved notes.
+Retain only the request content/history the user chooses to keep.
+
+| Approach | Role in this roadmap | Adoption condition |
+|----------+----------------------+--------------------|
+| Selected sources in gptel | First pilot | Source previews, isolation and usable citations |
+| Local passage search over selected sources | Add when context is too large | Measured improvement over manual source selection |
+| Embeddings and wider library retrieval | Later experiment | Evidence that lexical search misses useful material; tested indexing and deletion behavior |
+| Autonomous project or library agent | Deferred | A separate use case and review model justify broader actions |
+
+Choose a hosted or local backend using the same research questions. Compare
+source fidelity, latency, context capacity, operating effort and cost. A
+hosted pilot needs a decision on which materials may leave the machine; a
+local pilot needs a hardware and model-quality check. No provider or model is
+selected by this roadmap. Set context/output limits and expose usage when the
+backend reports it; do not imply a precise cost when it is unavailable.
+
+** Pilot acceptance
+
+Use roughly 5–10 papers and associated notes, with a small fixed question set:
+a factual lookup, a definition comparison, a disagreement between sources,
+a question the sources cannot answer, and a synthesis requiring several papers.
+
+- Every displayed source link resolves; sampled claims can be checked against
+  the exact supporting passage. Unsupported claims and misleading omissions
+  are recorded during review.
+- Excluded sources stay excluded, and one session never inherits another's
+  context. Source edits visibly invalidate cached evidence.
+- Missing PDFs, poor extraction, excessive context, cancellation and backend
+  errors produce understandable recovery paths without overwriting notes.
+- Record time to a usable answer, manual correction effort and usage/cost
+  where available. Expand only if the pilot improves the actual workflow.
+
+* Other improvements
+
+** Reliability and maintenance
+
+Add centralized backups and auto-save with a tested recovery procedure.
+Repair bootstrap paths and quoting, freeze a known package snapshot, and
+document update/rollback. Make optional integrations fail independently so a
+missing Zotero, Obsidian path or model credential does not break editing.
+Measure startup and long-session responsiveness before further GC changes.
+
+Review compiler warnings and execution settings in their workflow context.
+Named Org Babel sessions need project isolation checks. Keep the existing
+policy of explicit environment setup and no dependency installation on file
+open. Validate daemon and terminal use as well as the graphical build;
+macOS remains a separate capability check when available.
+
+** Everyday ergonomics and writing
+
+Extend the existing workflow menus with reference, notes and research actions.
+Audit bindings in actual Org, Markdown, Quarto and PDF buffers, including
+=C-c g=, =C-c p=, =M-p= and Org's =C-q= prefixes. Make source, PDF, notes and
+research-result windows predictable and preserve useful layouts.
+
+Validate AUCTeX builds and forward/inverse SyncTeX. Reconcile overlapping
+LaTeX preview and prose-checking behavior. Add explicit project formatter
+commands that respect project settings, then a minimal Python debugger and
+R debugging guide if daily use warrants them. Preserve the current Quarto
+execution and environment behavior throughout.
+
+Defer an LSP-client replacement, wholesale tree-sitter migration, notebook
+UI, mandatory file tree, broad Julia/C++ expansion and Quarto visual editing
+until a specific workflow justifies their maintenance cost.
+
+* First implementation brief
+
+Start with recovery and the single-reference workflow. Confirm the intended
+vault path, current bibliography ownership, established citation keys and
+attachment conventions; select a small fixture collection and staging vault.
+Add the minimum configuration needed to find a reference, open its attachment,
+create/revisit its Markdown literature note and insert a working Quarto citation.
+
+The remaining design decisions are the canonical annotation tool, precise
+note properties and link conventions, migration exclusions, and the LLM
+backend/data-handling policy. Resolve each before its dependent stage. They
+do not prevent implementing the earlier recovery and local note workflows.
+
+For each milestone, record changes, acceptance results, dependencies and
+rollback steps here or in its linked workflow guide. Run focused regressions
+for changed behavior and the existing Quarto core checks when shared project,
+completion or bibliography code changes. Keep personal libraries and active
+research sessions out of automated fixtures.

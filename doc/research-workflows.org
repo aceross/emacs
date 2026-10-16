@@ -457,6 +457,10 @@ claimed by this batch check.
 
 * Remaining work, in order
 
+The current priorities are in [[file:development-roadmap.org][the Emacs development roadmap]], including
+Obsidian as the primary notes system, Zotero integration and a research LLM
+pilot. The list below records the remaining work at this implementation stage.
+
 1. Longer R/LSP/httpgd sessions and macOS/browser fallback validation. Embedded
    viewers, mixed rendering and two-project R IDE behavior are verified on Linux.
 2. Named Org session isolation; deliberate formatter/linter policy and a small

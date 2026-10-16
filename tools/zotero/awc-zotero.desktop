@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Zotero links
+Exec=/snap/bin/zotero-snap -url %u
+Icon=/snap/zotero-snap/current/meta/gui/icon.png
+Terminal=false
+NoDisplay=true
+MimeType=x-scheme-handler/zotero;
+Categories=Office;

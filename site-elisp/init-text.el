@@ -201,10 +201,9 @@
         ebib-bib-search-dirs (list bib-files-directory)))
 
 (defun sync-ebib-to-zotero ()
-  "Save Ebib and trigger Zotero import."
+  "Explain the explicit, read-only Zotero import workflow."
   (interactive)
-  (ebib-save-databases)
-  (shell-command "zotero-cli import --file ~/Documents/bibliography/references.bib"))
+  (user-error "Use awc-research-import-zotero to read one Zotero item; Ebib files are not uploaded"))
 
 ;; Configuration for Citar, a citation management tool
 (use-package citar
@@ -275,7 +274,8 @@
               citar-indicator-cited-icons))
   ;; (Optional) Uncomment and adjust the following to open PDFs in a new buffer
   ;; (setq citar-open-entry-functions '(citar-open-pdf-in-buffer))
-  )
+  (require 'awc-research)
+  (awc-research-setup))
 
 ;; Configuration for Citar Embark, integration with Embark
 (use-package citar-embark

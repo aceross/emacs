@@ -2,6 +2,29 @@
 (require 'awc-project)
 (require 'transient)
 
+;; Pyright does not autoload this command, but Transient validates every
+;; suffix when opening the menu, even before a Python LSP session exists.
+(autoload 'lsp-pyright-organize-imports "lsp-pyright" nil t)
+
+(autoload 'awc-research-import-zotero "awc-research" nil t)
+(autoload 'awc-research-open-note "awc-research" nil t)
+(autoload 'awc-research-open-zotero "awc-research" nil t)
+(autoload 'awc-research-open-pdf "awc-research" nil t)
+(autoload 'awc-research-open-in-obsidian "awc-research" nil t)
+
+(transient-define-prefix awc/research ()
+  "References, literature notes and source documents."
+  [["References"
+    ("z" "Find/import one Zotero item" awc-research-import-zotero)
+    ("c" "Insert citation (document bibliography)" citar-insert-citation)
+    ("e" "Bibliography entry" citar-open-entry)]
+   ["Read / write"
+    ("n" "Obsidian literature note" awc-research-open-note)
+    ("N" "Markdown / legacy Org notes" citar-open-notes)
+    ("p" "Local PDF" awc-research-open-pdf)
+    ("Z" "Open Zotero item" awc-research-open-zotero)
+    ("o" "Open current note in Obsidian" awc-research-open-in-obsidian)]])
+
 (transient-define-prefix awc/workflow ()
   "Research project commands."
   [["Project"
@@ -24,6 +47,7 @@
     ("V" "R plots (httpgd)" awc/r-httpgd-init-and-open)
     ("I" "R objects" awc/r-env-list)]
    ["Documents / IDE"
+    ("n" "References / literature notes" awc/research)
     ("B" "Quarto render" quarto-build-document)
     ("v" "Quarto preview" quarto-preview-document)
     ("k" "Quarto Python / kernels" quarto-check-python)

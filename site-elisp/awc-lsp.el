@@ -3,6 +3,26 @@
 (defvar-local awc-lsp--pending-arguments nil
   "Arguments for an LSP start waiting for the file's directory.")
 (declare-function lsp "lsp-mode" (&optional arg))
+(defvar lsp-enabled-clients)
+(defvar lsp-disabled-clients)
+(defvar lsp-enable-suggest-server-download)
+
+(defun awc-lsp-start-prose ()
+  "Explicitly start LTeX for this prose buffer, without other servers.
+Notes and citations do not need this optional grammar checker.  Quarto
+buffers manage their own language servers and are excluded."
+  (interactive)
+  (unless (and (derived-mode-p 'text-mode)
+               buffer-file-name
+               (not (buffer-base-buffer))
+               (not (string-match-p "\\.qmd\\'\\|/_quarto\\(?:-[^.]+\\)?\\.ya?ml\\'"
+                                    buffer-file-name)))
+    (user-error "Visit a prose file outside Quarto to start grammar checking"))
+  (require 'lsp-ltex)
+  (setq-local lsp-enabled-clients '(ltex-ls)
+              lsp-disabled-clients (remq 'ltex-ls (copy-sequence lsp-disabled-clients))
+              lsp-enable-suggest-server-download nil)
+  (lsp))
 
 (defun awc-lsp--after-save ()
   "Retry the pending LSP start after saving has created the directory."
