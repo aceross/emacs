@@ -334,8 +334,12 @@ changed dependency or evidenced workflow need, recording the reason.
   error; its closing parenthesis was corrected before the successful rerun.
 - =git diff --check=: PASS. Code and documentation diff inspected; original
   =early-init.el= and =doc/research-workflows.org= edits remain outside scope.
-- CI workflow IMPLEMENTED; hosted execution pending push. It uses only native
-  Emacs/local modules; it does not claim a reproducible complete package state.
+- CI workflow IMPLEMENTED; first hosted Emacs 29.3 run exposed a test-harness
+  timing assumption: the direct Auto Revert handler call preceded its file
+  notification. The external-edit check now explicitly uses native polling,
+  with real filesystem changes and unchanged production notification defaults.
+  Hosted revalidation is pending. CI does not claim a reproducible complete
+  package state.
 - Full external-tool runtime/LSP/output suites were not rerun: preflight found
   system Python lacks =jupyter_client= and R lacks =renv=. No dependencies were
   installed. GUI Obsidian interaction, remote/encrypted files, long sessions,

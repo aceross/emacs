@@ -91,7 +91,8 @@ change. A modified buffer keeps its unsaved edits. Saving after an external
 change requires confirmation; declining leaves both versions intact. Compare
 and merge the versions before choosing to overwrite. Emacs lockfiles help
 other Emacs instances; do not assume Obsidian honors them. The checks cover
-external replacement through ordinary filesystem writes, not the Obsidian
+external replacement through ordinary filesystem writes and native polling,
+not the Obsidian
 application UI or a particular cloud synchronization provider. Very tight
 concurrent writes are not a transactional merge protocol.
 

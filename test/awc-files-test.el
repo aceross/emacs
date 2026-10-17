@@ -211,6 +211,10 @@
   (awc-files-test--fixture
     (let ((file (expand-file-name "note.md" awc-research-vault-directory))
           (find-file-hook '(awc-research--protect-note))
+          ;; Drive the native polling fallback deterministically.  With a
+          ;; file watcher, Emacs 29 gates the handler on a notification that
+          ;; has not necessarily been dispatched yet in this batch test.
+          (auto-revert-use-notify nil)
           (questions 0))
       (awc-files-test--write file "Original\n")
       (with-current-buffer (find-file-noselect file)
