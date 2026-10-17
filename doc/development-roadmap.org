@@ -338,14 +338,22 @@ changed dependency or evidenced workflow need, recording the reason.
   timing assumption: the direct Auto Revert handler call preceded its file
   notification. The external-edit check now explicitly uses native polling,
   with real filesystem changes and unchanged production notification defaults.
-  Hosted revalidation is pending. CI does not claim a reproducible complete
-  package state.
+  Hosted revalidation PASSED on Emacs 29.3: [[https://github.com/aceross/emacs/actions/runs/39007884141][PR safety run]]
+  (21 seconds) and [[https://github.com/aceross/emacs/actions/runs/39007881461][push safety run]] (18 seconds), each 11/11 tests.
+  CI does not claim a reproducible complete package state.
 - Full external-tool runtime/LSP/output suites were not rerun: preflight found
   system Python lacks =jupyter_client= and R lacks =renv=. No dependencies were
   installed. GUI Obsidian interaction, remote/encrypted files, long sessions,
   second-device behavior and persisted trust remain explicitly unvalidated.
 - No package versions, project datasets, live research notes, credentials,
   selected Emacs executable or desktop associations were changed.
+- Git checkpoint: branch =codex/p0-safe-recoverable-editing=;
+  implementation commit =e5bc825= and CI timing correction =672eb44=;
+  [[https://github.com/aceross/emacs/pull/1][draft PR #1]]. Changes: =awc-files=, =awc-research=,
+  =init-core=, =init-org=, test runners/new safety checks, CI, root README and
+  roadmap/recovery documentation (13 files). The two baseline local edits
+  remain uncommitted and excluded. This final validation-note update follows
+  the implementation commits on the same branch.
 - Next bounded milestone: P0b package snapshot and checked bootstrap/rollback.
   P0c retains durable preferences, binding fixes and measured session work.
 - The initial request is intentionally delivered as this independently useful

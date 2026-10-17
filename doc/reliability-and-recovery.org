@@ -126,8 +126,8 @@ CI runs the built-in suite on Ubuntu 24.04's packaged Emacs with a commit-pinned
 checkout action. It records the executable version. The OS/package archive
 is not an immutable image or a substitute for a Straight lockfile. The full
 Quarto/R/Python suite remains an explicit external-tool test; CI does not
-install research dependencies. Hosted CI is only validated once its run
-actually succeeds.
+install research dependencies. Hosted Emacs 29.3 CI passed all 11 safety checks after correcting a test
+notification-timing assumption; the roadmap links the successful runs.
 
 * Rollback
 
