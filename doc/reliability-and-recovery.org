@@ -1,0 +1,140 @@
+#+TITLE: Safe execution and recoverable editing
+#+DATE: 2026-10-17
+
+* Scope and policy
+
+P0a extends =awc-files.el= and the existing vault protection hook. It changes
+file safety defaults, recovery and clean-note external refresh. It preserves
+project/environment selection, ESS, Quarto, Citar, Org and the installed Emacs
+build. No keybindings, libraries, project environments or desktop integration
+are changed. P0 as a whole remains IN PROGRESS; package snapshot/bootstrap
+restoration is the next gate, not a capability delivered here.
+
+=enable-local-variables= is =t= and =enable-local-eval= is =maybe=. Emacs applies
+recognized safe values normally and asks before accepting unknown/risky
+values. A file-local =eval= form or a project-supplied interpreter must not
+run merely because a file was opened. Decline settings you have not reviewed.
+Existing explicit trusted values remain governed by native Emacs rules.
+This is a confirmation policy, not a sandbox for executing untrusted code.
+
+=awc-project-python=, its =quarto-preview-python= alias, and
+=inferior-ess-r-program= still work after approval. Arbitrary executable paths
+are deliberately not marked safe merely because they are strings. Normal
+=.venv=/=venv= discovery is unchanged. The current =custom-file= is temporary;
+permanent trust choices are not reliably restored across restarts. Review
+values again or maintain narrowly chosen settings in personal configuration;
+do not set =enable-local-variables= back to =:all=. Durable trust preferences
+belong to the remaining P0 configuration-state work.
+
+=org-confirm-babel-evaluate= is =t=, following the
+[[https://orgmode.org/manual/Code-Evaluation-Security.html][Org evaluation security policy]]. Interactive execution and export prompt.
+A document's =:eval yes= does not remove the prompt; =:eval never= continues to
+block execution. There is no automatic trusted-directory exemption. Review
+each requested execution, including dependencies referenced by a block.
+Declining prevents that execution. This does not turn Org into an untrusted
+content sandbox, or govern separate Quarto render/REPL commands.
+
+* Recovery storage and retention
+
+| Data | Location below user-emacs-directory | Behavior |
+|------+------------------------------------+----------|
+| Ordinary backups | =var/recovery/backups/= | Copy before the first save of a visited file; numbered versions |
+| Ordinary auto-saves | =var/recovery/autosave/= | Separate recovery copies, SHA-256 filename mapping |
+| Session lists | =var/recovery/sessions/= | Native =recover-session= discovery |
+| Vault backups and auto-saves | =var/research/backups/= and =var/research/autosave/= | Existing filenames and locations retained |
+| Locks | Beside the edited file (=.#…=) | Native coordination between Emacs processes |
+
+Recovery directories are owner-only (0700). Backups retain the oldest two and
+newest six versions; excess intermediate versions are removed by Emacs.
+Version-controlled source files also receive backups. Copying backups preserves
+symlinks and hard links. Standard Emacs exclusions remain: temporary files are
+normally excluded from backups; encryption/remote-file handlers may impose
+additional restrictions. Remote, encrypted and multi-host storage are not
+validated by this checkpoint. Files without a visited filename are not
+covered automatically; choose a filename with =C-x C-f= before drafting.
+
+Auto-save writes recovery copies, never the actual manuscript on a timer.
+Its normal Emacs interval/timeout remain unchanged; edits since the most
+recent auto-save can still be lost. Existing buffers should be reopened, or
+restart Emacs after saving current work. No recovery store is pruned on
+startup. These local copies do not replace an independent machine backup.
+
+The recovery policy is reapplied after =no-littering= loads because that
+package sets =auto-save-list-file-prefix=. Vault notes keep their local routing;
+reapplying the protection hook moves an existing current-session auto-save
+before changing its filename. Previously written vault recovery files are
+not migrated or deleted. The hook also enables native Auto Revert for vault
+Markdown only; no global note indexer or polling service is introduced.
+
+* Recover a document
+
+1. Visit the original file path, including a not-yet-saved filename. For a
+   vault note, first invoke a Citar/reference command (for example =C-c b=, then
+   cancel) to load the research integration if necessary, then reopen the note so its local recovery routing applies.
+2. Run =M-x recover-this-file=, inspect the prompt (and diff when offered),
+   and accept only the intended version. Recovery leaves the visited file
+   unchanged on disk until you explicitly save.
+3. After a crash, =M-x recover-session= lists ordinary-file sessions. Select
+   the relevant session and =C-c C-c=. Native session recovery recomputes the
+   auto-save path; vault notes with buffer-local routing should instead use
+   the visit-then-=recover-this-file= procedure above.
+4. For an older saved version, open a numbered backup in the directory above,
+   compare it with the source, and deliberately copy the desired text back.
+
+No automatic action merges edits or decides which copy is authoritative.
+Cancelling recovery preserves both the disk file and its auto-save.
+
+* Emacs and Obsidian editing the same note
+
+A clean Emacs vault buffer refreshes when native Auto Revert notices a disk
+change. A modified buffer keeps its unsaved edits. Saving after an external
+change requires confirmation; declining leaves both versions intact. Compare
+and merge the versions before choosing to overwrite. Emacs lockfiles help
+other Emacs instances; do not assume Obsidian honors them. The checks cover
+external replacement through ordinary filesystem writes, not the Obsidian
+application UI or a particular cloud synchronization provider. Very tight
+concurrent writes are not a transactional merge protocol.
+
+* Validation record
+
+Baseline: =0b6879c1d1e2dbbd801b87e6c2899f115406138a= on =master=.
+Pre-existing uncommitted changes in =early-init.el= and
+=doc/research-workflows.org= are preserved and excluded from this milestone.
+Implementation branch: =codex/p0-safe-recoverable-editing=.
+
+The new ERT suite uses native file-local parsing/confirmation, Org execution
+and export, backup writes, Auto Revert, saving and recovery. Only user input
+is supplied programmatically. It includes safe settings, rejected evaluation,
+accepted and rejected interpreter paths, attempted removal of Babel
+confirmation, declined execution, approved execution, symlink backup, new
+Unicode filenames with missing parents, cancellation, vault routing, dirty
+external edits, lock ownership and recovery after killing a child Emacs with
+SIGKILL. The child writes actual unsaved content and a session list; the
+parent recovers the content without changing the disk original.
+
+The standalone suite uses only shipped Emacs libraries and local modules.
+The core runner also checks the installed Org/package versions. Its separate
+startup check copies the entry files into a temporary configuration, shares
+existing package builds in Straight safe mode, and uses disposable state,
+server and empty org-roam paths. It asserts final defaults after all modules
+load and records bindings in Org, Markdown, Python, R and Quarto. Personal
+notes and analysis data are not fixtures. See the roadmap checkpoint for
+executed commands, outcomes and retained logs.
+
+CI runs the built-in suite on Ubuntu 24.04's packaged Emacs with a commit-pinned
+checkout action. It records the executable version. The OS/package archive
+is not an immutable image or a substitute for a Straight lockfile. The full
+Quarto/R/Python suite remains an explicit external-tool test; CI does not
+install research dependencies. Hosted CI is only validated once its run
+actually succeeds.
+
+* Rollback
+
+Save current buffers and preserve =var/recovery/= and =var/research/= first.
+On a clean branch, revert this milestone's commit, inspect the diff, then
+restart Emacs. Do not discard unrelated edits or remove the recovery files.
+The baseline policy disables recovery and relaxes execution checks, so keep
+those implications explicit when rolling back. To disable only vault refresh,
+use =M-x auto-revert-mode= in that buffer; retaining backups is independent.
+Package rollback still requires the existing package-directory backup until
+P0b supplies and verifies a pinned restoration procedure.

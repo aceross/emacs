@@ -1,6 +1,7 @@
 ;;; init-core.el --- Core configuration -*- lexical-binding: nil; -*-
 
 (require 'awc-files)
+(awc-files-initialize)
 
 (setq straight-use-package-by-default t)
 (setq straight-vc-git-default-clone-depth 1)
@@ -49,10 +50,6 @@
                           ,(expand-file-name "var/" user-emacs-directory))
         custom-file (make-temp-file "")
         custom-safe-themes t
-        enable-local-variables :all
-        make-backup-files nil
-        auto-save-default nil
-        create-lockfiles nil
         vc-follow-symlinks t
         byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local)
         native-comp-async-report-warnings-errors nil
@@ -106,6 +103,9 @@
 (use-package no-littering
   :demand t
   :config
+  ;; no-littering sets a session-list location while loading.  Keep the
+  ;; recovery policy authoritative for both copies and session discovery.
+  (awc-files-initialize)
   (with-eval-after-load 'recentf
     (add-to-list 'recentf-exclude no-littering-var-directory)
     (add-to-list 'recentf-exclude no-littering-etc-directory)))

@@ -84,6 +84,7 @@ if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=",
 
     try:
         elisp('regression', 'run-tests.el')
+        elisp('safety-startup', 'safety-startup-check.el')
         elisp('ess-startup', 'ess-startup-check.el')
         elisp('prose-startup', 'prose-startup-check.el')
         elisp('yaml-schemas', 'quarto-yaml-integration.el')
