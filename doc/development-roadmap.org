@@ -552,6 +552,12 @@ changed dependency or evidenced workflow need, recording the reason.
   Branch: =codex/p0c2-startup-and-session-reliability=. P0c1's draft PR remains
   open, so this checkpoint stacks on that branch. The two original local
   edits remain excluded. No live session is restarted by these checks.
+- Implementation: =3fedfa0a7cb259fc0beab7fc0a3c4d8293e4b076=.
+  [[https://github.com/aceross/emacs/pull/4][Draft PR #4]] targets =codex/p0c1-preferences-and-bindings=.
+  Hosted [[https://github.com/aceross/emacs/actions/runs/39156383501][push CI]] and [[https://github.com/aceross/emacs/actions/runs/39156404887][PR CI]] PASSED. Inspected PR logs confirm
+  GNU Emacs 29.3, Git 2.55.0 and 27/27 safety tests with zero unexpected
+  results, plus committed snapshot validation. The local installed-package
+  and external-tool checks below are separate from that lightweight CI.
 - Plan/justification/QA first: establish the core baseline, measure normal
   startup with private state, hide optional tools only in fixtures, then
   repeat real two-project operations and compare resources. Fix reproduced
