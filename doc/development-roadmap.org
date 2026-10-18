@@ -389,6 +389,8 @@ changed dependency or evidenced workflow need, recording the reason.
   retained inactive sources; it is an inventory, not a declaration to activate
   extra packages. A minimal cold startup may not clone inactive repositories;
   the full-inventory audit deliberately reports missing entries.
+  Implementation commit: =692dbfdef35b087c4481ae453f25d907d839bec7=;
+  [[https://github.com/aceross/emacs/pull/2][draft PR #2]], stacked on the still-open P0a PR #1 so its diff is focused.
 - Confirmed/closed defects: wrong bootstrap checkout directory, shell path
   interpolation, unchecked command results and missing source pins. Native
   rollback testing exposed missing branch/tracking references after a commit
@@ -433,10 +435,11 @@ changed dependency or evidenced workflow need, recording the reason.
   134 HEADs unchanged and clean. Snapshot parsing and =git diff --check= pass.
   Existing user edits, Emacs executables, desktop associations and live
   projects/libraries/vaults remain unchanged. No package source was upgraded.
-- CI configuration now checks real-Git unit/recovery cases and committed
-  snapshot syntax with only distribution Emacs/Git. Hosted result is recorded
-  separately after pushing; core and full source/build integration are not
-  silently substituted with mocked or network-dependent CI checks.
+- CI checks real-Git unit/recovery cases and committed snapshot syntax with
+  distribution Emacs/Git. Hosted runs PASSED: [[https://github.com/aceross/emacs/actions/runs/39135401901][push]] (19 seconds) and
+  [[https://github.com/aceross/emacs/actions/runs/39135477597][PR]] (20 seconds). The inspected PR job log confirms GNU Emacs 29.3,
+  Git 2.55.0 and 19/19 tests, zero unexpected results, plus snapshot validation.
+  Core and full source/build integration remain separate local checks.
 - Limits: complete Internet-only installation of all packages, native terminal/
   parser/PDF helper operation, GUI/other-machine/long-session checks remain
   unvalidated here. Full runtime/output/LSP suites were not rerun: current
