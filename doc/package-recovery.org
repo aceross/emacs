@@ -1,0 +1,158 @@
+#+TITLE: Package sources, bootstrap and rollback
+#+DATE: 2026-10-18
+
+* What is pinned
+
+=straight/versions/default.el= records the exact Git revisions of all 134
+installed source repositories at the =02950fba083dccd5eed823ffad2836323380a6a1=
+baseline. This includes the recipe providers and some retained packages that
+are no longer activated by the configuration. No installed source repository
+was dirty, and every recorded HEAD had a containing local remote-tracking
+reference. Capture did not fetch, upgrade, normalize or push packages.
+
+The file uses Straight's native =:epsilon= format. Only this file under
+=straight/= is tracked; source checkouts, build products and caches remain
+ignored. Zotero associations, notes and recovery files are separate personal
+data; keep =var/= and the canonical vault in machine backups.
+
+This is source reproducibility. Emacs itself, OS libraries, fonts, Quarto,
+Python/R environments, native Vterm/tree-sitter modules, PDF Tools' helper,
+TeX and other external executables are not pinned by a Lisp lockfile.
+Keep a known-working complete =straight/= backup as well as the source pins.
+See [[file:linux-xwidgets.org][the existing Emacs installation record]] and [[file:../README.org][external dependencies]].
+
+* Bootstrap and existing installations
+
+=init-core.el= calls the bounded =awc-packages= helper. It reads the snapshot
+as data, rejects malformed/duplicate entries, obtains Straight's full commit
+from that same file and uses checked Git argument vectors, without a shell.
+There is no second, independently editable bootstrap pin.
+
+For a missing Straight checkout it fetches the exact commit into a temporary
+sibling, creates its main/tracking references, verifies the commit and
+=bootstrap.el=, and renames the directory into place. Failed fetches,
+unavailable Git, invalid commits and cancellation leave no active partial
+checkout. Existing partial, dirty or differently versioned Straight checkouts
+are preserved and refused; inspect and rename them before retrying. Safe mode
+does not bootstrap missing packages. Paths with spaces, Unicode and shell
+metacharacters are exercised by real Git tests.
+
+Straight consults the snapshot when cloning other packages. Its installed
+version can warn and fall back to another revision after a failed checkout.
+The documented post-clone hook now checks the snapshot itself, even if
+Straight clears its requested-commit argument. A mismatched checkout moves
+intact into =straight/repos/.straight-failed-*/= before an error is raised.
+It cannot be activated from that normal package path on the next restart;
+retrying clones again. Inspect these preserved directories before removing
+them. No installed source is reset automatically on ordinary startup.
+
+Existing non-Straight packages are not automatically thawed on every start.
+Use =M-x awc-packages-audit= to check for missing, extra, dirty and changed
+repositories against the full snapshot. It is read-only and stops at the
+first discrepancy. Explicit update work is possible in the running session;
+capture and review its new pins before restarting if Straight itself changed.
+
+Vterm is now autoloaded through its existing command. A fresh startup no
+longer asks to compile its absent native module. Explicitly opening a project
+terminal still uses the existing Vterm installation/compilation procedure.
+No global binding or project interpreter policy changes.
+
+* Restore or deliberately update
+
+1. Save buffers and preserve the working configuration, complete =straight/=
+   tree and =var/=. Keep the only working package tree intact.
+2. Use a separate checkout/configuration directory containing the desired
+   configuration revision and its =straight/versions/default.el=. Start the
+   selected installed Emacs with =--init-directory /path/to/that/config=.
+   A cold installation needs Git/network access, the pinned upstream sources
+   or preserved local source copies, and the external prerequisites above.
+3. In an /existing/ installation, review source dirtiness before using
+   =M-x straight-thaw-versions=. Native thaw can normalize branches and reset
+   checkouts; preserve patches first and inspect its prompts. Missing commit
+   objects may require fetching. Restart after rebuilding changed packages
+   with =M-x straight-rebuild-package= or =straight-rebuild-all=; old loaded
+   functions are not rolled back merely by moving HEAD.
+4. For an intentional update, change only the selected packages in the
+   disposable installation. Run =M-x awc-packages-write-snapshot= with a new,
+   nonexistent candidate filename. This captures all clean installed source
+   HEADs without fetching, cloning, pushing or loading packages. Dirty or
+   non-Git repositories fail before the candidate is written. An existing
+   candidate is refused, including a symlink; the committed file is never
+   overwritten by this command.
+5. Compare the candidate with the committed snapshot; review every changed
+   revision, recipe provider and additional/removed repository. Only then
+   replace =straight/versions/default.el= deliberately. Run the tests below,
+   including the relevant workflow integrations, before adopting the update.
+   Keep the matching configuration and snapshot together in Git.
+
+Do not use an unprefixed =straight-freeze-versions= merely to capture this
+installation: that API can offer to push package repositories. Our capture
+command intentionally has no such action. Do not freeze an unreviewed dirty
+source or assume ignored native artifacts are represented by its HEAD.
+
+* Roll back
+
+In a disposable copy first, restore the /matching/ earlier configuration and
+snapshot from Git. With the corresponding Straight revision available, use
+native thaw and rebuild, then restart and audit. If the startup pin check
+refuses an already changed Straight checkout, preserve/rename that checkout
+and let the older configuration bootstrap its recorded revision. Never
+delete the only working installation to attempt this.
+
+Alternatively restore the complete known-working package/configuration
+backup. Keep =var/recovery/= and =var/research/= throughout. Reverting this
+P0b commit alone reinstates the old broken bootstrap; it does not delete any
+package or recovery data. Do not use that older bootstrap for a fresh install.
+The two pre-existing local edits in =early-init.el= and
+=doc/research-workflows.org= are outside this checkpoint and remain intact.
+
+* Validation and limits
+
+Fast built-in/real-Git cases, also run by CI:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+These cover native execution safeguards/recovery plus successful pinned
+bootstrap, repeated offline startup, missing Git/upstream, invalid revisions,
+staging cleanup/retry, preserved partial and dirty trees, changed revisions,
+candidate exclusivity, malformed snapshots and quarantined repeated failures.
+The baseline remains the earlier validated P0a policy; no live research data
+is used.
+
+Explicit package-source integration, using installed repositories read-only
+as offline sources and independently fetched Git objects in =/tmp/=:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l test/package-restore-check.el
+#+end_src
+
+This uses the actual installed Straight implementation to drive an invalid
+pin through its warning/fallback path, restore all source pins, build/load
+bind-key/use-package/dash in a new build tree, detect a disposable package
+update, write a candidate and roll back/rebuild through native thaw. It
+prints and retains its fixture directory. It does not reuse installed build
+directories or use live notes. Its retained failed-clone directory is an
+intentional recovery fixture. The source URLs in this test are local; a
+separate HTTPS smoke check verified the real pinned Straight bootstrap.
+
+To test the complete configuration's fresh build/activation after that run,
+use its printed directory (this explicitly builds Emacs packages in /tmp):
+
+#+begin_src sh
+AWC_PACKAGE_CONFIG='/tmp/awc-package-restore-EXAMPLE/config with spaces' \
+  emacs-xwidgets -Q --batch -l test/package-startup-check.el
+python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+The startup check creates disposable Org/server state and refuses a config
+outside /tmp. It audits sources and checks final safe defaults and deferred
+Vterm. Full startup does not validate the terminal's native module, parser
+binaries, graphical PDF helper, or every deferred package command. The core
+suite uses the established installed packages and real Quarto integrations.
+Full Internet-only installation of every pinned source, another OS/machine,
+GUI native helpers, long sessions and the full R/Python runtime/LSP/output
+suites remain separate checks. No research dependencies are installed to
+satisfy this milestone. Executed results and logs are in
+[[file:development-roadmap.org][the P0b checkpoint]].

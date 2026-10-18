@@ -9,6 +9,7 @@
   (add-to-list 'load-path (expand-file-name "test" root)))
 (require 'ess-site)
 (require 'awc-files-test)
+(require 'awc-packages-test)
 (require 'quarto-preview-test)
 (require 'awc-project-test)
 (require 'quarto-edit-test)

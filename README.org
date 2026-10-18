@@ -20,11 +20,15 @@ that directory and =var/= when backing up or moving the current installation.
 Review the Git diff before adopting a change, save buffers, then restart
 Emacs. Configuration edits do not update the running session automatically.
 
-A fresh, pinned installation is *not yet validated*: the bootstrap has a
-confirmed checkout-path defect and there is no committed package snapshot.
-P0b is the next milestone. Until it passes, restore an existing known-working
-configuration / package backup rather than treating a fresh clone as a
-reproducible installation. Do not blindly update all packages.
+The committed =straight/versions/default.el= pins 134 source repositories,
+including recipe providers. The checked bootstrap installs the recorded
+Straight revision and preserves failed or locally changed checkouts.
+Source restoration, native package rollback and disposable configuration
+startup are tested; a complete Internet-only install and native helper
+rebuilds on another machine remain unverified. See [[file:doc/package-recovery.org][package restore/update/rollback]]
+before changing an existing installation. =M-x awc-packages-audit= checks its
+sources; =awc-packages-write-snapshot= writes a new review candidate without
+updating or pushing packages. Do not blindly update all packages.
 
 New file buffers use central backups and auto-saves. Use =M-x recover-this-file=
 in a visited file or =M-x recover-session= for ordinary file recovery after a
@@ -78,6 +82,13 @@ With the existing Straight packages and Quarto tools:
 
 #+begin_src sh
 python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+Explicit pinned-source restoration/build/rollback check, using installed
+sources read-only and fresh disposable checkouts:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l test/package-restore-check.el
 #+end_src
 
 =--suite all= additionally needs R =renv/languageserver=, the Python runtime
