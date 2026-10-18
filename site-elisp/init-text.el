@@ -170,8 +170,6 @@
   :ensure t
   :defer t
   :diminish writegood-mode
-  :bind (("C-c gg" . writegood-grade-level)
-         ("C-c ge" . writegood-reading-ease))
   :hook (text-mode org-mode markdown-mode gfm-mode))
 
 ;; Thesaurus lookup tool

@@ -85,6 +85,20 @@ if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=",
     try:
         elisp('regression', 'run-tests.el')
         elisp('safety-startup', 'safety-startup-check.el')
+        preferences = root / 'preferences-startup'
+        env['AWC_SAFETY_TEST_ROOT'] = str(preferences)
+        try:
+            for stage in ('save', 'load', 'corrupt'):
+                env['AWC_PREFERENCES_CHECK_STAGE'] = stage
+                if stage == 'corrupt':
+                    custom = preferences / 'config' / 'var' / 'preferences' / 'custom.el'
+                    marker = preferences / 'preferences-ran'
+                    custom.write_text(';;; -*- lexical-binding: t -*-\n'
+                                      f'(write-region "ran" nil "{marker}")\n(custom-set-variables\n')
+                elisp(f'preferences-{stage}', 'preferences-startup-check.el')
+        finally:
+            env.pop('AWC_SAFETY_TEST_ROOT', None)
+            env.pop('AWC_PREFERENCES_CHECK_STAGE', None)
         elisp('ess-startup', 'ess-startup-check.el')
         elisp('prose-startup', 'prose-startup-check.el')
         elisp('yaml-schemas', 'quarto-yaml-integration.el')

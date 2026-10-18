@@ -1,4 +1,4 @@
-name: Safety and package recovery
+name: Safety, preferences and package recovery
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --no-install-recommends -y emacs-nox git
-      - name: Exercise safety and pinned bootstrap with disposable files and Git repositories
+      - name: Exercise safety, preference restarts and pinned bootstrap with disposable fixtures
         run: |
           emacs --version
           git --version

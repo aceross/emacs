@@ -1,5 +1,5 @@
 #+TITLE: Safe execution and recoverable editing
-#+DATE: 2026-10-17
+#+DATE: 2026-10-18
 
 * Scope and policy
 
@@ -7,8 +7,9 @@ P0a extends =awc-files.el= and the existing vault protection hook. It changes
 file safety defaults, recovery and clean-note external refresh. It preserves
 project/environment selection, ESS, Quarto, Citar, Org and the installed Emacs
 build. No keybindings, libraries, project environments or desktop integration
-are changed. P0 as a whole remains IN PROGRESS; package snapshot/bootstrap
-restoration is the next gate, not a capability delivered here.
+are changed by P0a. P0b subsequently validates package source/bootstrap
+restoration; P0c1 adds persisted preferences and binding fixes. P0 as a whole
+remains IN PROGRESS pending measured startup/session checks in P0c2.
 
 =enable-local-variables= is =t= and =enable-local-eval= is =maybe=. Emacs applies
 recognized safe values normally and asks before accepting unknown/risky
@@ -20,11 +21,13 @@ This is a confirmation policy, not a sandbox for executing untrusted code.
 =awc-project-python=, its =quarto-preview-python= alias, and
 =inferior-ess-r-program= still work after approval. Arbitrary executable paths
 are deliberately not marked safe merely because they are strings. Normal
-=.venv=/=venv= discovery is unchanged. The current =custom-file= is temporary;
-permanent trust choices are not reliably restored across restarts. Review
-values again or maintain narrowly chosen settings in personal configuration;
-do not set =enable-local-variables= back to =:all=. Durable trust preferences
-belong to the remaining P0 configuration-state work.
+=.venv=/=venv= discovery is unchanged. P0c1 replaces the earlier temporary
+=custom-file= with private persisted Customize settings. Native =!= approvals
+persist where Emacs permits; risky variables such as =inferior-ess-r-program=
+still require session review. Exact-value approval is global and does not
+verify executable contents; prefer session approval or a deliberately reviewed
+absolute interpreter path. Do not set =enable-local-variables= back to =:all=.
+See [[file:preferences-and-bindings.org][preferences and native trust behavior]] for the policy and recovery procedure.
 
 =org-confirm-babel-evaluate= is =t=, following the
 [[https://orgmode.org/manual/Code-Evaluation-Security.html][Org evaluation security policy]]. Interactive execution and export prompt.

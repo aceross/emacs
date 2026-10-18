@@ -38,12 +38,19 @@ before using =recover-this-file=. Review recovered text before saving. See
 Recovery data and personal Zotero associations are ignored by Git and require
 separate machine backups.
 
+Customize choices now persist in =var/preferences/custom.el=, outside Git,
+with private directory/file permissions. They load after module defaults;
+execution confirmation and recovery defaults remain active. See
+[[file:doc/preferences-and-bindings.org][preferences, explicit trust and binding changes]] for failure recovery and rollback.
+
 * Main commands
 
 | Entry | Workflow |
 |-------+----------|
 | =C-c w= | Project, environment, execution, diagnostics and research menu |
 | =C-c w n= | Zotero reference, local PDF, literature note and citation |
+| =C-c w W= | Writing checks and contextual Org templates |
+| =C-c w a= | Existing gptel assistant |
 | =C-c q= | Quarto editing, execution, readiness, rendering and recovery |
 | =C-x p= | Built-in project operations |
 | =C-x g= | Magit |
@@ -54,6 +61,8 @@ separate machine backups.
 Opening a source must not install project dependencies. Interpreter overrides
 from new directory-local settings require review. Org Babel execution prompts,
 including during export; no project or language is automatically trusted.
+Org =C-q= now uses native quoted-insert. Templates remain under =C-c w W=
+and the existing =C-c o= prefix. The conflicting =C-c g= bindings are removed.
 
 * External dependencies
 
