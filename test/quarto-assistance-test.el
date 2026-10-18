@@ -2,6 +2,19 @@
 (require 'ert)
 (require 'quarto-mode)
 
+(ert-deftest quarto-context-missing-executable-does-not-leak-buffers ()
+  (let ((directory (make-temp-file "quarto-missing-tool-" t)))
+    (unwind-protect
+        (with-temp-buffer
+          (setq buffer-file-name (expand-file-name "report.qmd" directory)
+                default-directory (file-name-as-directory directory))
+          (write-region "---\ntitle: Fixture\n---\n" nil buffer-file-name nil 'silent)
+          (let ((exec-path nil) (before (buffer-list)))
+            (dotimes (_ 3)
+              (should-error (quarto-context-resolve #'ignore) :type 'user-error))
+            (should-not (cl-set-difference (buffer-list) before))))
+      (delete-directory directory t))))
+
 (ert-deftest quarto-assistance-rejects-edits-outside-code ()
   (let ((source (generate-new-buffer " *source*")) (projection (generate-new-buffer " *projection*")))
     (unwind-protect

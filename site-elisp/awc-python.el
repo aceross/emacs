@@ -93,6 +93,11 @@ on every cursor move.  Starting/evaluating still fails explicitly."
          (default-directory (awc-project-root))
          (name (format "*%s*" python-shell-buffer-name))
          (process (get-buffer-process name)))
+    ;; Native run-python reinitializes an ended REPL's major mode. Dispose
+    ;; its hidden fontification buffer before that loses the local reference.
+    (when (or restart (not (process-live-p process)))
+      (when-let* ((buffer (get-buffer name)))
+        (with-current-buffer buffer (python-shell-font-lock-kill-buffer))))
     (when (and restart (process-live-p process)) (delete-process process))
     (setq process (run-python nil nil nil))
     ;; Emacs 31 sends its evaluation helpers on the first prompt.  Sending a

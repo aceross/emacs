@@ -43,6 +43,11 @@ with private directory/file permissions. They load after module defaults;
 execution confirmation and recovery defaults remain active. See
 [[file:doc/preferences-and-bindings.org][preferences, explicit trust and binding changes]] for failure recovery and rollback.
 
+P0c2 checks normal startup, missing optional tools and a bounded two-project
+session. It fixes immediate R document cancellation, Python REPL helper
+cleanup and missing-Quarto inspection buffers. See
+[[file:doc/startup-and-session-reliability.org][startup/session QA, resource ownership and limits]].
+
 * Main commands
 
 | Entry | Workflow |
@@ -91,6 +96,13 @@ With the existing Straight packages and Quarto tools:
 
 #+begin_src sh
 python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+Normal terminal startup measurements and real two-project lifecycle checks
+(requires existing R/Python/Quarto tools and permitted loopback servers):
+
+#+begin_src sh
+python3 test/run-reliability-checks.py --suite all --keep
 #+end_src
 
 Explicit pinned-source restoration/build/rollback check, using installed

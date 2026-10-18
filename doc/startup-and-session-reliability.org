@@ -1,0 +1,109 @@
+#+TITLE: Startup and bounded session reliability
+#+DATE: 2026-10-18
+
+* What changes
+
+P0c2 adds repeatable measurements and a bounded two-project acceptance check.
+It fixes three failures reproduced during that work:
+
+- Repeated Quarto actions without its executable allocated hidden inspection
+  buffers. The executable is now checked before allocating those buffers.
+- Restarting an existing Python REPL, including after an unexpected exit,
+  could orphan its native fontification buffer. The project command now
+  disposes that helper before native Python recreates the REPL's major mode.
+- Cancelling an R document request immediately after dispatch could deliver
+  SIGINT outside the evaluator's interrupt handler and end the runtime.
+  Protocol handling now defers interrupts until the request handler is
+  installed, while evaluation remains interruptible. Cancelling an idle or
+  starting document clears queued work without signalling its reader.
+
+The GC policy, startup hooks, pinned packages and existing frameworks are
+unchanged. No measured evidence justified tuning or removing packages.
+
+* Run the checks
+
+From the configuration checkout, using existing installed tools:
+
+#+begin_src sh
+python3 test/run-reliability-checks.py --suite all --repetitions 5 --cycles 3 --keep
+#+end_src
+
+Use =--suite startup= or =--suite session= for a targeted run. The runner uses
+Linux PTYs, Python's standard library, the selected =emacs-xwidgets= (or
+=--emacs=), and the installed Straight builds. The session suite needs an
+existing Python with =venv= support, R, Quarto, Node with its =yaml= module,
+and R =jsonlite/evaluate/knitr=. Dependencies are never installed. A missing
+dependency fails its check and retains logs; it is not reported as passing.
+Local loopback servers must be permitted for real preview/HTTP checks.
+
+Configuration, notes, server sockets, virtual environments and project
+fixtures are under a fresh =/tmp/emacs-reliability-*= directory. Document
+results use separate =/tmp/quarto-results-*= directories and are checked for
+removal after source close.
+Existing package directories are shared read-only in Straight safe mode.
+Python venvs are created without pip. Inherited Python startup scripts and
+explicit R profile overrides are removed; user Renviron is replaced by an
+empty fixture, and each project supplies its own .Rprofile. Projects contain
+spaces, nested source directories and a Unicode name. No live notes, library
+records, project dependencies or analysis data are test inputs.
+
+Each test child has a deadline and an owned process group, reaped on timeout.
+Failures retain fixtures and logs. Successful runs remove them unless =--keep=
+is supplied. Logs contain only synthetic project data and tool diagnostics.
+
+* QA contract
+
+Startup uses a normal terminal Emacs invocation with its real early-init,
+init, after-init and startup hooks. It does not time the core test suite or
+call a batch =load= measurement a normal startup. JSON records native init
+time, time through the startup hook, process wall time, GC count/time, final
+GC settings and warnings. Warnings and failure to restore file handlers or
+the existing GC policy fail the check. A fresh fixture first launch and
+later launches share installed builds and OS caches: neither is an OS-cold
+boot. Terminal startup is not a graphical frame or daemon benchmark.
+Process wall time includes PTY negotiation and the test's exit; it is not
+an estimate of ordinary graphical startup latency.
+
+The missing-tool launch retains Git and ordinary system commands while
+hiding Quarto, Node, R, Python commands and Pyright from its PATH. Python,
+R, Quarto and Markdown files remain editable/savable. Explicit execution,
+preview and assistance actions explain the missing tool. Repeated failed
+Quarto actions leave no new buffers. Restoring tools in the same session
+resolves the previously failed document. Separate child R processes with
+only the base library check the real languageserver/httpgd diagnostics;
+no installed package is renamed or removed.
+
+The session check runs real project Python and ESS REPLs, document-owned
+knitr runtimes, the shared Quarto YAML helper and HTML preview servers.
+It checks interpreter/root/profile identities, interruption after execution
+begins and immediately after dispatch, idle cancellation, restart, unexpected
+exit, repeat stop, source close, HTTP 200/content and unaffected sibling
+projects. Only browser presentation is replaced with a no-op; rendering,
+servers and HTTP requests are real. Stopping/closing a preview must also
+release its actual listening socket, not merely end Emacs's parent process.
+
+Document close stops its runtimes/previews and removes temporary results
+after the shutdown interval. Project REPLs deliberately survive source close
+for use by other files. The fixture explicitly ends those sessions and
+closes their retained transcripts before comparing resources. Persistent
+logs, ESS helpers and the one shared schema service establish a bound after
+the first cycle; later cycles may not add buffers, processes or timers.
+Request/timeout tables must empty and temporary result directories disappear.
+
+This is a bounded lifecycle check, not evidence of an all-day GUI session.
+It does not validate WebKit display, HTTPGD's graphical viewer, native Vterm
+or PDF helpers, daemon startup, another platform, renv isolation or the full
+Jupyter/Python document runtime. The latter retain their separate external
+dependency checks in =test/run-quarto-checks.py=.
+
+* Evidence and rollback
+
+The exact measurements, commands, logs and review checkpoint are recorded
+in [[file:development-roadmap.org][the living roadmap]]. Fast safety CI remains independent of installed
+research tools; the new core regression cases require installed Emacs
+packages, and the reliability runner is an explicit local integration check.
+
+Save buffers before adopting the changes and restart Emacs. To roll back,
+revert this milestone's focused commits on a clean branch, preserving
+private preferences, recovery data and unrelated local edits, then restart.
+No package, interpreter, project environment or data rollback is needed.
