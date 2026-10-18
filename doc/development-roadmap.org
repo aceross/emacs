@@ -472,6 +472,10 @@ changed dependency or evidenced workflow need, recording the reason.
   Baseline core passed 117/117 ERT and all stages; logs:
   =/tmp/quarto-checks-jpeabi_z/logs/=. Branch:
   =codex/p0c1-preferences-and-bindings=.
+- Git/review checkpoint: implementation
+  =ea36d29767d32a1ecee5798a41e86ecab5b38d99=;
+  [[https://github.com/aceross/emacs/pull/3][draft PR #3]], stacked on the still-open P0b branch/PR #2. The two
+  pre-existing local edits are excluded from both commits and the PR.
 - Architecture: =awc-preferences.el= uses native Custom, one owner-only file
   at =var/preferences/custom.el= (0700 directory/0600 file), early preparation
   in =init-core= and late load in =init.el=. It reuses =awc-files= policy.
@@ -517,6 +521,11 @@ changed dependency or evidenced workflow need, recording the reason.
   --suite core --keep= passes 125/125 ERT and all startup/Quarto/research stages;
   final logs: =/tmp/quarto-checks-993rc5m2/logs/=. This run includes the final
   native metadata restoration check and the explicit frame callback.
+- Hosted CI PASSED: [[https://github.com/aceross/emacs/actions/runs/39137599597][push]] (22 seconds) and
+  [[https://github.com/aceross/emacs/actions/runs/39137631187][PR]] (20 seconds). Inspected PR logs confirm GNU Emacs 29.3, Git 2.55.0,
+  27/27 tests with zero unexpected results and committed package-snapshot
+  validation. Installed-package/menu/full-startup checks remain separate
+  local integration evidence, not claimed as part of that lightweight CI.
 - Integrity: =awc-packages-audit= matches all 134 clean source pins;
   =git diff --check= passes. Byte-for-byte comparison of the original local
   diff confirms =early-init.el= and =doc/research-workflows.org= are intact.
