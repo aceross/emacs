@@ -1,6 +1,9 @@
 #+TITLE: Handoff prompt: refresh Emacs for research and development
 #+DATE: 2026-10-12
 
+This is a historical assessment. The P0/P1 implementation is now merged;
+use [[file:next-session-handoff.org][the current P2 session prompt]] and [[file:development-roadmap.org][development roadmap]] to continue.
+
 Continue improving my Emacs configuration in =/home/awc/.emacs.d=.
 I like working in Emacs but have recently spent more time in VS Code. I want
 the conveniences of a modern IDE alongside Emacs's editing, extensibility,

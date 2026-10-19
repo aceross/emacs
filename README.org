@@ -4,6 +4,7 @@ Personal configuration for Python/R analysis, Quarto manuscripts and
 Zotero–Obsidian literature work. It extends ordinary Emacs with the existing
 ESS, lsp-mode, Citar and completion stack. The current implementation plan
 and acceptance gates are in [[file:doc/development-roadmap.org][the development roadmap]].
+For a new development session, use [[file:doc/next-session-handoff.org][the current P2 handoff prompt]].
 
 * Supported environment
 
