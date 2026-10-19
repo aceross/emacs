@@ -819,7 +819,10 @@ changed dependency or evidenced workflow need, recording the reason.
 - Baseline: =1f1b8a28ba388e854ec96460df7234b5ebd185a3=, after P1a.
   Branch: =codex/p1b-portable-associations-and-pdfs=. Original
   =early-init.el= and =doc/research-workflows.org= edits remain outside this
-  focused change set. Git implementation/review identifiers follow below.
+  focused change set. Implementation: =4f02aa80d91f30b388ed2c003ff1163d5835b8d4=.
+  [[https://github.com/aceross/emacs/pull/7][Draft PR #7]] targets =codex/p1a-reviewed-project-bibliographies= while
+  P1a PR #6 remains open. Hosted CI is the existing lightweight safety/pin
+  workflow; full installed-package, render and graphical checks are local.
 - Plan/rationale/QA first: transfer canonical citation/library/item identity
   separately from local paths, keeping existing keys, notes and bibliographies.
   Use reviewed additive JSON export/import and explicit GET-only PDF resolution.
