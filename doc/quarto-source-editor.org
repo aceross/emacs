@@ -219,30 +219,30 @@ module differs in each environment. Pyright must be allowed to query Python;
 the restricted process sandbox can report EPERM even after a child prints.
 
 =test/quarto-runtime-integration.el= and =test/quarto-output-integration.el=
-use only =/tmp/quarto-runtime-check/project with spaces=. Create its =.venv=
-explicitly, install the Python dependencies above and register a =quarto-fixture=
-kernel with that interpreter's =python -m ipykernel install --sys-prefix --name
-quarto-fixture=. The scripts check mixed state, document isolation, directories,
-plots, errors, interruption, output bounds, tables, HTML/PDF and preview. Kernel
-and preview checks need permission to open local sockets.
+use =QUARTO_TEST_RUNTIME_ROOT= within the runner's fresh disposable directory.
+It creates the venv and registers =quarto-fixture= with that interpreter.
+The scripts check mixed state, document isolation, directories, plots, errors,
+interruption, output bounds, tables, HTML/PDF and preview. The runner also
+checks stop-on-error/missing kernels and standalone R renv/LSP acceptance.
+Kernel and preview checks need permission to open local sockets.
 
-=test/quarto-gui-check.el= runs in a separate graphical Emacs with a dedicated
-server and disposable source. It checks actual Corfu candidates, polymode
-transitions, plot output, focus/window reuse, WebKit and editing a substantial
-document. Screenshots and the check log go to =/tmp/quarto-gui-check=.
+Use [[file:external-and-graphical-validation.org][the current graphical validation runner]] for a separate normal Wayland
+startup, private configuration/notes/recovery state, actual menus/results/
+WebKit/httpgd and an active 15-minute two-project session. It reuses the
+retained integration dependencies and has its own socket and evidence directory.
+The older =quarto-gui-check.el=, =quarto-yaml-gui-check.el= and
+=quarto-research-gui-check.el= files are historical probes; their direct
+=-Q --load= launch paths load live configuration state and are superseded.
 
 =emacs-xwidgets -Q --batch -l test/quarto-yaml-integration.el= checks the installed
 Quarto schemas, safe acceptance, incomplete front matter, container options,
-hover, compact responses and helper failure/recovery. Run
-=emacs-xwidgets -Q --load test/quarto-yaml-gui-check.el= for actual automatic
-menus, nearby hints, empty-prefix completion and delayed-response checks in an
-isolated GUI. Its log and screenshots go to =/tmp/quarto-yaml-gui=; the test
-Emacs closes itself on success.
+hover, compact responses and helper failure/recovery. The current GUI runner
+checks real automatic YAML and Python menus in the native command loop.
 
-=emacs-xwidgets -Q --load test/quarto-research-gui-check.el= checks real annotated
-citation menus, source focus, label renaming, automatic refresh after unsaved
-metadata edits, readiness reporting and recovery buttons. It uses a fresh
-=/tmp/quarto-research-gui-...= directory and closes its separate Emacs on success.
+The earlier research GUI probe covered annotated citations, label renaming,
+unsaved bibliography refresh and readiness/recovery controls. Those results
+remain historical; the current core suite rechecks their underlying assistance
+and workflow. Do not report every historical graphical scenario as rerun.
 
 Visual editing, results embedded beneath chunks, interactive HTML widgets,
 debugging, books/sites/slides and inline-expression language servers remain

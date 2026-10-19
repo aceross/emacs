@@ -322,7 +322,10 @@ This is the common execution interface; requests snapshot code and revision."
                     ("plot"
                      (let ((path (quarto-get event "path")))
                        (when (file-readable-p path)
-                         (if (display-images-p) (insert-image (create-image path nil nil :max-width 600 :max-height 400))
+                         (if (display-images-p)
+                             ;; R's recorded plots can have transparent paper
+                             ;; and black axes. Keep them legible on dark themes.
+                             (insert-image (create-image path nil nil :max-width 600 :max-height 400 :background "white"))
                            (insert-text-button "Open plot" 'action (lambda (_) (find-file-other-window path))))
                          (insert "\n"))))
                     ("table" (insert (format "Table: %s rows; page starting at %s\n" (quarto-get event "total") (quarto-get event "offset"))))

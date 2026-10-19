@@ -105,6 +105,10 @@ Normal terminal startup measurements and real two-project lifecycle checks
 python3 test/run-reliability-checks.py --suite all --keep
 #+end_src
 
+For disposable Jupyter/renv installation and a separate 15-minute Wayland
+session, see [[file:doc/external-and-graphical-validation.org][external and graphical validation]]. The graphical runner uses
+the retained integration fixture, private configuration state and its own socket.
+
 Explicit pinned-source restoration/build/rollback check, using installed
 sources read-only and fresh disposable checkouts:
 

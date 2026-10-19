@@ -2,6 +2,29 @@
 (require 'ert)
 (require 'quarto-mode)
 
+(ert-deftest quarto-assistance-waits-for-initialized-workspace ()
+  (require 'lsp-mode)
+  (let ((source (generate-new-buffer " *starting source*"))
+        (projection (generate-new-buffer " *starting projection*"))
+        (workspace (make-lsp--workspace :status 'starting))
+        (quarto-lsp-auto-start nil))
+    (unwind-protect
+        (with-current-buffer source
+          (insert "```{python}\nanswer = 42\n```\n")
+          (let ((data (quarto-document-projection "python")))
+            (with-current-buffer projection
+              (delay-mode-hooks (python-mode))
+              (insert (car data))
+              (setq-local quarto-document--owner source quarto-lsp--map (cdr data)
+                          lsp--buffer-workspaces (list workspace))))
+          (setq quarto-lsp--documents (list (cons "python" projection)))
+          (goto-char (point-min)) (search-forward "answer")
+          (should-not (quarto-lsp--at-point))
+          (should-not (quarto-lsp-eldoc #'ignore))
+          (setf (lsp--workspace-status workspace) 'initialized)
+          (should (eq (car (quarto-lsp--at-point)) projection)))
+      (kill-buffer projection) (kill-buffer source))))
+
 (ert-deftest quarto-context-missing-executable-does-not-leak-buffers ()
   (let ((directory (make-temp-file "quarto-missing-tool-" t)))
     (unwind-protect

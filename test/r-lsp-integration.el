@@ -3,13 +3,11 @@
 ;; Run in a fresh -Q --batch process; never load into your working Emacs.
 (defvar awc-r-test-directory
   (file-name-as-directory (or (getenv "AWC_R_LSP_TEST_DIR") "/tmp/awc-r-lsp-check")))
-(defvar awc-r-test-config
-  (file-name-directory (directory-file-name (file-name-directory load-file-name))))
-(setq straight-safe-mode t)
-(require 'server)
-(setq server-name "awc-r-lsp-check"
-      server-socket-dir (expand-file-name "server" awc-r-test-directory))
-(load (expand-file-name "init.el" awc-r-test-config) nil t)
+(unless (file-in-directory-p awc-r-test-directory "/tmp/")
+  (error "R LSP acceptance requires disposable projects"))
+;; Reuse the established private full-init fixture; loading the repository's
+;; init directly would route Customize, recovery and notes to the live state.
+(load (expand-file-name "safety-startup-check.el" (file-name-directory load-file-name)) nil t)
 (when (with-current-buffer "*Messages*"
         (string-match-p "Error (use-package)" (buffer-string)))
   (error "Full configuration has a use-package initialization error"))

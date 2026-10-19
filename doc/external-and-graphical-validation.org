@@ -1,0 +1,141 @@
+#+TITLE: Disposable Jupyter, renv and graphical validation
+#+DATE: 2026-10-19
+
+* Scope and approach
+
+This continues P0c2's bounded checks with the previously unavailable external
+dependencies and a longer real Wayland session. The sequence is dependency
+preflight → disposable integration → graphical functional checks → active
+soak → cleanup and regression review. Real negative and recovery cases
+precede any fix. The existing Emacs build and research projects are preserved.
+
+Confirmed issues addressed by this checkpoint:
+
+- The missing-kernel negative fixture remained in the render project, causing
+  Quarto's later project inspection to return HTTP 500. Lifecycle checks now
+  remove their own synthetic documents and run in the full integration suite.
+- Emacs 31 uses =native-comp-jit-compilation=. The old variable alone did not
+  implement early-init's stated policy and GUI startup spawned many background
+  compiler processes. Set the current variable as well; the graphical check
+  asserts both the policy and absence of those startup compiler jobs.
+- R's recorded PNGs can have transparent paper and black labels. On a dark
+  results pane, the axes/title disappeared. Render transparent plot backgrounds
+  on white paper in Emacs; the original PNG and research data are unchanged.
+  Actual before/after frame images exposed and verify this failure.
+- A projection could query hover before a language workspace had initialized
+  and supplied its capabilities, producing an ElDoc error. Assistance now
+  waits for an initialized workspace; a negative/recovery ERT case covers
+  starting and ready states, followed by real server acceptance checks.
+
+The old standalone R acceptance test also loaded the repository's init directly.
+It now uses the existing private full-config fixture. The new graphical runner
+uses copied entry files and normal startup; it does not load the live init into
+a =-Q= GUI or connect to the usual Emacs server.
+
+* Disposable integration
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite all --install-dependencies --keep
+#+end_src
+
+The explicit install flag authorizes Python test packages and missing R test
+packages under that run's fresh =/tmp/quarto-checks-*= directory. It never
+installs into the system Python/R libraries or a live project. A plain Python
+venv, kernel registry, Jupyter configuration/data/runtime directories, pip,
+Matplotlib and renv caches are private to the run. Python does not inherit
+system-site packages. Existing R dependencies are used read-only; two actual
+renv projects have separate libraries and distinct installed =envprobe=
+packages. This is an activation/isolation test, not a claim to restore a whole
+R installation from CRAN on a clean machine.
+
+=environment.json= retains only the fixture/tool overrides, not a dump of the
+user's environment. Separate dependency logs, =python-versions.log= and
+=r-versions.log= record resolved versions and R library paths. Missing packages
+fail clearly without the install flag. =--r-library= selects existing additional
+R dependencies; =--python= and =--emacs= select existing executables.
+
+The full suite checks:
+
+- Safety/preferences/startup and installed-package core regressions.
+- Quarto's schemas and two-project R/Python completion, hover, navigation,
+  rename, diagnostics and moved/Unicode source mappings.
+- Standalone R full-init, renv/Python identity, CAPF/xref/Flycheck, server reuse,
+  diagnostic clearing, selection conflicts, restart isolation and missing
+  languageserver failure without attaching to another project's server.
+- Mixed knitr/reticulate state, directories, plots, warning/error handling,
+  interruption, bounded displayed output, tables and stale-result detection.
+- Named Jupyter kernel and interpreter identity, state, pandas tables,
+  Matplotlib plots, interruption and failure when a named kernel is absent.
+- Stop-on-error queues, owned-process/result cleanup, real mixed HTML/PDF
+  rendering and HTTP preview while PDF is selected.
+
+* Separate graphical session
+
+Use the retained successful integration root printed by the first command:
+
+#+begin_src sh
+python3 test/run-quarto-gui-check.py --fixture-root /tmp/quarto-checks-EXAMPLE --seconds 900
+#+end_src
+
+Each attempt gets a new =gui-*= directory inside that root. It copies
+=early-init.el=/=init.el= and shares installed package/tool sources in Straight
+safe mode, with private Customize/recovery/cache/notes state. The dedicated
+socket is =gui-*/server/disposable-gui=. Its Wayland Emacs closes itself; the
+normal Emacs server and desktop executable selection are never used.
+
+The native command loop handles the automatic YAML menu. Live Corfu frames,
+completion acceptance, polymode/source mappings, result plots and window/focus
+reuse are checked. Real R and Jupyter requests are interrupted and recovered
+before the soak; the processes retain their identities. Actual WebKit widgets
+load the Quarto page and httpgd viewer. A substantial document exercises the
+index/projection path. Every minute the test edits a project and evaluates both
+runtimes; every third cycle restarts them. Heartbeat gaps must stay below five
+seconds during the active soak; edit/index operations must finish within one
+second. Resource snapshots compare buffers, processes and timers after warm-up.
+Sampling waits six seconds after runtime readiness for background requests
+and shutdown fallbacks to settle, and requires empty YAML request/timeout
+tables. Timer function identities are retained to distinguish temporary work
+from accumulation; an earlier immediate-count assertion stopped at cycle eight
+and was corrected before the final soak.
+
+The 15-minute interval begins after functional setup. A 60-second smoke run is
+useful when repairing the harness but is not reported as the longer soak.
+Only this test's widget query flags and helper processes are changed during
+cleanup. Sources, runtimes, language servers and viewers are closed; preview
+ports, result artefacts and pending requests must clear. The outer runner checks
+for surviving processes with the exact inherited fixture tag and for a leftover
+dedicated socket after Emacs exits. Deadlines retain all failure evidence.
+=test/gui-runner-cleanup-check.py= exercises real tagged/untagged sibling
+processes to ensure failure cleanup reaps only the owned helper.
+
+Evidence includes =startup.log=, =messages.log=, =result.log=, =result.json=,
+=heartbeat.jsonl=, =resources.jsonl= and exported PNG frames/menus. Emacs's Cairo
+frame export omits native GTK WebKit child surfaces; their blank export regions
+are not screenshot evidence of page appearance. Live widget DOM/content checks
+validate those views. Editor/menu/result images are visually inspected,
+including the transparent-plot contrast regression.
+
+* Limits and rollback
+
+The final local run passed 900.135 active seconds with 15 cycles and five
+restarts. Its maximum active heartbeat gap was 1.127 seconds; the slowest
+edit/index operation was 0.191 seconds. Settled buffer/process/timer counts
+stayed bounded and cleanup passed, including the outer helper/socket check.
+The full external suite passed 128 core cases and every integration stage;
+the standalone safety suite passed 27 cases. Exact evidence paths and versions
+are in the roadmap checkpoint.
+
+This is one bounded Linux PGTK/Wayland session. It does not establish all-day
+stability, another platform or daemon startup. Full offline renv restoration,
+native Vterm/PDF helper rebuilding and visual pixel review of GTK WebKit child
+surfaces remain separate from the exercised workflows. No broad warning
+suppression, GC tuning or framework/package migration is part of this change.
+
+Save work before adopting configuration changes, then restart Emacs. Revert this
+focused checkpoint on a clean branch to roll back its two runtime/startup fixes
+and QA infrastructure. Preserve private preferences/recovery data and unrelated
+local edits. Deleting a completed disposable fixture removes its test libraries,
+environments, kernels and caches; no system/project dependency rollback is needed.
+
+Executed commands, versions, results and review links are recorded in
+[[file:development-roadmap.org][the living roadmap]].
