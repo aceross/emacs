@@ -62,7 +62,8 @@ cleanup and missing-Quarto inspection buffers. See
 | =C-c b= | Citar insertion using the document bibliography |
 
 [[file:doc/research-workflows.org][Project and language workflows]], [[file:doc/quarto-source-editor.org][Quarto guide]],
-[[file:doc/zotero-obsidian-quarto.org][literature workflow]], and [[file:doc/bibliography-portability.org][bibliography ownership]].
+[[file:doc/zotero-obsidian-quarto.org][literature workflow]], [[file:doc/bibliography-portability.org][bibliography ownership]],
+and [[file:doc/project-bibliography-snapshots.org][reviewed project bibliography snapshots]].
 Opening a source must not install project dependencies. Interpreter overrides
 from new directory-local settings require review. Org Babel execution prompts,
 including during export; no project or language is automatically trusted.

@@ -8,7 +8,7 @@ and a small =references.bib= with each manuscript. Keep the same citation key
 in all three places. A manuscript should render from its own files without
 Zotero running or access to a particular computer's home directory.
 
-This records the proposed operating policy after the first successful
+P1a implements [[file:project-bibliography-snapshots.org][reviewed project snapshot additions and refreshes]] after the first
 Zotero → Obsidian → Quarto trial. It does not configure synchronization,
 replace existing bibliographies or migrate keys. See the
 [[file:zotero-obsidian-quarto.org][workflow guide]] for the implemented commands.
@@ -66,18 +66,21 @@ entries needed by BibTeX =crossref= or BibLaTeX =xdata= references.
 
 1. Import or associate the paper with =C-c w n z=. Preserve the established
    key, including punctuation: =munn23:_ai= and =dwork12:fairne= are valid keys.
-2. Visit the project's =references.bib=. Check whether the key already exists;
-   if absent, use =M-x citar-insert-bibtex= and select the paper. Save.
-3. Declare the bibliography in the document or project metadata. Refresh the
-   Quarto reference list with =C-c q B=, then cite with =C-c b=.
+2. Create the project's =references.bib= and declare it in document/project
+   metadata. From the saved Quarto document, use =C-c w n b= to prepare an addition
+   from the local Citar snapshot. Choose the project's declared =references.bib=,
+   review the diff and use =C-c C-c= to apply it. The file must already exist.
+3. Refresh the Quarto reference list with =C-c q B= when needed, then cite
+   with =C-c b=.
 4. Render and inspect the citation and reference entry. Commit the manuscript
    and bibliography changes together when using Git.
 
 Treat project entries as snapshots of the library, not independent metadata
 authorities. If metadata is wrong, correct Zotero and deliberately replace
-the affected project entry while retaining its key. The current import
-command does /not/ perform that refresh, so repeatedly importing is not an
-update mechanism. Preserve legacy-only records until they are reconciled.
+the affected project entry while retaining its key. =C-c w n r= prepares that
+refresh from the explicitly associated Zotero item, then waits for review.
+The global import command remains append-only; repeated import does not
+refresh it. Preserve legacy-only records until they are reconciled.
 
 Give each bibliography one update method. For now, use reviewed snapshots.
 If a project later adopts a Better BibTeX collection export, let that exporter
@@ -135,15 +138,16 @@ Until key associations are portable, keep new Emacs imports on the established
 device. Other devices can still edit synced notes and render manuscripts from
 their project bibliography snapshots.
 
-* Next implementation: make a second device routine
+* Next implementation: portable associations and local attachments (P1b)
 
-Separate portable citation-key/item associations from local attachment paths;
-reconcile legacy keys with Zotero's native keys without changing manuscripts;
-and add an explicit command to add or refresh a selected reference in the
-current project's bibliography. That command should report missing keys,
-duplicate keys and missing bibliography declarations before rendering.
+Separate portable citation-key/item associations from local attachment paths
+and reconcile legacy keys without changing manuscripts, then validate those
+identities on another configured device. P1a provides the reviewed project
+add/refresh commands and checks duplicate keys and missing declarations.
 
-Acceptance check: copy a manuscript project to a different path, render it
-with Zotero closed, then on a second configured device open the same literature
-note and Zotero item, resolve the local PDF, and re-import without changing
-any citation key or creating a duplicate note. This has not yet been tested.
+P1a's copied manuscript renders as HTML/PDF from a different working directory
+with Zotero unavailable and without global Citar sources. The remaining
+acceptance is to open the same literature note and Zotero item, resolve the
+local PDF, and re-import without changing any citation key or creating a
+duplicate note on a second configured device. That identity/attachment
+acceptance has not yet been run.

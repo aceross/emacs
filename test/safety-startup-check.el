@@ -95,6 +95,10 @@
       (should (string-match-p "#\\+begin_src R" (buffer-string)))
       (execute-kbd-macro (kbd "C-q C-a"))
       (should (eq (char-before) 1)))
+    (execute-kbd-macro (kbd "C-c w n"))
+    (should (eq (key-binding (kbd "b")) #'awc-bibliography-prepare))
+    (should (eq (key-binding (kbd "r")) #'awc-bibliography-refresh))
+    (execute-kbd-macro (kbd "C-q"))
     (princ (format "%s: C-c g=%S; C-c p=%S; M-p=%S; C-q=%S\n"
                    mode (key-binding (kbd "C-c g")) (key-binding (kbd "C-c p"))
                    (key-binding (kbd "M-p")) (key-binding (kbd "C-q")))))))

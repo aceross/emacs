@@ -44,10 +44,10 @@ Jupyter/renv acceptance and a 15-minute active graphical run. All-day use,
 other platforms and native WebKit pixel capture retain the limits below.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
-The next citation milestone is a project-owned bibliography with stable keys,
-portable item associations and an explicit add/refresh command, verified by
-rendering from another directory and then using the workflow on a second device.
-This portability work is planned; synchronization has not been configured.
+P1a now adds [[file:project-bibliography-snapshots.org][reviewed project bibliography snapshots]], preserving keys and
+manual-only fields and rendering a copied manuscript without Zotero or global
+Citar sources. P1b retains portable item associations and device-local PDF
+resolution. Physical second-device use and synchronization remain unvalidated.
 
 * Current prioritized plan — 18 October 2026
 
@@ -68,7 +68,9 @@ the particular unrun check, not treated as a passing result.
 | P0c1 Private preferences and accessible bindings | VALIDATED locally | P0b | Native save/restart/trust failures and real mode/menu dispatch pass |
 | P0c2 Measured startup and session reliability | VALIDATED locally | P0c1 | Five native terminal launches, missing-tool recovery and three real two-project cycles |
 | P0c3 External integration and graphical acceptance | VALIDATED locally | P0c2; disposable Jupyter/renv dependencies | Full external suite and 900-second/15-cycle Wayland acceptance pass |
-| P1 Portable reference/notes workflow | PLANNED; local foundation validated | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
+| P1 Portable reference/notes workflow | IN_PROGRESS; P1a validated locally | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
+| P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
+| P1b Portable associations and device-local attachments | PLANNED | P1a | Transfer identities without device paths; resolve the same item/PDF/note in another configured environment |
 | P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
 | P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
 | P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
@@ -116,8 +118,10 @@ preparing its PR.
   use =awc-research= and the canonical vault. The older handoff's Quarto
   regex execution, global Python activation and guessed httpgd-port defects
   were already repaired. Do not reimplement those features.
-- *Not implemented:* portable association records, deliberate project-bib
-  add/refresh, full-vault navigation, writing QA, submission manifests,
+- *P1a now implemented and validated locally:* deliberate reviewed project-bib
+  add/refresh and copied-project rendering without Zotero/global references.
+- *Not implemented:* portable association records, full-vault navigation,
+  writing QA, submission manifests,
   evidence decisions, review import and bounded assistant sessions.
 - *Candidates without demonstrated value:* embeddings, broad note migration,
   debugger frameworks, editor/LSP replacement, file trees and decorative UI.
@@ -209,7 +213,8 @@ preparing its PR.
 
 - Objective/justification: stable identity and project-owned references make
   manuscripts reproducible on another machine. Local single-item work exists;
-  portability and reviewed refresh remain PLANNED.
+  P1a's reviewed project snapshots are validated locally; P1b's portable
+  associations and device-local attachment resolution remain PLANNED.
 - Modules/dependencies/architecture: =awc-research=, Citar, existing Quarto
   bibliography model and =init-workflow=, after P0. Separate portable library,
   item, attachment and citation identities from device PDF paths; keep one
@@ -219,12 +224,14 @@ preparing its PR.
   duplicate keys, missing PDFs and stale metadata; choose one generated-file
   owner. Evaluate obsidian.el against existing completion before adoption.
 - Risks/alternatives: no silent key migration, library writes or duplicated
-  notes. Retain manual reviewed project snapshots until the refresh contract
-  is validated. Full Org migration is DEFERRED.
+  notes. Use reviewed project snapshots and keep generated exports separately
+  owned. Full Org migration is DEFERRED.
 - Acceptance/results: copied manuscript renders with Zotero closed; a second
   configured environment finds the same item/note without key change. Cover
   group libraries, multiple attachments, Unicode, missing files, duplicate
-  titles, conflicting metadata and unavailable apps. Portable acceptance NOT RUN.
+  titles, conflicting metadata and unavailable apps. Copied-project HTML/PDF
+  acceptance PASSED in P1a. Association/PDF transfer and physical
+  second-device acceptance remain NOT RUN.
 - Rollback: revert adapter changes; preserve notes, portable identities and
   original bibliographies; never attempt to reverse library identity casually.
 
@@ -742,6 +749,67 @@ changed dependency or evidenced workflow need, recording the reason.
   =flycheck.txt= and =result.json=. Fast safety: 27/27 passed. Original
   user edits remain unchanged. Rollback: remove only the Flycheck
   =flycheck-global-modes= setting, then restart Emacs.
+
+* P1a reviewed project bibliography checkpoint — 19 October 2026
+
+- Baseline: =4db424b=, after P0c3 and the scratch-warning follow-up.
+  Branch: =codex/p1a-reviewed-project-bibliographies=. This stacks on the
+  existing P0c3 branch; original =early-init.el= and
+  =doc/research-workflows.org= edits remain outside the change set.
+- Implementation: =659fdea=. [[https://github.com/aceross/emacs/pull/6][Draft PR #6]] targets
+  =codex/p0c3-external-and-graphical-validation= while PR #5 remains open.
+  Hosted CI uses the existing lightweight safety/snapshot workflow; the
+  installed-package, render and graphical evidence below is local acceptance.
+- Plan/rationale/QA first: deliver a usable project-owned snapshot path
+  before transferring global identities. Reuse Citar, the read-only Zotero
+  adapter and Quarto's effective bibliography model. Prepare a diff, then
+  require an explicit apply action; never write on file open or commit a
+  manuscript automatically. All acceptance uses disposable projects/vaults
+  and fixture Zotero responses, with existing tools/packages read-only.
+- Implementation: =awc-bibliography.el= owns preparation/review/application;
+  =C-c w n b= copies the selected local snapshot, =C-c w n r= reads the
+  explicitly associated Zotero item. =C-c C-c= applies the review, =q= leaves
+  it unapplied. Preserve project keys and manual-only fields, omit local
+  attachment fields, collect crossref/xdata dependencies and reject missing
+  or cyclic support records. Refuse ambiguous keys, conflicting identities,
+  undeclared/generated/symlink targets, unsaved edits and stale inputs.
+  Atomic replacement retains an owner-only preimage and target permissions
+  and newline convention. Unrelated entries/comments remain intact.
+- Confirmed graphical defect: the pinned Transient's static feature test
+  can leave its GUI text-conversion function reading an unbound
+  =overriding-text-conversion-style=. The actual private Wayland menu failed
+  before the fix (=/tmp/awc-p1a-gui-qsx3c2sv/progress.txt= and
+  =gui-result.txt=). A runtime availability guard in =init-workflow.el=
+  preserves the supported branch and skips only the unavailable setting.
+  No vendor source/pin, selected executable or running user server changed.
+  Test cleanup also now dispatches Transient's real quit command so its
+  post-command cleanup completes between configured mode checks.
+- Baseline core acceptance PASSED at =/tmp/quarto-checks-oz9nejh9/logs/=.
+  Final core PASSED at =/tmp/quarto-checks-nljloo_6/logs/=: 142/142 ERT cases
+  (14 new snapshot cases), configured startup/menu dispatch in five modes,
+  private preference restart/corruption checks, ESS/prose startup, YAML and
+  research assistance, existing literature workflow and both new Quarto
+  integration cases. The latter copies a project with inherited bibliography
+  metadata and a nested source, clears global Citar sources and renders
+  HTML/PDF from an unrelated directory with Zotero unavailable. The key and
+  corrected metadata render; global bibliography, association and note
+  contents are preserved. Fast safety separately passes 27/27
+  (=/tmp/awc-p1a-safety.log=).
+- Graphical acceptance PASSED with the saved repeatable runner:
+  =python3 test/run-bibliography-gui-check.py=; evidence
+  =/tmp/awc-bibliography-gui-eebkq6z2/=. Normal installed Emacs 31.1 PGTK,
+  private configuration/state, actual research menu, readable native diff
+  and keyboard application pass. The frame PNG was visually inspected.
+  Startup records zero Lisp warnings; fixture helper/socket cleanup passes.
+  The runner reuses the existing startup and exact-tag cleanup helpers.
+- Limits/rollback: P1 is still IN_PROGRESS. P1b retains portable associations,
+  local PDF resolution and second-device identity/note acceptance. No sync
+  service or live Zotero write is configured. Targets must be existing local
+  BibTeX snapshots; unmarked automatic exporters cannot be inferred. Expand
+  source string macros before copying; CSL JSON/YAML targets are deferred.
+  Revert this focused configuration checkpoint and restart, preserving all
+  notes, associations, snapshots and retained preimages. See
+  [[file:project-bibliography-snapshots.org][the usage, ownership and QA guide]].
 
 * Planning baseline (earlier assessment, reconciled)
 
