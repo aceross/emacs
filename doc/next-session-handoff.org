@@ -1,123 +1,135 @@
-#+TITLE: Next-session handoff: P3 manuscript lifecycle/submission
+#+TITLE: Next-session handoff: P4 evidence and source-to-claim verification
 #+DATE: 2026-10-19
 
-P2 academic writing QA is now validated locally on its bounded synthetic
-corpus. The roadmap and specialized guides are durable evidence; temporary
-QA directories can expire. This handoff proposes the next milestone and
-does not authorize starting it during the P2 session.
+P3 implements a bounded manuscript lifecycle/checkpoint workflow. The roadmap
+and focused guides are durable evidence; disposable directories can expire.
+This handoff proposes P4 and does not start it during the P3 session.
 
 * Prompt
 
 Continue in =/home/awc/.emacs.d=, repository =aceross/emacs=. Read
-=README.org=, =doc/development-roadmap.org= and the specialized guides before
-editing. Outline the approach, rationale and QA first, then implement the
-next bounded milestone, P3 manuscript lifecycle/submission, using disposable
-synthetic projects. Preserve the working configuration and existing package
-snapshot. Do not start P4 evidence search, reviewer workflows or LLM sessions.
+=README.org=, =doc/development-roadmap.org= and the specialized guides first.
+Outline the approach, rationale and QA before implementing the next bounded
+milestone, P4 evidence search and source-to-claim verification. Use disposable
+synthetic projects and preserve the existing editor/package environment.
 
-** Establish current Git state
+** Establish the actual baseline
 
-Verify HEAD, branch, status, upstream and recent history first. Git remote
-is =emacs= and default branch is =master=. PRs #1–#8 were merged before P2;
-the P2 starting baseline was =211e1ac180d76e71211cd2710be2fd4850de7560=.
-The local P2 checkpoint is on =codex/p2-academic-writing-qa=. Inspect its
-actual commit/merge state instead of assuming that it has been pushed or
-merged. Start a focused =codex/p3-...= branch from the current integrated
-baseline, or explicitly retain the P2 dependency if it is still unmerged.
-Preserve genuinely new user edits. The earlier request to merge P0/P1 does
-not authorize merging P2/P3 automatically.
+Verify HEAD, branch, status, upstream and recent history. Remote is =emacs=;
+default branch is =master=. PRs #1–#8 were merged before P2. P2 is local
+commit =2b6f48abfe3fbe8f0551c314396ff7099b88d2da= on
+=codex/p2-academic-writing-qa=. P3's focused checkpoint is on
+=codex/p3-manuscript-checkpoints=, retaining the P2 dependency. Inspect its
+actual commit/push/merge state; neither a local branch nor this handoff implies
+it was published or merged. Preserve new user edits and start a focused
+=codex/p4-...= branch from the appropriate current dependency baseline.
 
-** Preserve completed work
+** Preserve completed behavior
 
-P0 safe execution/recovery, package reproducibility, private preferences,
-startup/lifecycle checks and bounded external/graphical acceptance are
-complete. P1a reviewed project bibliographies and P1b portable identity with
-separate device-local PDFs are validated in two profiles on this host.
-Physical second-device/synchronization deployment remains unvalidated.
-Do not reopen those implementations merely because deployment is pending.
+P0 safe execution/recovery, reproducible packages, private preferences and
+bounded startup/session/external/graphical checks remain in place. P1a/b
+bibliography snapshots, identity transfer and device-local PDFs are validated
+in two local profiles; actual second-device/synchronization deployment remains
+unrun. Do not reopen completed implementations merely for that deployment gap.
 
-P2 adds =site-elisp/awc-writing.el= and explicit writing actions under
-=C-c w W c/l/v/k= (check/report/project-config/cancel). Vale checks the entire
-unsaved source, with native compilation navigation and stale-source guards.
-No file-open hooks start Vale, and optional LTeX still needs explicit opt-in.
-See =doc/academic-writing-qa.org= and =etc/writing/= for project-owned example
-rules, UK dictionaries, exclusions, exceptions, installation and rollback.
+P2's explicit =C-c w W c= Vale adapter uses project rules/dictionaries and
+native compilation navigation. Its corpus has 28 useful findings, zero false
+positives and three known acronym-order misses. An empty report never proves
+that rules were enabled. Vale was installed only in a disposable directory;
+check current availability before reusing it. See =doc/academic-writing-qa.org=.
 
-P2 results: 13/13 focused ERT; 175/175 core ERT plus every core startup and
-integration stage; 27/27 safety; all 134 source pins clean; private normal
-Wayland menu/navigation/highlight checks pass with zero Lisp warnings and
-no surviving helpers/socket. The 3-file / 126-line / 2,327-source-word corpus
-has 28 useful findings, zero false positives and 3 measured acronym-order
-misses. A controlled 14,505-word manuscript reports its planted placeholder
-in 0.185 seconds on the warm host. These are not live editorial accuracy or
-all-day stability claims.
+P3 adds =tools/paper/awc-paper.py= (the canonical standard-library/POSIX CLI),
+=site-elisp/awc-paper.el= and =C-c w M s/c/m/f/k=. A project deliberately owns
+=.awc-paper.json=; native Quarto config/scripts still own building and runtime
+selection. Status hashes declared files without executing project code;
+checks show argv/contracts and need explicit confirmation. Unsaved buffers
+block mutating actions. Source/config/rules/script/Git/executable changes,
+output or log tampering and edits during checks invalidate results.
 
-Vale 3.24.0 was installed only in =/tmp/awc-p2-evaluation/= for acceptance.
-Neither a permanent executable nor project dictionaries/rules are silently
-installed. A later session may need a fresh disposable dependency setup.
-The adapter accepts local Markdown, Quarto and Org one-line diagnostic
-spans. It does not establish LaTeX or general multiline-rule support. An
-empty report explicitly says rules may be absent/disabled; it is not a pass.
-Do not use a zero-finding report as proof of manuscript validation coverage.
+Manual reviews carry a reviewer, concrete note and input/output context hash.
+Explicit freeze creates a new immutable manifest including failed/unrun states.
+READY means declared checks/reviews are satisfied, not scholarly correctness
+or exhaustive dependency coverage. It never saves source, commits, pushes,
+publishes or installs dependencies automatically. See
+=doc/manuscript-checkpoints.org=, =etc/paper/.awc-paper.json= and the P3 roadmap
+checkpoint for exact acceptance evidence, limitations and rollback.
 
-** P3 scope and rationale
+The P3 fixture builds a manuscript and supplement, renders HTML/PDF and
+citations, and counts 20 source-prose words using a defined Pandoc AST rule.
+CLI/Emacs records agree. Private normal Wayland acceptance covers native
+confirmation/review prompts, the exact saved label/note, stale display,
+checkpoint opening, cancellation and helper/socket cleanup. The roadmap
+records the final core/safety/package counts and any transient failures.
 
-Deliver a reviewable manuscript status/manifest tied to the actual source
-revision and the validation commands used. Reuse existing Quarto project,
-bibliography, rendering and diagnostic functions before introducing a
-bounded =awc-paper.el= adapter. Prefer native project settings/scripts to a
-new large manifest format. Commands should also run outside Emacs.
+** P4 scope and rationale
 
-Start with a synthetic manuscript and supplement. Establish which files,
-source revision/content hashes, project rules, tool versions and commands
-constitute the checked snapshot. Changing a source, bibliography or rule
-must visibly invalidate the corresponding result. A successful process exit
-alone must not imply all checks were configured or all outputs are current.
-Distinguish built, passed, failed, skipped, unavailable and stale states.
+Start with a small synthetic source-to-claim fixture. Select a manuscript
+claim and exact supporting/opposing source passages; preserve source identity,
+content revision/hash, locator and a human decision. Distinguish support,
+contradiction, insufficient evidence and unchecked claims. A citation's
+presence or a successful render must never imply evidential support.
 
-Make any submission/journal requirements explicit, source-linked and dated.
-Do not invent general scholarly validity from writing lint or bibliography
-presence. Avoid automatic commits, pushes, publication, library changes or
-research uploads. Keep execution/trust prompts and reviewed project ownership.
-The UI should make concrete results and remaining work understandable.
+Reuse P1 reference/note identity and P3 input/checkpoint invalidation before
+adding a bounded =awc-evidence.el= adapter. Evaluate established extraction
+and local lexical search tools before embeddings. Keep the selected project
+and sources explicit. A source edit or replacement must visibly invalidate
+its extracts and associated decisions. Keep page indexes distinct from
+printed page labels and record extraction failures/limitations.
 
-** QA and operating constraints
+Support inspection of the exact passage in its original source, with a
+small reviewable evidence record usable outside Emacs. Measure source-link
+resolution, locator correctness, unsupported/misleading associations and
+source-change invalidation. Use synthetic PDFs/text/notes with known answers;
+include missing files, duplicate-looking titles and extraction failures.
+A missing source/tool must remain an unresolved state, never a verified claim.
 
-All fixtures, dictionaries, new dependency installations and GUI state go
-under =/tmp/=. Use synthetic texts, references, notes, PDFs and analysis data.
-Never install into live research Python/R environments to satisfy tests.
-Verify any new external dependency against current official documentation.
+Do not start reviewer workflows, broad vault migration, embeddings, library-wide
+indexing or LLM research sessions. External/hosted processing or research uploads
+need their own explicit authorization. No automatic commit, push or publication
+belongs in manuscript/evidence commands.
+
+** Operating constraints and QA
+
+Use only synthetic fixtures and disposable state/dependency installations
+under =/tmp/=. Do not modify live Python/R environments, personal libraries,
+vaults or research sources to satisfy tests. Verify new external capabilities
+against current official documentation; use relevant installed skills when
+actually handling PDFs, Zotero or other supported artifacts.
 
 Use =/home/awc/.local/bin/emacs-xwidgets= (Emacs 31.1 PGTK) and matching
 =/home/awc/.local/opt/emacs-31.1-xwidgets/bin/emacsclient=. Do not rebuild,
-switch launchers, reload or kill the user's ordinary session. A GUI check
-needs a private configuration/state/server and exact helper cleanup. Retain
-first-line lexical-binding declarations. Native frame export must write PNG
-with =coding-system-for-write= bound to =no-conversion=; SVG conversion was
-not usable during P2. Validate and inspect generated image data before
-claiming visual acceptance.
+switch launchers, reload or kill the ordinary running session. GUI acceptance
+needs a new private configuration/state/server and exact helper cleanup.
+Preserve first-line lexical-binding directives. Export native PNG with
+=coding-system-for-write= set to =no-conversion=, validate and inspect it.
 
-Useful baseline commands:
+The current configuration aliases =yes-or-no-p= to single-key =y-or-n-p=.
+Graphical test input must respect that; sending "yes" can leak "es" into the
+next prompt. Use queued keyboard events rather than recursive keyboard macros
+inside a minibuffer timer, and assert saved labels/notes. Clear stale fixture
+PID markers before repeating cancellation tests.
+
+Useful regression commands:
 
 #+begin_src sh
 python3 test/run-quarto-checks.py --suite core --keep
 emacs-xwidgets -Q --batch -l test/run-safety-tests.el
 emacs-xwidgets -Q --batch -L site-elisp -l awc-packages --eval '(let ((user-emacs-directory default-directory)) (awc-packages-audit))'
-python3 test/run-writing-checks.py --vale /path/to/vale --gui --keep
+PYTHONDONTWRITEBYTECODE=1 python3 test/test_paper_runner.py
+python3 test/run-paper-checks.py --gui --keep
 #+end_src
 
-The core runner uses a disposable loopback API server. A sandbox-blocked
-socket needs the environment's escalation mechanism, not weakened tests.
-Run affected/focused checks and appropriate regressions; broaden only for a
-new failure or unresolved concern. Record passed, failed, not run and deferred
-checks separately. Hosted CI covers the lightweight safety/preferences/source
-snapshot, not all installed-package/external/graphical workflows.
+The core runner's disposable loopback server may need sandbox escalation;
+do not weaken the tests. Run focused/affected checks and appropriate regressions,
+then broaden only for a new failure or unresolved concern. Record passed,
+failed, not run and deferred checks separately. Full Jupyter/renv, long-session,
+other-platform and physical second-device acceptance retain their separate
+scope; do not relabel earlier evidence as rerun.
 
 ** Required checkpoint
 
-Update the roadmap with P3's chosen architecture, ownership/invalidation model,
-exact acceptance evidence, limitations, rollback and next bounded task.
-Add a focused usage/QA guide. Report user-visible behavior, tests/results,
-remaining risks and actual branch/commit state. Do not merge or publish the
-configuration milestone without the corresponding user request. Manuscript
-workflows must never commit, push or publish research automatically.
+Update the roadmap with P4's chosen identity/extraction/locator model, measured
+acceptance, failure states, limits, rollback and next bounded task. Add a focused
+usage/QA guide and report actual branch/commit state. Keep the work reviewable
+and do not merge or publish the configuration milestone without a corresponding
+user request.

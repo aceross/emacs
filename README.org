@@ -57,6 +57,7 @@ cleanup and missing-Quarto inspection buffers. See
 | =C-c w n= | Zotero reference, local PDF, literature note and citation |
 | =C-c w W= | Writing checks and contextual Org templates |
 | =C-c w W c= | Explicit project prose QA (Vale; Markdown, Quarto, Org) |
+| =C-c w M= | Manuscript checks, manual review and frozen checkpoints |
 | =C-c w a= | Existing gptel assistant |
 | =C-c q= | Quarto editing, execution, readiness, rendering and recovery |
 | =C-x p= | Built-in project operations |
@@ -69,6 +70,8 @@ cleanup and missing-Quarto inspection buffers. See
 and [[file:doc/portable-associations-and-pdfs.org][portable associations and device-local PDFs]].
 [[file:doc/academic-writing-qa.org][Academic writing QA]] adds project rules, UK dictionaries and located reports;
 Vale and a project rule set must be installed/adopted explicitly.
+[[file:doc/manuscript-checkpoints.org][Manuscript checkpoints]] add a project-owned execution plan and content-bound
+validation records, usable through the same standalone runner outside Emacs.
 Opening a source must not install project dependencies. Interpreter overrides
 from new directory-local settings require review. Org Babel execution prompts,
 including during export; no project or language is automatically trusted.

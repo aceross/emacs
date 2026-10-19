@@ -1,0 +1,210 @@
+#+TITLE: Manuscript checks and reviewed checkpoints
+#+DATE: 2026-10-19
+
+* Workflow
+
+=C-c w M= opens the manuscript menu. A manuscript project deliberately adopts
+a =.awc-paper.json= beside its existing =_quarto.yml= and scripts. Opening a
+source or menu does not execute its build or validation code.
+
+| Key | Action |
+|-----+--------|
+| =C-c w M s= | Hash disk inputs and show current status |
+| =C-c w M c= | Display the execution plan, then confirm running it |
+| =C-c w M m= | Record an attributed manual verification and concrete note |
+| =C-c w M f= | Review and freeze a labelled JSON checkpoint |
+| =C-c w M k= | Cancel this project's running action |
+
+The report uses =g/c/m/f/k= for the same actions. =TAB= / =S-TAB= traverse
+buttons; =RET= opens a source, output, log or last frozen manifest. Logs open
+in a native compilation view, where =M-g n/p= and =RET= navigate diagnostics
+emitted by project tools. A view header makes even the log's first diagnostic
+reachable; the original log file is not changed.
+
+Save or discard modified project buffers explicitly before checking, verifying
+or freezing. Status remains available and labels disk results STALE when
+project buffers have unsaved edits. No action silently saves manuscript text.
+Execution and freeze confirmations display the concrete current report first;
+an exact review token rejects changes between that review and the action.
+
+READY means all declared automatic contracts passed and applicable manual
+requirements are satisfied for the recorded files. It does not establish
+scholarly validity, exhaustive dependency coverage or a journal's acceptance.
+Failed, skipped, unavailable, not-run, not-applicable, manually-verified,
+cancelled and stale states remain explicit. Zero configured checks is incomplete.
+
+* Project ownership and configuration
+
+[[file:../tools/paper/awc-paper.py][The standalone Python runner]] is the source of truth; [[file:../site-elisp/awc-paper.el][the Emacs adapter]] only
+renders its JSON and requests explicit actions. The runner uses Python 3.11+
+standard-library facilities and POSIX process groups/file locks. Acceptance is
+on Linux with Python 3.14.4 and the existing Emacs 31.1 PGTK build. No package,
+interpreter environment or permanent external dependency is installed by P3.
+
+Review [[file:../etc/paper/.awc-paper.json][the example configuration]] before adapting it. It names a paper, supplement,
+bibliography, native Quarto configuration, dated requirements and a project-owned
+=scripts/check_outputs.py=. Supply that script for your actual outputs, or
+deliberately remove/adapt its check and input pattern. The example alone does
+not create a project, install scripts or select a journal.
+
+The small version-1 configuration has five responsibilities:
+
+- =inputs=: explicit project-relative files/globs covering manuscript sources,
+  supplements, bibliography/CSL, Quarto profiles/includes, figures/data, prose
+  rules/dictionaries, scripts and relevant environment lockfiles. Configuration
+  itself is always included. Add dependencies actually used by your project.
+- =tools=: named argv arrays for version probes, run only during explicit checks.
+- =checks=: ordered command contracts or a defined source-prose word count.
+- =manual=: descriptions, optionally with a policy source and review date;
+  a reason can explicitly make a manual requirement not applicable.
+- =version=: currently =1=. Unknown top-level/check options fail rather than
+  silently changing policy.
+
+Paths cannot escape the project or traverse symlinked components. Input globs
+must exclude =.git/=, =.awc-paper/= and generated outputs; missing matches are
+reported. Word-count documents must also be declared inputs. This is explicit
+coverage, not a parser that discovers every dependency of arbitrary scripts.
+
+Native [[https://quarto.org/docs/reference/projects/options.html][Quarto project options]] continue to own render targets, output directories,
+profiles, resources and pre/post-render scripts. Use the same argv you would
+run outside Emacs. Configure =outputs= to match that native project's paths.
+Per-check =env= values can select the existing project interpreter; the runner
+inherits the launching environment and records only explicit configuration,
+not a dump of credentials or the entire environment. Project code, Quarto
+filters and pre/post-render hooks retain their normal effects when you choose
+to execute them. The adapter adds no commit, push or publication operation.
+
+* Check contracts and word count
+
+Each command declares one success contract:
+
+- =exit-code=: the explicitly named project validator must exit zero. Its
+  author owns what it verifies. A zero exit is not a claim about undeclared
+  checks, active Vale rules, scholarly accuracy or existing output freshness.
+- =fresh-outputs=: additionally require every declared output to be a nonempty
+  file newly created or updated during that invocation. Previously existing,
+  unchanged files cannot make a no-op build pass. Content hashes are retained;
+  timestamps are used only to establish fresh production, not source identity.
+
+=reject= contains project-owned regular expressions for diagnostics that must
+fail even when a tool exits zero. The example rejects unresolved citation
+warnings and uses a separate rendered-output validator. This is intentionally
+project-specific: absence of a warning alone does not establish bibliography
+or evidential correctness. Declare skip reasons explicitly; skipped automatic
+checks keep the overall report incomplete. Missing executables and timeouts
+are not passes. Declared version probes must also succeed and report a version.
+
+The =word-count= type invokes the configured Pandoc argv with
+=--from=markdown --to=json SOURCE= for each declared file. It reads the source
+AST through [[https://pandoc.org/MANUAL.html#general-options][Pandoc's JSON writer]] without executing document code or filters. It counts Unicode words
+(numbers included; internal apostrophes/hyphens retained) in body text,
+headings, footnotes and link labels. Metadata, code, maths, citations, raw
+markup, image alt text and link targets are excluded. It does not expand
+Quarto includes/shortcodes or establish a publisher's counting convention.
+Use a project validator when a different convention is required. The full
+expanded command list and per-source/total counts are recorded; the log holds
+the final source's Pandoc JSON.
+
+An optional positive =limit= must have =policy.source= and =policy.date=.
+There is no fabricated default word limit or journal rule. A manual policy's
+source/date is a recorded user declaration, not a fetched or authenticated
+publisher requirement.
+
+* Provenance, stale results and immutable checkpoints
+
+The snapshot records SHA-256 hashes for every matched input, the runner and
+resolved command/version-probe executables, plus Git HEAD and the declared
+inputs' dirty/untracked status. Unversioned projects remain explicitly
+unversioned and are identified by their content hashes. It never creates a
+commit to manufacture a revision.
+
+Status rehashes inputs and checked outputs. Source, bibliography, rule, script,
+configuration, executable, Git revision and input-glob changes invalidate the
+prior check. Output or log tampering also makes its result stale. Before each
+check and after the run, input identity is checked again; edits during a run
+cannot yield a current successful result. Unsaved Emacs edits are handled by
+the adapter because the CLI cannot inspect other programs' memory.
+
+Executable hashes cover the command launchers, not all transitive libraries,
+fonts or services. Include project lockfiles and relevant assets; preserve
+environments separately. Status does not execute version probes, so it cannot
+detect every underlying toolchain change behind an unchanged launcher. Use
+another explicit check after changing such dependencies.
+
+Manual verification stores reviewer text, a concrete note, time and a context
+hash of the inputs plus current output hashes. Rebuilt PDF bytes or other
+artifact changes require renewed review. These are attributed local records,
+not authenticated identities or signed attestations.
+
+Runtime records and logs live in =.awc-paper/latest.json=,
+=.awc-paper/manual.json= and =.awc-paper/runs/=. Every explicit freeze creates
+a new =.awc-paper/checkpoints/UUID.json= containing the reviewed snapshot,
+checks, commands, tool versions, output hashes, manual records and unresolved
+states. A failed/incomplete checkpoint is useful evidence and remains labelled
+incomplete. Existing checkpoints are never overwritten. Freeze itself runs
+no project validation code and does not copy, submit or publish artifacts.
+
+Writes use a flushed temporary file and atomic replacement. Failed replacement
+preserves the prior record. One project action holds a native file lock;
+another project can run independently. Cancellation/timeout ends only the
+owned command process group, including surviving helpers. Closing a report
+requests cancellation; closing a source does not cancel a project-wide check.
+An abandoned running record becomes cancelled when no matching owner remains.
+
+Review which logs/checkpoints to retain or version yourself. P3 does not edit
+your =.gitignore=, commit project records or migrate prior manuscripts. Paths
+to project inputs/outputs/logs are relative; executable provenance remains
+device-specific. A moved-project check on the same host is not second-device
+or cross-platform acceptance.
+
+* Same commands outside Emacs
+
+From the manuscript project:
+
+#+begin_src sh
+python3 /home/awc/.emacs.d/tools/paper/awc-paper.py status
+python3 /home/awc/.emacs.d/tools/paper/awc-paper.py check --execute
+python3 /home/awc/.emacs.d/tools/paper/awc-paper.py verify submission-policy --reviewer "Reviewer name" --note "Concrete reviewed items"
+python3 /home/awc/.emacs.d/tools/paper/awc-paper.py freeze --label "Reviewed revision"
+#+end_src
+
+Use =--config PATH= before the action for another configuration. Optional
+=--expect REVIEW_TOKEN=, also before the action, binds execution/review/freeze
+to a preceding status response; Emacs supplies it automatically. CLI output is
+JSON. Exit =0= means the requested operation completed (for =check=, all
+declared requirements are ready), =1= means a completed check is incomplete,
+and =2= means an action/configuration error. A successful status or freeze
+operation can describe an incomplete manuscript; inspect its states.
+
+* Reproduce acceptance and roll back
+
+#+begin_src sh
+PYTHONDONTWRITEBYTECODE=1 python3 test/test_paper_runner.py
+emacs-xwidgets -Q --batch -L site-elisp -L test -l awc-paper-test -f ert-run-tests-batch-and-exit
+python3 test/run-paper-checks.py --gui --keep
+python3 test/run-quarto-checks.py --suite core --keep
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+The acceptance runner creates only synthetic projects/state under
+=/tmp/emacs-paper-qa-*=. It uses installed Quarto 1.4.530, its Pandoc 3.1.11
+and the installed TeX toolchain for actual HTML/PDF builds. It exercises a
+paper, supplement, bibliography, project script and synthetic dated policy;
+the defined count is 20 words. It checks a real unresolved citation, stale
+inputs/reviews, CLI/Emacs parity, review/freeze and native diagnostic navigation.
+The optional normal Wayland session uses a private configuration, preferences,
+vault/database and actual server; keyboard events answer real minibuffer
+prompts, and native PNG captures are validated before visual inspection.
+
+Acceptance passed 24/24 runner tests, 9/9 focused Emacs tests and a final
+184/184 core ERT run plus all core integration stages. Safety passed 27/27,
+all 134 package sources remain clean, and byte compilation is warning-free.
+The final private graphical replay passed all seven expected prompt answers,
+the exact saved review/label, ready/stale display, cancellation and server/helper
+cleanup with zero Lisp warnings; native PNGs were visually inspected.
+
+Exact evidence paths, failures repaired and deferred checks
+are recorded in [[file:development-roadmap.org][the roadmap]]. Preserve project records, outputs and sources when
+rolling back the focused P3 adapter/menu/runner commit; save buffers and
+restart. No package tree, research library or live Python/R environment needs
+rollback. P4 evidence verification remains a separate milestone.

@@ -108,6 +108,12 @@
                        ("P" . awc-research-link-local-pdf)))
       (should (eq (key-binding (kbd (car binding))) (cdr binding))))
     (execute-kbd-macro (kbd "C-q"))
+    (execute-kbd-macro (kbd "C-c w M"))
+    (should (eq (key-binding (kbd "s")) #'awc-paper-status))
+    (should (eq (key-binding (kbd "c")) #'awc-paper-check))
+    (should (eq (key-binding (kbd "m")) #'awc-paper-verify))
+    (should (eq (key-binding (kbd "f")) #'awc-paper-freeze))
+    (execute-kbd-macro (kbd "C-q"))
     (princ (format "%s: C-c g=%S; C-c p=%S; M-p=%S; C-q=%S\n"
                    mode (key-binding (kbd "C-c g")) (key-binding (kbd "C-c p"))
                    (key-binding (kbd "M-p")) (key-binding (kbd "C-q")))))))

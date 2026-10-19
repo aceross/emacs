@@ -54,6 +54,10 @@ P2 now adds [[file:academic-writing-qa.org][explicit project academic writing QA
 compilation navigation. The synthetic corpus, configured modes and private
 graphical acceptance pass with the three acronym-order misses recorded below.
 
+P3 now adds [[file:manuscript-checkpoints.org][project-owned manuscript checks and reviewed checkpoints]] through
+one standalone runner and a thin Emacs report. Its bounded acceptance and
+remaining coverage limits are recorded in the P3 checkpoint below.
+
 * Current prioritized plan — 19 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
@@ -77,7 +81,7 @@ the particular unrun check, not treated as a passing result.
 | P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
 | P1b Portable associations and device-local attachments | VALIDATED locally in two profiles | P1a | Path-free transfer, same key/renamed note, different local PDFs and offline render pass; physical second device unrun |
 | P2 Academic writing QA | VALIDATED locally, bounded corpus | P0, explicit Vale/project rules | 28 useful findings, zero false positives, 3 known acronym misses; exact source ranges and private GUI pass |
-| P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
+| P3 Manuscript lifecycle/submission | VALIDATED locally, bounded fixture | P1, P2, existing Quarto checks | Real HTML/PDF/citations, same CLI/Emacs records, stale invalidation and reviewed immutable manifests pass |
 | P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
 | P5 Reviewer/collaborator feedback | PLANNED | P3, P4 source/revision identity | Import, track, resolve and export a representative review without information loss |
 | P6 Bounded LLM assistance | PLANNED | P1, P4, explicit material/backend authorization | Selected-source comparison, separate critique and reviewed diff; fixed evaluation set |
@@ -272,20 +276,27 @@ preparing its PR.
 ** P3 — manuscript lifecycle and submission
 
 - Objective/justification: bring build, repository and submission status into
-  one inspectable project view; reduce repeated manual coordination. PLANNED.
-- Modules/dependencies/architecture: bounded =awc-paper.el= after P1/P2; reuse
-  Quarto checks and project scripts that run outside Emacs. Prefer existing
-  project configuration to a new complex manifest format.
-- Tasks: manuscript/supplement, Git revision, commands/builds, word count,
-  configured journal policy with source/date, citation/output issues and
-  outstanding review. Explicit freeze records outputs, hashes, tools, commit
-  and skipped/failed checks; no automatic commit, push or publication.
-- Risks/alternatives: do not fabricate journal rules or conflate tests with
-  scholarly/editorial correctness. Changed sources invalidate old results.
-- Acceptance/results: one small project builds, validates and emits a reviewed
-  manifest through Emacs and external scripts. States: passed, failed, not run,
-  not applicable, manually verified. Revision invalidation tested. NOT RUN.
-- Rollback: remove view/commands; preserve source, outputs and prior manifests.
+  one inspectable project view; reduce repeated manual coordination.
+  VALIDATED locally on the bounded synthetic manuscript fixture.
+- Modules/dependencies/architecture: =tools/paper/awc-paper.py= is the canonical
+  standard-library/POSIX runner; =awc-paper.el= renders its JSON under
+  =C-c w M=. A small project-owned =.awc-paper.json= names input coverage,
+  argv/success contracts, tool probes and manual requirements. Native Quarto
+  configuration and project scripts retain build/environment ownership.
+- Behavior: content/Git/executable-bound checks, output/log hashes, a defined
+  source-prose count and attributed manual reviews. Explicit freeze creates
+  a new immutable manifest including failures and unresolved work. Unsaved
+  buffers and review-token changes are refused before mutating actions.
+- Limits: declared dependencies/contracts only, not exhaustive environment or
+  scholarly verification. Journal rules must be explicitly sourced/dated;
+  manual reviewer identity is recorded, not authenticated. No automatic
+  source saves, commit, push, publication or dependency installation.
+- Acceptance/results: real manuscript/supplement HTML/PDF and citation checks,
+  CLI/Emacs parity, revision invalidation and manual/frozen records are
+  exercised by the disposable acceptance runner. See checkpoint and
+  [[file:manuscript-checkpoints.org][the usage, contracts, provenance and QA guide]].
+- Rollback: revert the focused view/menu/runner checkpoint, preserving project
+  source, outputs, configuration, logs and prior manifests; restart Emacs.
 
 ** P4 — evidence search and source-to-claim verification
 
@@ -1026,6 +1037,124 @@ P3/P4/LLM expansion remains outside the next milestone.
   also run outside Emacs. P3/P4/LLM implementation is not started here; future
   manuscript commands must never commit, push or publish research automatically.
   The earlier merge request does not authorize merging P2.
+
+* P3 manuscript lifecycle/checkpoint validation — 19 October 2026
+
+- Baseline/scope: clean P2 =2b6f48abfe3fbe8f0551c314396ff7099b88d2da=;
+  focused branch =codex/p3-manuscript-checkpoints= retains that unmerged local
+  dependency. The user approved the outlined P3 implementation and QA.
+  P4, feedback/LLM workflows, live research and package upgrades remain outside
+  this checkpoint. P2/P3 have not been pushed or merged by this work.
+- Approach/rationale/QA first: one portable project-owned runner, rather than
+  separate CLI/Emacs policy implementations; native Quarto configuration and
+  scripts retain build ownership. Record exactly which inputs, commands,
+  tools, outputs and manual decisions were checked. Exercise real builds,
+  invalidation, missing/failing tools, cancellation, atomic writes, keyboard
+  navigation and a private normal GUI with synthetic disposable state.
+- Architecture: =tools/paper/awc-paper.py= is a Python-standard-library/POSIX
+  runner with =status/check/verify/freeze= JSON actions. The small version-1
+  =.awc-paper.json= names input globs, command contracts, version probes and
+  manual requirements; =etc/paper/= is an example to adapt deliberately.
+  =awc-paper.el= displays the same records under =C-c w M s/c/m/f/k=.
+  Status executes no project code. Check requires =--execute= or a displayed
+  Emacs confirmation; Emacs also binds the reviewed token to the action.
+- Provenance/ownership: SHA-256 inputs/config/runner/resolved executables,
+  Git HEAD plus dirty/untracked declared inputs, complete command argv
+  (including expanded per-source Pandoc commands), explicit env configuration,
+  tool versions, output/log hashes and check states. Source/config/bibliography/
+  rules/script/Git/executable/glob changes invalidate prior results; output or
+  log tampering does too. Edits during checks cannot yield current results.
+  Unsaved project buffers block mutating Emacs actions and make disk status
+  visibly stale. No source is silently saved, and no research is committed,
+  pushed, published, uploaded or migrated by the manuscript workflow.
+- Check/review semantics: =fresh-outputs= refuses missing/empty/unchanged old
+  outputs despite zero exit. Explicit =exit-code= contracts and configured
+  failure-diagnostic patterns retain project-owned validation policy. Empty,
+  skipped, unavailable, failed, cancelled, stale and not-run checks cannot
+  imply readiness. Manual verification stores attributed notes tied to input
+  and artifact content. A new immutable freeze records both success and
+  unresolved states; prior manifests survive failures and interrupted writes.
+  Project locks/process groups isolate concurrent projects and owned cleanup.
+- Dependencies: installed Emacs 31.1 PGTK, Python 3.14.4, Quarto 1.4.530,
+  bundled Pandoc 3.1.11 and pdfTeX 1.40.28 (TeX Live 2025/Debian) for the
+  actual fixture renders. No dependency installation, source-pin change,
+  interpreter switch or live Python/R library modification is made. The
+  runner needs Python 3.11+ and POSIX facilities; Linux is the tested platform.
+- Real acceptance PASSED: manuscript HTML/PDF, supplement HTML, actual
+  rendered bibliography/citation identity and separate output-validator
+  script. A real unresolved citation makes the configured warning/output
+  contracts fail even when a renderer exits successfully. The defined source
+  AST word count is 13 manuscript + 7 supplement = 20 words, excluding
+  metadata/code/maths/citations. A moved copy on this host preserves the same
+  relative artifact provenance. Rule/reference/native-config/script edits
+  invalidate both checks and manual reviews; failed and successful snapshots
+  freeze honestly. CLI and configured Emacs review tokens/results agree.
+- Focused QA PASSED: 24/24 Python runner tests (14.086s in the final focused
+  run), covering malformed configuration, no implicit execution, Git/dirty/
+  untracked inputs, missing/glob changes, path boundaries/symlinks, required
+  version failure, no-op builds, diagnostic failures, immutable checkpoints,
+  atomic replace failure, reviewed-token rejection, word-count/policy rules,
+  missing tools, timeout/cancellation with helpers, interrupted-owner records,
+  source edits during execution, same-project locking and independent projects.
+  All 9 focused Emacs ERT tests pass, including declined execution, unsaved
+  buffers, exact token forwarding, backend failure/early cancellation cleanup
+  and first-line compilation navigation without changing log bytes.
+- Configured Emacs PASSED: real =C-c w M= dispatch, CLI/status parity, refused
+  unsaved check/freeze, explicit run/attributed review/freeze, and actual
+  =TAB RET= → diagnostic log → =M-g n= source navigation. The source location
+  is checked against its known fixture line. Existing Org/writing/research
+  menu behavior remains exercised by configured safety startup.
+- GUI PASSED: fresh private normal PGTK/Wayland configuration, state, vault,
+  preferences/database and an actual dedicated server. Seven queued keyboard
+  answers traverse the native confirmation, requirement, reviewer, note and
+  label prompts. The exact =GUI reviewed checkpoint= label and review note
+  are asserted from the saved record. Ready/stale report states, checkpoint
+  opening and active-run cancellation pass. Zero Lisp warnings; native PNG
+  CRC/decompression checks and visual inspection pass; owned helpers and the
+  dedicated server socket are absent after exit. Tool-version summaries keep
+  manual requirements visible; full probe output remains in the manifest.
+- Regressions PASSED: final full core =184/184= ERT plus every configured
+  startup/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stage; standalone safety =27/27=; =134= clean pinned package sources;
+  warning-free byte compilation of =awc-paper.el= into =/tmp/=;
+  =git diff --check=. No all-day or full external/runtime rerun is implied.
+- Failures investigated/repaired: private symlinked configuration initially
+  resolved the runner beside the symlink; resolving the physical module path
+  fixes that. Backend error hash tables now use string equality. Reports gain
+  standard button keys and a compilation log header so the first diagnostic
+  is reachable. Early cancellation explains an empty response. GUI harness
+  input now respects the configuration's single-key confirmations, queues
+  events without recursive macros, asserts saved labels/notes and clears old
+  fixture PID markers. One intermediate core run refused an otherwise writable
+  P1 bibliography target; the unchanged portable stage passed in fresh
+  profiles, and the final full core run passed. This transient refusal was
+  not treated as a reason to weaken the existing bibliography safeguard.
+- Evidence: full manuscript/CLI/configured acceptance bundle
+  =/tmp/emacs-paper-qa-k0i05xqn/= (24-test log, =cli-check.json=,
+  =broken-citation.json=, =expected-status.json=, =emacs.log= and synthetic
+  project/manifests). Final corrected graphical replay:
+  =/tmp/emacs-paper-qa-k0i05xqn/gui-replay-3p7pnz2i/= with
+  =result.json=, =status.png=, =stale.png= and =startup.log=.
+  Final Python log =/tmp/awc-p3-final-unit.log=; final full core
+  =/tmp/quarto-checks-noh0zwi6/logs/=; safety/pins
+  =/tmp/awc-p3-safety.log= and =/tmp/awc-p3-packages.log=.
+  The earlier 183-case run's transient portable failure is retained under
+  =/tmp/quarto-checks-y3o44qyl/=; unchanged standalone replay passed under
+  =/tmp/awc-portable-research-fwa4mekt/=. Temporary roots may expire; the
+  committed tests/generator and this record are the durable evidence.
+- Limits / NOT RUN: live manuscripts or actual journal submission policies;
+  authenticated/signed reviewer identity; exhaustive include/script/environment
+  dependency discovery; transitive libraries/fonts/services behind unchanged
+  executable launchers; journal-specific word-count conventions; Windows/macOS;
+  full Jupyter/renv regression; all-day GUI stability; physical second-device
+  deployment. User-declared input coverage and project validators remain
+  explicit responsibilities. Source-word count does not expand Quarto
+  includes/shortcodes. No claim of evidential/scholarly verification is made.
+- Rollback/next task: revert the focused P3 adapter/menu/runner checkpoint and
+  restart, preserving project configuration, sources, outputs, logs and all
+  prior manifests. See [[file:manuscript-checkpoints.org][the usage, contracts and QA guide]]. The next bounded
+  milestone is P4 evidence/source-to-claim verification; its
+  [[file:next-session-handoff.org][new-session handoff]] outlines the scope without starting it here.
 
 * Planning baseline (earlier assessment, reconciled)
 

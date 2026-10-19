@@ -1,0 +1,111 @@
+{
+  "version": 1,
+  "inputs": [
+    "paper.qmd",
+    "supplement.qmd",
+    "references.bib",
+    "_quarto*.yml",
+    "requirements.md",
+    "scripts/*.py"
+  ],
+  "tools": {
+    "quarto": [
+      "quarto",
+      "--version"
+    ],
+    "python": [
+      "python3",
+      "--version"
+    ],
+    "pandoc": [
+      "quarto",
+      "pandoc",
+      "--version"
+    ],
+    "tex": [
+      "pdflatex",
+      "--version"
+    ]
+  },
+  "checks": [
+    {
+      "id": "html",
+      "argv": [
+        "quarto",
+        "render",
+        "paper.qmd",
+        "--to",
+        "html"
+      ],
+      "success": "fresh-outputs",
+      "outputs": [
+        "paper.html"
+      ],
+      "reject": [
+        "(?i)citation.*not found"
+      ],
+      "timeout": 90
+    },
+    {
+      "id": "pdf",
+      "argv": [
+        "quarto",
+        "render",
+        "paper.qmd",
+        "--to",
+        "pdf"
+      ],
+      "success": "fresh-outputs",
+      "outputs": [
+        "paper.pdf"
+      ],
+      "reject": [
+        "(?i)citation.*not found"
+      ],
+      "timeout": 90
+    },
+    {
+      "id": "supplement",
+      "argv": [
+        "quarto",
+        "render",
+        "supplement.qmd",
+        "--to",
+        "html"
+      ],
+      "success": "fresh-outputs",
+      "outputs": [
+        "supplement.html"
+      ],
+      "timeout": 90
+    },
+    {
+      "id": "references",
+      "argv": [
+        "python3",
+        "scripts/check_outputs.py"
+      ],
+      "success": "exit-code"
+    },
+    {
+      "id": "words",
+      "type": "word-count",
+      "argv": [
+        "quarto",
+        "pandoc"
+      ],
+      "files": [
+        "paper.qmd",
+        "supplement.qmd"
+      ]
+    }
+  ],
+  "manual": [
+    {
+      "id": "submission-policy",
+      "description": "Review the project's dated submission requirements and outstanding editorial work.",
+      "source": "requirements.md",
+      "date": "2026-10-19"
+    }
+  ]
+}

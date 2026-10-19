@@ -1,0 +1,85 @@
+;;; awc-paper-integration.el --- Real runner and configured Emacs parity -*- lexical-binding: t; -*-
+(defvar awc-paper-qa-root (getenv "AWC_PAPER_QA_ROOT"))
+(unless (and awc-paper-qa-root (file-in-directory-p awc-paper-qa-root "/tmp/"))
+  (error "Manuscript acceptance requires disposable fixtures"))
+(setenv "AWC_SAFETY_TEST_ROOT" (expand-file-name "configured/" awc-paper-qa-root))
+(load (expand-file-name "safety-startup-check.el" (file-name-directory load-file-name)) nil t)
+(require 'awc-paper)
+(defvar awc-paper-qa-project (file-name-as-directory (getenv "AWC_PAPER_QA_PROJECT")))
+(defvar awc-paper-qa-source (find-file-noselect (expand-file-name "paper.qmd" awc-paper-qa-project)))
+(defvar awc-paper-qa-report nil)
+
+(defun awc-paper-qa-wait ()
+  (let ((deadline (+ (float-time) 100)))
+    (while (and (buffer-local-value 'awc-paper--process awc-paper-qa-report) (< (float-time) deadline))
+      (accept-process-output nil 0.05))
+    (should-not (buffer-local-value 'awc-paper--process awc-paper-qa-report))
+    (should-not (gethash "error" (buffer-local-value 'awc-paper--data awc-paper-qa-report)))))
+
+(switch-to-buffer awc-paper-qa-source)
+(execute-kbd-macro (kbd "C-c w M s"))
+(setq awc-paper-qa-report (current-buffer))
+(awc-paper-qa-wait)
+(should (gethash "ready" awc-paper--data))
+(let ((expected (json-parse-string (with-temp-buffer
+                                   (insert-file-contents (expand-file-name "expected-status.json" awc-paper-qa-root))
+                                   (buffer-string)) :object-type 'hash-table :array-type 'list :null-object nil :false-object nil)))
+  (should (equal (gethash "review_token" expected) (gethash "review_token" awc-paper--data))))
+(princ "PASS: actual C-c w M s and CLI/Emacs snapshot/result parity\n")
+
+(with-current-buffer awc-paper-qa-source
+  (goto-char (point-max)) (insert "Unsaved change\n")
+  (should-error (awc-paper-freeze) :type 'user-error)
+  (should-error (awc-paper-check) :type 'user-error)
+  (awc-paper-status))
+(awc-paper-qa-wait)
+(with-current-buffer awc-paper-qa-report (should (string-match-p "STALE.*UNSAVED" (buffer-string))))
+(with-current-buffer awc-paper-qa-source
+  (delete-region (- (point-max) (length "Unsaved change\n")) (point-max))
+  (set-buffer-modified-p nil))
+(princ "PASS: unsaved buffers mark disk results stale and refuse check/freeze\n")
+
+;; The batch test supplies explicit synthetic answers; normal GUI acceptance
+;; separately exercises the real minibuffer confirmation/entry path.
+(cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t)))
+  (with-current-buffer awc-paper-qa-source (awc-paper-check))
+  (awc-paper-qa-wait))
+(with-current-buffer awc-paper-qa-report
+  (should (cl-every (lambda (check) (equal (gethash "state" check) "passed")) (gethash "checks" awc-paper--data))))
+(cl-letf (((symbol-function 'completing-read) (lambda (&rest _) "submission-policy"))
+          ((symbol-function 'read-string) (lambda (prompt &rest _) (if (string-prefix-p "Reviewer" prompt) "Synthetic reviewer" "Inspected the restored manuscript and supplement"))))
+  (with-current-buffer awc-paper-qa-source (awc-paper-verify))
+  (awc-paper-qa-wait))
+(with-current-buffer awc-paper-qa-report (should (gethash "ready" awc-paper--data)))
+(cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t))
+          ((symbol-function 'read-string) (lambda (&rest _) "Emacs fixture checkpoint")))
+  (with-current-buffer awc-paper-qa-source (awc-paper-freeze))
+  (awc-paper-qa-wait))
+(with-current-buffer awc-paper-qa-report
+  (should (file-readable-p (expand-file-name awc-paper--last-checkpoint awc-paper-qa-project))))
+(princ "PASS: Emacs explicit checks, attributed manual review and frozen manifest\n")
+
+(let* ((script (expand-file-name "scripts/check_outputs.py" awc-paper-qa-project))
+       (original (with-temp-buffer (insert-file-contents script) (buffer-string))))
+  (unwind-protect
+      (progn
+        (with-temp-file script
+          (insert "print('paper.qmd:8:1: error: Synthetic review failure')\nraise SystemExit(1)\n"))
+        (cl-letf (((symbol-function 'yes-or-no-p) (lambda (&rest _) t)))
+          (with-current-buffer awc-paper-qa-source (awc-paper-check))
+          (awc-paper-qa-wait))
+        (switch-to-buffer awc-paper-qa-report)
+        (goto-char (point-min))
+        (search-forward "references")
+        (execute-kbd-macro (kbd "TAB RET"))
+        (should (derived-mode-p 'compilation-mode))
+        (goto-char (point-min))
+        (setq next-error-last-buffer (current-buffer))
+        (execute-kbd-macro (kbd "M-g n"))
+        (should (equal buffer-file-name (expand-file-name "paper.qmd" awc-paper-qa-project)))
+        (should (= (line-number-at-pos) 8)))
+    (with-temp-file script (insert original))))
+(princ "PASS: failed project script log opens through keyboard and navigates to source\n")
+(should-not (get-buffer " *paper-stdout*"))
+(should-not (get-buffer " *paper-stderr*"))
+;;; awc-paper-integration.el ends here
