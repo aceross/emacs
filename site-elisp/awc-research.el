@@ -8,6 +8,8 @@
 (require 'url-http)
 (require 'url-util)
 (require 'bibtex)
+(require 'awc-files)
+(require 'autorevert)
 (declare-function citar-get-value "citar" (field key-or-entry))
 (declare-function citar-get-entry "citar" (key))
 (declare-function citar-get-entries "citar" ())
@@ -346,14 +348,20 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
              (file-in-directory-p buffer-file-name (expand-file-name awc-research-vault-directory)))
     (let ((backups (expand-file-name "backups/" awc-research-data-directory))
           (autosaves (expand-file-name "autosave/" awc-research-data-directory)))
-      (make-directory backups t)
-      (make-directory autosaves t)
+      (awc-files-private-directory backups)
+      (awc-files-private-directory autosaves)
       (setq-local make-backup-files t
                   backup-inhibited nil
                   backup-by-copying t
                   backup-directory-alist (list (cons "." backups))
                   auto-save-file-name-transforms (list (list ".*" autosaves t)))
-      (auto-save-mode 1))))
+      ;; Retain the vault's established filenames.  When reapplying this
+      ;; hook, move a current-session recovery copy before changing its name.
+      (when buffer-auto-save-file-name (rename-auto-save-file))
+      (auto-save-mode 1)
+      ;; Auto Revert only refreshes unmodified buffers.  Modified buffers
+      ;; retain the native supersession/save confirmation checks.
+      (auto-revert-mode 1))))
 
 ;;;###autoload
 (defun awc-research-open-note (key &optional entry)

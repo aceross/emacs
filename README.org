@@ -1,0 +1,86 @@
+#+TITLE: Emacs research and development environment
+
+Personal configuration for Python/R analysis, Quarto manuscripts and
+Zotero–Obsidian literature work. It extends ordinary Emacs with the existing
+ESS, lsp-mode, Citar and completion stack. The current implementation plan
+and acceptance gates are in [[file:doc/development-roadmap.org][the development roadmap]].
+
+* Supported environment
+
+Validated locally with the separately installed Linux Emacs 31.1 PGTK/Wayland
+build, xwidgets, native compilation and tree-sitter. The Snap installation
+remains independent. See [[file:doc/linux-xwidgets.org][build and desktop notes]]. Do not replace the
+selected executable or rebuild Emacs to adopt these configuration changes.
+Other platforms and long-running sessions need separate acceptance checks.
+
+* Installation, updates and recovery
+
+This checkout uses Straight and existing builds under =straight/=. Preserve
+that directory and =var/= when backing up or moving the current installation.
+Review the Git diff before adopting a change, save buffers, then restart
+Emacs. Configuration edits do not update the running session automatically.
+
+A fresh, pinned installation is *not yet validated*: the bootstrap has a
+confirmed checkout-path defect and there is no committed package snapshot.
+P0b is the next milestone. Until it passes, restore an existing known-working
+configuration / package backup rather than treating a fresh clone as a
+reproducible installation. Do not blindly update all packages.
+
+New file buffers use central backups and auto-saves. Use =M-x recover-this-file=
+in a visited file or =M-x recover-session= for ordinary file recovery after a
+crash. Vault notes retain their existing recovery directories; visit the note
+before using =recover-this-file=. Review recovered text before saving. See
+[[file:doc/reliability-and-recovery.org][recovery, execution policy and rollback]] for exact behavior and limitations.
+Recovery data and personal Zotero associations are ignored by Git and require
+separate machine backups.
+
+* Main commands
+
+| Entry | Workflow |
+|-------+----------|
+| =C-c w= | Project, environment, execution, diagnostics and research menu |
+| =C-c w n= | Zotero reference, local PDF, literature note and citation |
+| =C-c q= | Quarto editing, execution, readiness, rendering and recovery |
+| =C-x p= | Built-in project operations |
+| =C-x g= | Magit |
+| =C-c b= | Citar insertion using the document bibliography |
+
+[[file:doc/research-workflows.org][Project and language workflows]], [[file:doc/quarto-source-editor.org][Quarto guide]],
+[[file:doc/zotero-obsidian-quarto.org][literature workflow]], and [[file:doc/bibliography-portability.org][bibliography ownership]].
+Opening a source must not install project dependencies. Interpreter overrides
+from new directory-local settings require review. Org Babel execution prompts,
+including during export; no project or language is automatically trusted.
+
+* External dependencies
+
+- General tools: Git, ripgrep and the configured shell; Aspell for spelling.
+- Quarto: the tested 1.4.530 installation, Node.js and its =yaml= module.
+- Python: a deliberately created project environment; Pyright for assistance;
+  Jupyter/kernel and analysis dependencies only when that workflow needs them.
+- R: ESS plus project-installed packages; =languageserver= for assistance,
+  =httpgd= for plots, =knitr/evaluate/jsonlite= for execution, and
+  =reticulate/rmarkdown= for mixed documents and rendering.
+- PDF/LaTeX: PDF Tools' installed helper and the project's TeX toolchain.
+- References: an existing vault and bibliographies; running Zotero with its
+  local API enabled only for explicit imports. Obsidian is optional for editing
+  the same Markdown files. Credentials never belong in this repository.
+
+* Testing
+
+Run the small suite without third-party Emacs packages or external analysis
+software (also used by [[file:.github/workflows/safety.yml][CI]]):
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+With the existing Straight packages and Quarto tools:
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+=--suite all= additionally needs R =renv/languageserver=, the Python runtime
+packages and TeX described in [[file:doc/quarto-source-editor.org][the integration guide]]. Missing dependencies
+fail explicitly; installation requires =--install-dependencies= and is confined
+to disposable fixtures. Tests do not use personal libraries, notes or datasets.

@@ -49,7 +49,9 @@
   (org-latex-listings t)
   (org-fontify-quote-and-verse-blocks t)
   (org-fontify-whole-heading-line t)
-  (org-confirm-babel-evaluate nil) ; Ensure caution with evaluation!
+  ;; Review each execution, including during export.  Trust is not inferred
+  ;; from a directory, language, or a document's own header arguments.
+  (org-confirm-babel-evaluate t)
   (org-odt-preferred-output-format "doc")
   (org-image-actual-width nil)
   ;; (org-format-latex-options (plist-put org-format-latex-options :scale 1.65))

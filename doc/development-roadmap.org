@@ -1,5 +1,6 @@
 #+TITLE: Emacs development roadmap
-#+DATE: 2026-10-16
+#+DATE: 2026-10-17
+#+TODO: PLANNED IN_PROGRESS BLOCKED | IMPLEMENTED VALIDATED DEFERRED
 #+OPTIONS: toc:2
 
 * Direction
@@ -12,20 +13,23 @@ source-linked research synthesis.
 The two user decisions are settled: Obsidian should become the main notes
 system, and the most valuable LLM use is research across selected notes and
 papers. The proposed division of responsibilities is below. Retaining Org
-for agenda, executable documents and repository documentation is a working
-assumption; moving those workflows is a separate decision.
+for agenda, executable documents and repository documentation is now an
+explicit requirement. A wholesale migration is outside scope.
 
-This is a development plan, not an implementation record. Baseline:
-configuration commit =30e744d=. Existing validation is recorded in
+This is a living plan and implementation record. The first reference trial
+started at =30e744d=; the verified 17 October implementation baseline is
+=0b6879c1d1e2dbbd801b87e6c2899f115406138a=. Existing validation is recorded in
 [[file:research-workflows.org][research workflows]] and [[file:quarto-source-editor.org][Quarto source editing]].
-The priorities here supersede the older handoff's future-work ordering.
+The current P0–P7 gates below supersede both the older handoff ordering and
+the earlier delivery sequence retained later in this document.
 
 * Implementation progress
 
 The first single-paper workflow is implemented: Zotero reference, local PDF,
 Obsidian literature note and rendered Quarto citation. See
-[[file:zotero-obsidian-quarto.org][the usage and validation guide]]. Note recovery is scoped to the vault;
-the broader package snapshot/bootstrap work, migration and LLM stages remain.
+[[file:zotero-obsidian-quarto.org][the usage and validation guide]]. That stage added vault-specific note recovery. P0a now extends recoverable
+editing to ordinary files and restores execution safeguards; the broader
+package snapshot/bootstrap work and later research features remain.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 The next citation milestone is a project-owned bibliography with stable keys,
@@ -33,29 +37,351 @@ portable item associations and an explicit add/refresh command, verified by
 rendering from another directory and then using the workflow on a second device.
 This portability work is planned; synchronization has not been configured.
 
-* Planning baseline
+* Current prioritized plan — 17 October 2026
+
+The intended workflow is discover → read/annotate → organize → question →
+analyze → write → verify → revise → validate → submit → archive. Reliability,
+traceability and lower repetition take precedence over package count.
+
+Use PLANNED, IN PROGRESS, BLOCKED, IMPLEMENTED, VALIDATED and DEFERRED as
+explicit states (Org's TODO spelling is IN_PROGRESS). IMPLEMENTED is not a
+claim that acceptance has passed. Missing dependencies are recorded against
+the particular unrun check, not treated as a passing result.
+
+| Priority / gate | State | Dependency | Next acceptance condition |
+|-----------------+-------+------------+---------------------------|
+| P0a Safe defaults and recoverable editing | VALIDATED locally | Existing native file/Org behavior | Refused execution, crash recovery, external-edit conflicts and core regressions |
+| P0b Package/bootstrap reproducibility | PLANNED | P0a | Restore and roll back a reviewed package snapshot in a disposable clean installation |
+| P0c Startup, preferences and interaction reliability | PLANNED | P0b | Durable reviewed settings, confirmed key collisions resolved, measured session behavior |
+| P1 Portable reference/notes workflow | PLANNED; local foundation validated | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
+| P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
+| P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
+| P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
+| P5 Reviewer/collaborator feedback | PLANNED | P3, P4 source/revision identity | Import, track, resolve and export a representative review without information loss |
+| P6 Bounded LLM assistance | PLANNED | P1, P4, explicit material/backend authorization | Selected-source comparison, separate critique and reviewed diff; fixed evaluation set |
+| P7 Analysis/project ergonomics | PLANNED | P0; actual workflow evidence | One bounded improvement at a time, preserving interpreter ownership |
+
+Do not start P1 before the remaining critical P0 gates pass. Each independently
+useful sub-milestone gets one focused branch/PR. No automatic commits, pushes
+or publication in future manuscript workflows. The initial implementation
+request explicitly authorizes committing this configuration checkpoint and
+preparing its PR.
+
+** Verified gap assessment
+
+- *Implemented and revalidated:* the baseline core command passed 98 ERT
+  cases plus real ESS/prose startup, Quarto schema/readiness, bibliography
+  assistance and a fixture reference → note → HTML citation render. The
+  Zotero response is a fixture; Citar, notes and rendering are real. Existing
+  R/Python isolation and richer runtime/LSP validation records remain in the
+  specialized guides; do not relabel all of those as rerun this session.
+- *Implemented, partially validated:* installed PGTK/xwidgets and embedded
+  previews, R/httpgd, real two-project language servers and runtime output
+  have earlier checks. Long sessions, current full external-tool coverage,
+  macOS, graphical conflict handling and second-device notes are not covered
+  by the core suite. The system Python currently lacks =jupyter_client=;
+  the normal R libraries lack =renv=. Do not install into a live project to
+  satisfy those tests.
+- *Confirmed P0 defects:* =enable-local-variables :all=, Babel confirmation
+  disabled, and global backups/auto-save/locks disabled. Straight bootstrap
+  runs =git checkout= in =straight/repos= instead of the cloned repository,
+  interpolates unquoted paths, and does not enforce command success before
+  loading. No package snapshot exists. =custom-file= is a fresh temporary
+  file, so durable Customize/trust restoration is not established.
+- *Confirmed interaction conflicts:* the actual configured mode audit finds
+  =C-c g= bound to gptel, making the older =C-c g g/e= writing commands
+  unreachable; =C-c p= means Pomodoro in Org and completion elsewhere;
+  =M-p= is completion in Python/R/Org but previous-link in Markdown/Quarto;
+  =C-q= is an Org skeleton prefix instead of quoted-insert. Resolve the
+  accidental collision in P0c; decide intentional local overrides explicitly.
+- *Corrected stale claims:* =sync-ebib-to-zotero= now explains the read-only
+  import path; automatic citar-org-roam integration is disabled; new notes
+  use =awc-research= and the canonical vault. The older handoff's Quarto
+  regex execution, global Python activation and guessed httpgd-port defects
+  were already repaired. Do not reimplement those features.
+- *Not implemented:* portable association records, deliberate project-bib
+  add/refresh, full-vault navigation, writing QA, submission manifests,
+  evidence decisions, review import and bounded assistant sessions.
+- *Candidates without demonstrated value:* embeddings, broad note migration,
+  debugger frameworks, editor/LSP replacement, file trees and decorative UI.
+  Keep DEFERRED until a concrete workflow and acceptance test justify them.
+
+** P0a — secure defaults and recoverable editing
+
+- Objective/problem/justification: prevent silent acceptance of unsafe local
+  values and routine loss/overwrite of unsaved work, using native mechanisms.
+- Architecture/modules: extend =awc-files.el=; call its policy from
+  =init-core.el= before package bootstrap and after =no-littering=; restore
+  Babel confirmation in =init-org.el=; extend the existing
+  =awc-research--protect-note= hook. No new runtime subsystem or package.
+- Tasks: retain explicit interpreter overrides after review; central private
+  recovery storage including VC files; preserve vault routing/current copies;
+  native vault Auto Revert for clean buffers; isolate startup tests and add
+  a lightweight CI suite. No keymap changes in this sub-milestone.
+- Acceptance: refused local eval and interpreter override; safe locals and
+  approved Python/legacy alias/R selection; refused Babel including export
+  and document-local suppression attempt; real backups, Unicode/new-file
+  recovery and cancellation; SIGKILL recovery and lock ownership; clean-note
+  refresh and dirty save refusal; configured startup plus core regressions.
+- Risks/alternatives: confirmation is not sandboxing; existing explicit trust
+  still applies; lockfiles are not a protocol Obsidian must honor. Keep locks
+  beside files for Emacs interoperability. Preserve vault recovery filenames
+  instead of migrating old recovery data; use visit-then-recover for notes.
+- Validation/results/remaining work: see the checkpoint below and
+  [[file:reliability-and-recovery.org][the recovery guide]]. Hosted CI and GUI/remote/encrypted/concurrent-sync
+  acceptance are separate from the passing local checks.
+- Rollback: revert only this milestone's commit on a clean branch, inspect,
+  restart; retain =var/recovery/= and =var/research/=. It restores less safe
+  defaults, so do not treat rollback as deletion of recovery data.
+
+** P0b — pinned bootstrap, update and rollback
+
+- Objective/problem/justification: make restoration independent of today's
+  upstream package versions. This is the highest remaining P0 gate.
+- State/modules/dependencies: PLANNED; =init-core.el=, Straight recipes,
+  version control rules and bootstrap tests; depends on P0a. Existing
+  installed builds work, but that does not validate a clean install.
+- Architecture/tasks: inspect installed Straight APIs and repository dirtiness;
+  capture exact revisions (including recipe repositories) without upgrading;
+  commit a reviewed lockfile despite the current =straight/= ignore rule;
+  replace shell interpolation with checked argument-vector Git calls against
+  the correct repository; use a full bootstrap revision. Fail visibly on
+  missing Git/network, partial clone, invalid commit and paths with spaces.
+- Risks/alternatives: a revision list may omit local patches or untracked
+  files; retain backups and report those separately. Do not freeze dirty
+  packages as though their HEAD alone reproduces them. Keep system binaries
+  and native artifacts separate from source/package reproducibility.
+- Acceptance/results: NOT RUN. Fresh disposable config installs at pinned
+  revisions; failed bootstrap leaves a recoverable state; deliberate update
+  can be rolled back and revalidated. Extend CI only when dependencies and
+  network requirements are explicit. No live package upgrades.
+- Rollback: preserve the prior installed package tree and lockfile; restore
+  both in isolation first, then restart. Never erase the only working tree.
+
+** P0c — startup, preferences, bindings and measured reliability
+
+- Objective/problem: make safe choices durable, expose existing commands and
+  identify actual optional-package/performance failures. Reliability, not a
+  cosmetic rewrite, justifies this work.
+- State/modules/dependencies: PLANNED; =init-core/org/text/gptel/workflow=,
+  early startup and tests; follows P0b's reproducible package state.
+- Tasks/architecture: establish a private persisted Customize/trust policy;
+  resolve =C-c g= through the existing =C-c w= menu; review =C-c p=, =M-p= and
+  Org prefixes in their real modes. Measure startup and long sessions before
+  changing GC/hooks. Audit optional dependencies and process/timer cleanup.
+- Risks/alternatives: avoid automatically trusting executable strings or whole
+  repositories. Retain overlapping packages unless their responsibilities
+  demonstrably conflict. No broad warning suppression or framework migration.
+- Acceptance/results: mode-specific binding tests, restart persistence,
+  missing-tool startup, bounded two-project sessions and recorded timings.
+  Current isolated full startup has no use-package error; longer observation
+  and targeted collision fixes remain NOT RUN / NOT IMPLEMENTED.
+- Rollback: revert this bounded commit, preserve private preferences/recovery
+  data, restart; do not reset the user's working server during validation.
+
+** P1 — portable Zotero, Obsidian and bibliographies
+
+- Objective/justification: stable identity and project-owned references make
+  manuscripts reproducible on another machine. Local single-item work exists;
+  portability and reviewed refresh remain PLANNED.
+- Modules/dependencies/architecture: =awc-research=, Citar, existing Quarto
+  bibliography model and =init-workflow=, after P0. Separate portable library,
+  item, attachment and citation identities from device PDF paths; keep one
+  canonical vault. Zotero owns metadata; the repository owns its build snapshot.
+- Tasks: explicit find/import, attachment choice, note reuse, add-to-project
+  and refresh; preserve manuscript keys and hand edits; diagnose ambiguity,
+  duplicate keys, missing PDFs and stale metadata; choose one generated-file
+  owner. Evaluate obsidian.el against existing completion before adoption.
+- Risks/alternatives: no silent key migration, library writes or duplicated
+  notes. Retain manual reviewed project snapshots until the refresh contract
+  is validated. Full Org migration is DEFERRED.
+- Acceptance/results: copied manuscript renders with Zotero closed; a second
+  configured environment finds the same item/note without key change. Cover
+  group libraries, multiple attachments, Unicode, missing files, duplicate
+  titles, conflicting metadata and unavailable apps. Portable acceptance NOT RUN.
+- Rollback: revert adapter changes; preserve notes, portable identities and
+  original bibliographies; never attempt to reverse library identity casually.
+
+** P2 — academic prose and terminology QA
+
+- Objective/justification: reduce repetitive editorial checks while preserving
+  substantive human judgment. PLANNED; dependent on P0 project settings.
+- Modules/architecture: evaluate Vale or an established alternative first;
+  introduce =awc-writing.el= only for a bounded adapter. Reuse Flycheck or
+  compilation diagnostics and project-owned dictionaries/rules.
+- Tasks: UK English and terminology/acronym/placeholder checks; distinguish
+  objective errors from stylistic candidates. Exclude code/YAML/citation syntax.
+- Risks/alternatives: avoid automatic rewriting and crude phrase/length bans;
+  retain manual tools if false positives outweigh utility.
+- Acceptance/results: documented positive/negative manuscript corpus, useful
+  source locations and dismissal/overrides, measured false positives and time
+  on a substantial document; missing tool must not break editing. NOT RUN.
+- Rollback: remove adapter hooks/rules without editing manuscript contents.
+
+** P3 — manuscript lifecycle and submission
+
+- Objective/justification: bring build, repository and submission status into
+  one inspectable project view; reduce repeated manual coordination. PLANNED.
+- Modules/dependencies/architecture: bounded =awc-paper.el= after P1/P2; reuse
+  Quarto checks and project scripts that run outside Emacs. Prefer existing
+  project configuration to a new complex manifest format.
+- Tasks: manuscript/supplement, Git revision, commands/builds, word count,
+  configured journal policy with source/date, citation/output issues and
+  outstanding review. Explicit freeze records outputs, hashes, tools, commit
+  and skipped/failed checks; no automatic commit, push or publication.
+- Risks/alternatives: do not fabricate journal rules or conflate tests with
+  scholarly/editorial correctness. Changed sources invalidate old results.
+- Acceptance/results: one small project builds, validates and emits a reviewed
+  manifest through Emacs and external scripts. States: passed, failed, not run,
+  not applicable, manually verified. Revision invalidation tested. NOT RUN.
+- Rollback: remove view/commands; preserve source, outputs and prior manifests.
+
+** P4 — evidence search and source-to-claim verification
+
+- Objective/justification: inspect whether important claims are supported,
+  rather than treating citation presence as verification. PLANNED.
+- Modules/dependencies/architecture: after P1/P3; evaluate established local
+  extraction/search tools before embeddings; bounded =awc-evidence.el= only
+  if useful. Keep project/library and selected-source boundaries explicit.
+- Tasks: one manuscript/small claim set; record proposition/location, source
+  identity/revision or hash, page/provision/passage, decision and responsible
+  human/process. Link originals; distinguish PDF indexes and printed labels.
+- Risks/alternatives: extraction may misread scans/tables/equations; retain
+  manual inspection and unresolved/unsupported/contradicted states. Model
+  suggestions must never become verified implicitly.
+- Acceptance/results: correct source links and changed-source invalidation;
+  unresolved evidence stays unresolved; small synthetic legal/empirical
+  fixtures plus explicit manual review. NOT RUN.
+- Rollback: remove integration while retaining inspectable evidence records.
+
+** P5 — reviewer and collaborator feedback
+
+- Objective/justification: preserve a traceable chain from original feedback
+  through manuscript change to response. PLANNED; follows P3/P4 identities.
+- Modules/architecture/tasks: evaluate DOCX/comment/revision fidelity before
+  choosing an importer; bounded =awc-review.el= if needed. Preserve originals;
+  store ID, reviewer/source, original comment, passage, proposed/actual action,
+  response and status. Navigate/export a reviewed response matrix.
+- Risks/alternatives: conversion may lose comments/track changes; report
+  unsupported constructs and permit manual capture rather than pretending
+  completeness. Later manuscript changes must invalidate stale resolutions.
+- Acceptance/results: representative review set imports, resolves, edits and
+  exports without loss; revision invalidation and unsupported cases. NOT RUN.
+- Rollback: retain original reviews and exported records; remove only adapter.
+
+** P6 — bounded LLM assistance
+
+- Objective/justification: selected-source comparison, separate critical
+  review and inspectable revision suggestions. PLANNED after P1/P4 and an
+  explicit authorization decision for material class and model backend.
+- Modules/architecture: extend gptel via bounded =awc-assistant.el= if needed;
+  keep evidence preparation/retrieval separate. Show sources, passages and
+  transmission scope; no initial shell, Git or autonomous filesystem tools.
+- Tasks: compare selected sources with real locations; critique a selection
+  separately; propose a diff accepted only by explicit review. Session scope
+  cannot expand through retrieved instructions. Keep credentials out of Git.
+- Risks/alternatives: unsupported model citations and confidential material
+  leakage; keep excluded sources excluded and unanswered questions unresolved.
+- Acceptance/results: fixed factual lookup, definitions, disagreement,
+  contradictory evidence, unanswerable and multi-source synthesis questions;
+  measure passage accuracy, omissions, unsupported claims, correction effort
+  and available cost. No library-wide/agent expansion before benefit. NOT RUN.
+- Rollback: disable assistant commands; preserve only deliberately saved,
+  reviewed notes and explicit session artifacts.
+
+** P7 — empirical work and project ergonomics
+
+- Objective/justification: improve evidenced friction in already capable
+  Python/R/Quarto workflows; PLANNED, with each candidate scoped separately.
+- Modules/dependencies/architecture: =awc-project/python/r=, Org and workflow
+  menus after P0. Reuse project scripts and the dedicated version-controlled
+  skills repository; do not duplicate skill instructions inside this config.
+- Candidate tasks: project format/lint, debugging, isolated named Babel
+  sessions, read-only bounded SQL/DuckDB results, large-data previews, layouts,
+  session restoration and navigation among issues/reports.
+- Risks/alternatives: retain selected interpreter, avoid stale process revival
+  or arbitrary agent writes; no package/framework adoption without a user case.
+- Acceptance/results: define a small real task and failure/isolation cases
+  for each selected candidate, then measure improvement. NOT RUN.
+- Rollback: revert that candidate's adapter/settings, keep project scripts
+  and analysis data unchanged.
+
+** Shared fixture and completion rules
+
+Extend the existing tiny synthetic reference/note/manuscript fixture as each
+feature arrives: project → environment → cite/read/note → diagnostics →
+analysis/render → evidence → feedback → checks/manifest → recovery. Keep
+human acceptance separate from unit, Emacs integration and external-tool tests.
+Never use a personal library or dataset as a committed fixture. Once a gate
+passes, close it; reopen only for a defect, regression, security issue,
+changed dependency or evidenced workflow need, recording the reason.
+
+** P0a checkpoint — VALIDATED locally, P0 remains IN PROGRESS
+
+- Baseline core: =python3 test/run-quarto-checks.py --suite core --keep=;
+  PASS, 98/98 ERT plus all core integration stages. Logs:
+  =/tmp/quarto-checks-2ep5myau/logs/=.
+- =emacs-xwidgets -Q --batch -l test/run-safety-tests.el=: PASS, 11/11
+  native safety/recovery tests; final log =/tmp/awc-p0-safety-final.log=.
+- Final core: =python3 test/run-quarto-checks.py --suite core --keep=: PASS,
+  109/109 ERT plus isolated full safety startup, ESS/prose startup, real YAML
+  schema, research assistance and fixture literature-to-render integration.
+  Logs: =/tmp/quarto-checks-tmhnu9ju/logs/=.
+- =emacs-xwidgets -Q --batch -l test/safety-startup-check.el=: actual package
+  activation with disposable config/state; settings and mode audit passed.
+  Final extension: PASS for a real Git-tracked file's central backup. Log:
+  =/tmp/awc-p0-startup-final.log=. The first extension had a test-file parsing
+  error; its closing parenthesis was corrected before the successful rerun.
+- =git diff --check=: PASS. Code and documentation diff inspected; original
+  =early-init.el= and =doc/research-workflows.org= edits remain outside scope.
+- CI workflow IMPLEMENTED; first hosted Emacs 29.3 run exposed a test-harness
+  timing assumption: the direct Auto Revert handler call preceded its file
+  notification. The external-edit check now explicitly uses native polling,
+  with real filesystem changes and unchanged production notification defaults.
+  Hosted revalidation PASSED on Emacs 29.3: [[https://github.com/aceross/emacs/actions/runs/39007884141][PR safety run]]
+  (21 seconds) and [[https://github.com/aceross/emacs/actions/runs/39007881461][push safety run]] (18 seconds), each 11/11 tests.
+  CI does not claim a reproducible complete package state.
+- Full external-tool runtime/LSP/output suites were not rerun: preflight found
+  system Python lacks =jupyter_client= and R lacks =renv=. No dependencies were
+  installed. GUI Obsidian interaction, remote/encrypted files, long sessions,
+  second-device behavior and persisted trust remain explicitly unvalidated.
+- No package versions, project datasets, live research notes, credentials,
+  selected Emacs executable or desktop associations were changed.
+- Git checkpoint: branch =codex/p0-safe-recoverable-editing=;
+  implementation commit =e5bc825= and CI timing correction =672eb44=;
+  [[https://github.com/aceross/emacs/pull/1][draft PR #1]]. Changes: =awc-files=, =awc-research=,
+  =init-core=, =init-org=, test runners/new safety checks, CI, root README and
+  roadmap/recovery documentation (13 files). The two baseline local edits
+  remain uncommitted and excluded. This final validation-note update follows
+  the implementation commits on the same branch.
+- Next bounded milestone: P0b package snapshot and checked bootstrap/rollback.
+  P0c retains durable preferences, binding fixes and measured session work.
+- The initial request is intentionally delivered as this independently useful
+  P0 sub-milestone. Package/bootstrap reproducibility is neither implemented
+  nor claimed complete in the same change set.
+
+* Planning baseline (earlier assessment, reconciled)
 
 | Area | Existing foundation | Development need |
 |------+---------------------+------------------|
 | R and Python | Project environments, REPLs, language assistance, terminals and R plots | Long-session reliability, named Org sessions, formatting and debugging |
 | Quarto | Chunk execution, mapped language assistance, YAML support, citations, references, results and preview | Preserve this baseline; extend only against concrete document workflows |
 | Bibliography | Citar, Embark, RefTeX, Ebib and project bibliography resolution | Establish Zotero ownership and validate reference → PDF → note → citation |
-| Notes | Org, org-roam and citar-org-roam; ordinary Markdown editing | Add Obsidian vault workflows and a staged migration |
+| Notes | Canonical vault Markdown through awc-research; legacy Org notes retained | Portable identity, full vault navigation; migration deferred |
 | LLM | gptel, an environment API key, a literal model setting and an Org chat default | Define source selection, provenance, session boundaries and evaluation |
 | Maintenance | Modular configuration and disposable Quarto integration checks | Package snapshot, reliable bootstrap, recovery and broader workflow checks |
 
 Concrete findings in the configuration:
 
-- [[file:../site-elisp/init-text.el][init-text.el]] defines =sync-ebib-to-zotero= using an assumed
-  =zotero-cli import= command. That function is not an established sync
-  contract. Citar is currently configured for Org notes, and
-  [[file:../site-elisp/init-org.el][init-org.el]] enables citar-org-roam.
+- The initial review found an assumed =zotero-cli import= path. Commit
+  =0b6879c= replaced it with an explanatory error; Citar now uses the vault
+  adapter and citar-org-roam is available only explicitly.
 - [[file:../site-elisp/init-gptel.el][init-gptel.el]] contains only basic setup. Its =C-c g= binding
   also conflicts with the longer writing-command sequences in =init-text.el=.
   There is no configured research-source workflow.
-- [[file:../site-elisp/init-core.el][init-core.el]] disables backups, auto-save and lockfiles. Its initial
-  straight.el bootstrap runs checkout in the repositories parent directory;
-  no =straight/versions/= package snapshot is present.
+- The baseline [[file:../site-elisp/init-core.el][init-core.el]] disabled recovery; P0a corrects that. Its
+  bootstrap still checks out in the repositories parent directory, and no
+  =straight/versions/= package snapshot is present (P0b).
 - The recent Quarto citation and readiness work is already implemented.
   Zotero integration should build on it, rather than recreate completion
   and bibliography discovery.
@@ -89,7 +415,10 @@ Emacs copy. Keep Zotero library identity, Zotero item key, attachment key and
 BibTeX citation key distinct. A note should retain enough identity to find
 its source even if its filename or display title changes.
 
-* Delivery sequence
+* Earlier delivery sequence (historical)
+
+The P0–P7 plan above now governs implementation. This earlier sequence is
+retained to explain the first trial, not to authorize migration or LLM work.
 
 Milestones are acceptance gates, not calendar estimates. Each should produce
 a usable workflow before the next expands its scope.
@@ -335,7 +664,9 @@ Defer an LSP-client replacement, wholesale tree-sitter migration, notebook
 UI, mandatory file tree, broad Julia/C++ expansion and Quarto visual editing
 until a specific workflow justifies their maintenance cost.
 
-* First implementation brief
+* First implementation brief (historical, reference trial delivered)
+
+The current checkpoint and remaining P0 gates above supersede this brief.
 
 Start with recovery and the single-reference workflow. Confirm the intended
 vault path, current bibliography ownership, established citation keys and
