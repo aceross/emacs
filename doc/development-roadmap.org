@@ -39,8 +39,9 @@ Obsidian literature note and rendered Quarto citation. See
 editing to ordinary files and restores execution safeguards. P0b now captures
 package source pins and repairs checked bootstrap/rollback. P0c1 validates
 durable preferences/bindings; P0c2 now validates measured terminal startup,
-missing-tool recovery and bounded session cleanup. Full external runtime
-coverage and prolonged graphical use retain the limits recorded below.
+missing-tool recovery and bounded session cleanup. P0c3 adds current external
+Jupyter/renv acceptance and a 15-minute active graphical run. All-day use,
+other platforms and native WebKit pixel capture retain the limits below.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 The next citation milestone is a project-owned bibliography with stable keys,
@@ -628,6 +629,12 @@ changed dependency or evidenced workflow need, recording the reason.
   Branch: =codex/p0c3-external-and-graphical-validation=. PR #4 remains open;
   this continuation stacks on its branch. Original local edits in
   =early-init.el= and =doc/research-workflows.org= are preserved separately.
+- Implementation: =9c7f27a6cfdaf284767ffc35b7c07b99c00d4afc=.
+  [[https://github.com/aceross/emacs/pull/5][Draft PR #5]] targets =codex/p0c2-startup-and-session-reliability=.
+  Hosted [[https://github.com/aceross/emacs/actions/runs/39200183022][push CI]] (18s) and [[https://github.com/aceross/emacs/actions/runs/39200221688][PR CI]] (23s) PASSED. Inspected logs confirm
+  GNU Emacs 29.3, Git 2.55.0 and 27/27 safety cases with zero unexpected
+  results plus snapshot validation. Installed-package/external/graphical
+  evidence below is local acceptance, separate from lightweight hosted CI.
 - Plan/rationale/QA first: explicitly install missing test dependencies in
   fresh disposable libraries/environments, run existing real external checks,
   then launch a separate normal graphical Emacs with private state and a
