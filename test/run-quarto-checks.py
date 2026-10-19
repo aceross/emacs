@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run Quarto checks in fresh disposable projects; never install by default."""
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
@@ -27,6 +28,9 @@ def main():
     logs = root / 'logs'
     logs.mkdir()
     env = os.environ.copy()
+    # Project fixture profiles must win over inherited user startup settings.
+    for variable in ('PYTHONSTARTUP', 'R_PROFILE_USER', 'R_ENVIRON_USER'):
+        env.pop(variable, None)
     env['QUARTO_TEST_RUN_DIR'] = str(root)
     env['AWC_R_LSP_TEST_DIR'] = str(root / 'lsp')
     env['QUARTO_TEST_RUNTIME_ROOT'] = str(root / 'runtime' / 'project with spaces')
@@ -34,11 +38,27 @@ def main():
     env['PIP_CACHE_DIR'] = str(root / 'pip-cache')
     env['MPLCONFIGDIR'] = str(root / 'matplotlib')
     env['XDG_CACHE_HOME'] = str(root / 'cache')
+    env['RENV_PATHS_ROOT'] = str(root / 'renv-cache')
+    env['RENV_CONFIG_SANDBOX_ENABLED'] = 'FALSE'
+    env['RENV_CONFIG_CONSENT'] = 'TRUE'
+    env['JUPYTER_CONFIG_DIR'] = str(root / 'jupyter-config')
+    env['JUPYTER_RUNTIME_DIR'] = str(root / 'jupyter-runtime')
+    env['JUPYTER_DATA_DIR'] = str(root / 'jupyter-data')
+    # Retain enough information to replay an integration stage in this exact
+    # disposable environment after a failure, without repeating installations.
+    def save_environment():
+        keys = ('QUARTO_TEST_RUN_DIR', 'AWC_R_LSP_TEST_DIR', 'QUARTO_TEST_RUNTIME_ROOT',
+                'QUARTO_TEST_PYTHON', 'PIP_CACHE_DIR', 'MPLCONFIGDIR', 'XDG_CACHE_HOME',
+                'R_LIBS_USER', 'RENV_PATHS_ROOT', 'RENV_CONFIG_SANDBOX_ENABLED',
+                'RENV_CONFIG_CONSENT', 'JUPYTER_CONFIG_DIR', 'JUPYTER_RUNTIME_DIR',
+                'JUPYTER_DATA_DIR', 'JUPYTER_PATH')
+        (root / 'environment.json').write_text(json.dumps({k: env[k] for k in keys if k in env}, indent=2) + '\n')
     library = root / 'lsp' / 'R-library'
     library.mkdir(parents=True)
     success = False
 
     def run(name, command, timeout=240):
+        save_environment()
         print(f'Running {name}', flush=True)
         path = logs / f'{name}.log'
         with path.open('w') as output:
@@ -79,7 +99,7 @@ if (length(missing) && args[1] == "install") {
 missing <- pkgs[!vapply(pkgs, requireNamespace, logical(1), quietly=TRUE)]
 if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=", "), ". Supply --r-library or explicitly use --install-dependencies.")
 ''')
-        run('r-dependencies', ['Rscript', '--vanilla', str(script),
+        run(f'r-dependencies-{packages[0]}', ['Rscript', '--vanilla', str(script),
                                'install' if args.install_dependencies else 'check', *packages], timeout=600)
 
     try:
@@ -109,14 +129,18 @@ if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=",
             for label in ('alpha', 'beta'):
                 run(f'fixture-{label}', ['Rscript', '--vanilla', 'test/r-lsp-fixtures.R', label])
             elisp('language-assistance', 'quarto-assistance-integration.el')
+            elisp('r-language-assistance', 'r-lsp-integration.el')
         if args.suite in ('runtime', 'output', 'all'):
             r_dependencies(['jsonlite', 'evaluate', 'knitr', 'reticulate', 'rmarkdown'])
+            run('r-versions', ['Rscript', '--vanilla', '-e',
+                              'pkgs <- intersect(c("renv", "languageserver", "jsonlite", "evaluate", "knitr", "reticulate", "rmarkdown", "httpgd"), rownames(installed.packages())); print(installed.packages()[pkgs, c("Package", "Version", "LibPath")]); sessionInfo()'])
             project = Path(env['QUARTO_TEST_RUNTIME_ROOT'])
             (project / 'reports' / 'nested space').mkdir(parents=True)
             (project / 'fixture.Rproj').write_text('Version: 1.0\n')
             (project / '_quarto.yml').write_text('project:\n  type: default\nformat:\n  html: default\n  pdf: default\n')
             (project / '.Rprofile').write_text('options(quarto.test.startup = getwd())\n')
-            run('python-environment', [args.python, '-m', 'venv', '--system-site-packages', str(project / '.venv')])
+            (project / '.Renviron').write_text('# Disposable test environment\n')
+            run('python-environment', [args.python, '-m', 'venv', str(project / '.venv')])
             python = str(project / '.venv' / 'bin' / 'python')
             packages = ['jupyter_client', 'ipykernel', 'pandas', 'matplotlib', 'nbclient', 'nbformat', 'PyYAML']
             if args.install_dependencies:
@@ -127,8 +151,10 @@ if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=",
             env['JUPYTER_RUNTIME_DIR'] = str(root / 'jupyter-runtime')
             env['JUPYTER_PATH'] = str(project / '.venv' / 'share' / 'jupyter')
             run('python-kernel', [python, '-m', 'ipykernel', 'install', '--sys-prefix', '--name', 'quarto-fixture'])
+            run('python-versions', [python, '-m', 'pip', 'freeze'])
             if args.suite in ('runtime', 'all'):
                 elisp('document-runtimes', 'quarto-runtime-integration.el')
+                elisp('document-lifecycle', 'quarto-lifecycle-integration.el')
             if args.suite in ('output', 'all'):
                 elisp('render-and-preview', 'quarto-output-integration.el')
         success = True

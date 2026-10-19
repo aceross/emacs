@@ -39,8 +39,9 @@ Obsidian literature note and rendered Quarto citation. See
 editing to ordinary files and restores execution safeguards. P0b now captures
 package source pins and repairs checked bootstrap/rollback. P0c1 validates
 durable preferences/bindings; P0c2 now validates measured terminal startup,
-missing-tool recovery and bounded session cleanup. Full external runtime
-coverage and prolonged graphical use retain the limits recorded below.
+missing-tool recovery and bounded session cleanup. P0c3 adds current external
+Jupyter/renv acceptance and a 15-minute active graphical run. All-day use,
+other platforms and native WebKit pixel capture retain the limits below.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 The next citation milestone is a project-owned bibliography with stable keys,
@@ -66,6 +67,7 @@ the particular unrun check, not treated as a passing result.
 | P0c Startup, preferences and interaction reliability | VALIDATED locally | P0b | P0c1 and bounded P0c2 gates pass; graphical/full external limits recorded |
 | P0c1 Private preferences and accessible bindings | VALIDATED locally | P0b | Native save/restart/trust failures and real mode/menu dispatch pass |
 | P0c2 Measured startup and session reliability | VALIDATED locally | P0c1 | Five native terminal launches, missing-tool recovery and three real two-project cycles |
+| P0c3 External integration and graphical acceptance | VALIDATED locally | P0c2; disposable Jupyter/renv dependencies | Full external suite and 900-second/15-cycle Wayland acceptance pass |
 | P1 Portable reference/notes workflow | PLANNED; local foundation validated | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
 | P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
 | P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
@@ -620,6 +622,126 @@ changed dependency or evidenced workflow need, recording the reason.
   this bounded checkpoint on a clean branch and restart. No package/system
   executable, project environment, research data or desktop rollback is needed.
   See [[file:startup-and-session-reliability.org][the usage, QA and rollback guide]].
+
+* P0c3 external/graphical validation — 19 October 2026
+
+- Baseline: =e2cf0f9ab6c51552056969371f8348e3d9953a2e=, after P0c2.
+  Branch: =codex/p0c3-external-and-graphical-validation=. PR #4 remains open;
+  this continuation stacks on its branch. Original local edits in
+  =early-init.el= and =doc/research-workflows.org= are preserved separately.
+- Implementation: =9c7f27a6cfdaf284767ffc35b7c07b99c00d4afc=.
+  [[https://github.com/aceross/emacs/pull/5][Draft PR #5]] targets =codex/p0c2-startup-and-session-reliability=.
+  Hosted [[https://github.com/aceross/emacs/actions/runs/39200183022][push CI]] (18s) and [[https://github.com/aceross/emacs/actions/runs/39200221688][PR CI]] (23s) PASSED. Inspected logs confirm
+  GNU Emacs 29.3, Git 2.55.0 and 27/27 safety cases with zero unexpected
+  results plus snapshot validation. Installed-package/external/graphical
+  evidence below is local acceptance, separate from lightweight hosted CI.
+- Plan/rationale/QA first: explicitly install missing test dependencies in
+  fresh disposable libraries/environments, run existing real external checks,
+  then launch a separate normal graphical Emacs with private state and a
+  dedicated socket. Functional GUI checks precede a 900-second active soak,
+  followed by process/socket/result cleanup. Failures retain evidence and
+  receive targeted negative/recovery checks before fixes.
+- Confirmed issues: the newly wired lifecycle test left a missing-kernel
+  document in the render project, poisoning Quarto's project inspection;
+  remove its own files on cleanup. The old native-comp variable no longer
+  prevented Emacs 31 GUI compiler jobs; also set =native-comp-jit-compilation=.
+  Transparent R PNGs lost black axes/title on dark result panes; give their
+  displayed image white paper. The original PNG is preserved. Before/after
+  GUI exports verify restored contrast. A GUI ElDoc race also queried
+  projected workspaces before initialization; the source now waits for an
+  initialized workspace. Its new starting/ready-state regression failed
+  before the fix and passes afterward. No GC tuning or package migration.
+- Isolation: both renv fixtures have independent libraries and probe package
+  identities, with existing R dependencies linked read-only. Missing renv
+  installs only in the run's library. Plain Python venvs, kernels, Jupyter
+  data/config/runtime directories and pip/renv caches remain under =/tmp=.
+  The standalone R full-init check now uses private configuration state.
+  Installed package/tool sources are shared in Straight safe mode; user
+  notes, normal servers and research repositories are not fixtures.
+- External acceptance PASSED: =python3 test/run-quarto-checks.py --suite all
+  --install-dependencies --keep=; logs =/tmp/quarto-checks-wtcewrt6/logs/=.
+  Includes 127/127 core cases, renv/Python mapped assistance, mixed knitr
+  state/plots/tables/errors/interruption, named Jupyter kernel/interpreter,
+  queues, missing-kernel failure, HTML/PDF and real HTTP preview. Standalone
+  R replay also PASSED, including library/root/Python identity, CAPF/xref/
+  Flycheck, diagnostic clearing, workspace reuse/conflict/restart isolation
+  and missing languageserver (same root, =logs/r-assistance-replay.log=).
+  Final fresh full acceptance including standalone R and the readiness fix
+  PASSED at =/tmp/quarto-checks-lfh5mln7/logs/=, now 128/128 core cases plus
+  all external stages. The post-fix core-only run also passes
+  (=/tmp/quarto-checks-cy8l_9ng/logs/=). Fast safety passes 27/27
+  (=/tmp/awc-p0c3-safety.log=), and the 134 clean source pins still match.
+- Dependency record: renv 1.3.1 in the disposable library; languageserver
+  0.3.20, jsonlite 2.0.0, evaluate 1.0.5, knitr 1.52, reticulate 1.47.0,
+  rmarkdown 2.32 and httpgd 2.1.4 were existing read-only R dependencies.
+  The disposable venv records jupyter_client 8.10.0, ipykernel 7.4.0,
+  nbclient 0.11.0, nbformat 5.11.1, pandas 3.0.6 and Matplotlib 3.11.2.
+  Complete resolved versions/library paths: =logs/python-versions.log= and
+  =logs/r-versions.log=; fixture overrides: =environment.json=.
+- Graphical smoke PASSED: =gui-4ll44ssp/= within the successful integration
+  root, GNU Emacs 31.1 PGTK/Wayland. Native Python/YAML Corfu acceptance,
+  actual R plot/linked results, named Jupyter, loaded WebKit/httpgd widgets,
+  large-document editing and cleanup pass; zero Lisp warnings. Its short
+  60-second soak is not the longer acceptance run. Initial harness runs were
+  superseded after fixing owned-widget close confirmation and adding explicit
+  graphical interruption/recovery.
+- Harness refinement: the immediate global timer-count check stopped
+  =gui-_gxyoj4z/= at cycle eight (420 seconds active), with stable buffers,
+  processes, idle timers and memory. The revised check waits six seconds
+  for background requests/shutdown timers, requires empty YAML request and
+  timeout tables and records timer function identities. An accelerated
+  90-second/nine-cycle check PASSED at
+  =/tmp/quarto-checks-3idoahau/gui-uqngzttc/=, with stable settled timers.
+  The real tagged-helper cleanup regression also passes, preserving an
+  untagged sibling (=python3 test/gui-runner-cleanup-check.py=).
+- Final active GUI run PASSED:
+  =/tmp/quarto-checks-3idoahau/gui-syf0dj2s/=, requested 900 seconds at a
+  60-second cycle interval. Measured active soak 900.135 seconds, total
+  920.393 seconds, 15 evaluation/edit cycles and 5 restart cycles. Both R
+  and Jupyter pass graphical interruption/recovery without changing runtime
+  identities. Maximum active heartbeat gap 1.127 seconds; maximum edit/index
+  time 0.191 seconds. Zero Lisp warnings and no ElDoc error messages.
+  Settled cycles retain 61 buffers, 22 Emacs process objects, 7–8 regular
+  timers and 5 idle timers; YAML pending/timeout tables remain empty.
+  Emacs RSS stays within 340,588–342,956 KiB, without cumulative growth.
+  Cleanup leaves only the dedicated Emacs server process, then Emacs exits;
+  the outer check confirms no tagged helper survives and the socket is gone.
+  Preview ports, runtime result directories and pending requests also clear.
+  Frame/menu PNGs, heartbeat/resource JSONL, messages and results are retained
+  there. Final Python/YAML menu and plot-result PNGs were visually inspected;
+  black plot labels are legible on white paper. Live DOM checks cover WebKit
+  child surfaces; Cairo exports omit their pixels.
+- Integrity: the real helper cleanup regression passes, 134 package pins
+  still match, Python/Elisp syntax and =git diff --check= pass. The original
+  user edit hunks are identical after normalizing Git's changed blob hashes;
+  only the native-comp policy hunk in =early-init.el= belongs to this commit.
+  Host Python still lacks the installed test packages and host R still lacks
+  renv, confirming dependency installation stayed disposable. The selected
+  Emacs launcher still resolves to the existing Emacs 31.1 installation.
+- Limits/rollback: bounded Linux validation is not an all-day session or a
+  cross-platform/daemon/native-helper rebuild claim. renv activation/library
+  isolation does not establish full offline CRAN restoration. Save work and
+  preserve private state, revert only this focused checkpoint, then restart.
+  Disposable dependency removal needs no system/project rollback. See
+  [[file:external-and-graphical-validation.org][the commands, QA contract, evidence and rollback guide]].
+
+** Startup scratch warning follow-up — 19 October 2026
+
+- Baseline: =f9e008d=. Reproduced the reported first-line =lexical-binding=
+  warning in the empty =*scratch*= buffer: global Flycheck byte-compiled it
+  as a temporary file without a header. Configuration source headers were
+  already present.
+- Change/rationale: exclude =lisp-interaction-mode= from global Flycheck.
+  Scratch stays empty and available for evaluation; ordinary Emacs Lisp
+  files retain compiler and Checkdoc diagnostics.
+- QA PASSED on installed Emacs 31.1: fresh normal terminal and Wayland
+  startup, empty scratch with Flycheck disabled, and real =.el= files that
+  still report missing-header and free-variable compiler warnings. Private
+  state/files remain under =/tmp/awc-lexical-startup-pznd7v9l/= (terminal)
+  and =/tmp/awc-lexical-startup-sp05bnon/= (graphical); each retains
+  =flycheck.txt= and =result.json=. Fast safety: 27/27 passed. Original
+  user edits remain unchanged. Rollback: remove only the Flycheck
+  =flycheck-global-modes= setting, then restart Emacs.
 
 * Planning baseline (earlier assessment, reconciled)
 

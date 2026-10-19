@@ -2,9 +2,16 @@
 (load (expand-file-name "quarto-test-setup.el" (file-name-directory load-file-name)) nil t)
 (setq quarto-lsp-auto-start nil)
 (defvar quarto-lifecycle-sources nil)
+(defvar quarto-lifecycle-files nil)
+(defvar quarto-lifecycle-root
+  (file-name-as-directory (or (getenv "QUARTO_TEST_RUNTIME_ROOT")
+                              "/tmp/quarto-runtime-check/project with spaces/")))
+(unless (file-in-directory-p quarto-lifecycle-root "/tmp/")
+  (error "Lifecycle fixtures must be under /tmp"))
 (defun quarto-lifecycle-open (name text)
-  (let ((file (expand-file-name (concat name ".qmd") "/tmp/quarto-runtime-check/project with spaces/reports/nested space/")))
+  (let ((file (expand-file-name (concat "reports/nested space/" name ".qmd") quarto-lifecycle-root)))
     (with-temp-file file (insert text))
+    (push file quarto-lifecycle-files)
     (let ((source (find-file-noselect file))) (push source quarto-lifecycle-sources) source)))
 (unwind-protect
     (let ((source (quarto-lifecycle-open "queue-check" "---\nengine: knitr\n---\n```{r}\nx <- 1\nstop('stop here')\n```\n```{r}\nx <- 999\n```\n")))
@@ -26,4 +33,8 @@
                             (quarto-request-events (car quarto-runtime--results))))
         (princ "PASS missing named kernel fails without substitution\n")))
   (dolist (source quarto-lifecycle-sources)
-    (when (buffer-live-p source) (with-current-buffer source (set-buffer-modified-p nil)) (kill-buffer source))))
+    (when (buffer-live-p source) (with-current-buffer source (set-buffer-modified-p nil)) (kill-buffer source)))
+  ;; A negative kernel document must not poison the following preview's
+  ;; project-wide Quarto inspection. These are only this check's own files.
+  (dolist (file quarto-lifecycle-files)
+    (when (file-exists-p file) (delete-file file))))

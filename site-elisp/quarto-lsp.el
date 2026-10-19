@@ -165,7 +165,11 @@
                (<= (quarto-chunk-head-end chunk) pos) (< pos (quarto-chunk-body-end chunk)))
       (quarto-lsp--sync source)
       (let ((buffer (cdr (assoc (quarto-chunk-language chunk) (buffer-local-value 'quarto-lsp--documents source)))))
-        (when (and (buffer-live-p buffer) (buffer-local-value 'lsp--buffer-workspaces buffer))
+        ;; A workspace is attached before its capabilities arrive. Hover/CAPF
+        ;; must wait rather than asking a starting server for unsupported methods.
+        (when (and (buffer-live-p buffer)
+                   (cl-some (lambda (workspace) (eq (lsp--workspace-status workspace) 'initialized))
+                            (buffer-local-value 'lsp--buffer-workspaces buffer)))
           (with-current-buffer buffer
             (when-let* ((mapped (quarto-map-position pos quarto-lsp--map))) (cons buffer mapped))))))))
 
