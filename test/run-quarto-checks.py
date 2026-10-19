@@ -125,6 +125,7 @@ if (length(missing)) stop("Missing R dependencies: ", paste(missing, collapse=",
         elisp('research-assistance', 'quarto-research-integration.el')
         elisp('literature-workflow', 'awc-research-quarto-integration.el')
         elisp('project-bibliography', 'awc-bibliography-quarto-integration.el')
+        run('portable-references', [sys.executable, 'test/run-portable-research-check.py', '--emacs', args.emacs])
         if args.suite in ('assistance', 'all'):
             r_dependencies(['renv', 'languageserver'])
             for label in ('alpha', 'beta'):

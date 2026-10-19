@@ -1,5 +1,5 @@
 #+TITLE: Emacs development roadmap
-#+DATE: 2026-10-18
+#+DATE: 2026-10-19
 #+TODO: PLANNED IN_PROGRESS BLOCKED | IMPLEMENTED VALIDATED DEFERRED
 #+OPTIONS: toc:2
 
@@ -46,10 +46,11 @@ other platforms and native WebKit pixel capture retain the limits below.
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 P1a now adds [[file:project-bibliography-snapshots.org][reviewed project bibliography snapshots]], preserving keys and
 manual-only fields and rendering a copied manuscript without Zotero or global
-Citar sources. P1b retains portable item associations and device-local PDF
-resolution. Physical second-device use and synchronization remain unvalidated.
+Citar sources. P1b now adds [[file:portable-associations-and-pdfs.org][portable associations and device-local PDFs]],
+validated across two independent disposable profiles on this Linux host.
+Physical second-device use and synchronization remain unvalidated.
 
-* Current prioritized plan — 18 October 2026
+* Current prioritized plan — 19 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
 analyze → write → verify → revise → validate → submit → archive. Reliability,
@@ -68,9 +69,9 @@ the particular unrun check, not treated as a passing result.
 | P0c1 Private preferences and accessible bindings | VALIDATED locally | P0b | Native save/restart/trust failures and real mode/menu dispatch pass |
 | P0c2 Measured startup and session reliability | VALIDATED locally | P0c1 | Five native terminal launches, missing-tool recovery and three real two-project cycles |
 | P0c3 External integration and graphical acceptance | VALIDATED locally | P0c2; disposable Jupyter/renv dependencies | Full external suite and 900-second/15-cycle Wayland acceptance pass |
-| P1 Portable reference/notes workflow | IN_PROGRESS; P1a validated locally | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
+| P1 Portable reference/notes workflow | VALIDATED locally in two profiles | P0, stable citation identities | Offline project render and identity/note/PDF reuse pass; physical second-device acceptance remains open |
 | P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
-| P1b Portable associations and device-local attachments | PLANNED | P1a | Transfer identities without device paths; resolve the same item/PDF/note in another configured environment |
+| P1b Portable associations and device-local attachments | VALIDATED locally in two profiles | P1a | Path-free transfer, same key/renamed note, different local PDFs and offline render pass; physical second device unrun |
 | P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
 | P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
 | P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
@@ -120,7 +121,9 @@ preparing its PR.
   were already repaired. Do not reimplement those features.
 - *P1a now implemented and validated locally:* deliberate reviewed project-bib
   add/refresh and copied-project rendering without Zotero/global references.
-- *Not implemented:* portable association records, full-vault navigation,
+- *P1b now implemented and validated locally:* reviewed path-free identity
+  transfer, device-local PDF resolution and independent-profile note/key reuse.
+- *Not implemented:* full-vault navigation,
   writing QA, submission manifests,
   evidence decisions, review import and bounded assistant sessions.
 - *Candidates without demonstrated value:* embeddings, broad note migration,
@@ -213,8 +216,8 @@ preparing its PR.
 
 - Objective/justification: stable identity and project-owned references make
   manuscripts reproducible on another machine. Local single-item work exists;
-  P1a's reviewed project snapshots are validated locally; P1b's portable
-  associations and device-local attachment resolution remain PLANNED.
+  P1a's reviewed project snapshots and P1b's portable associations and
+  device-local PDF resolution are validated in disposable local environments.
 - Modules/dependencies/architecture: =awc-research=, Citar, existing Quarto
   bibliography model and =init-workflow=, after P0. Separate portable library,
   item, attachment and citation identities from device PDF paths; keep one
@@ -230,8 +233,8 @@ preparing its PR.
   configured environment finds the same item/note without key change. Cover
   group libraries, multiple attachments, Unicode, missing files, duplicate
   titles, conflicting metadata and unavailable apps. Copied-project HTML/PDF
-  acceptance PASSED in P1a. Association/PDF transfer and physical
-  second-device acceptance remain NOT RUN.
+  acceptance PASSED in P1a. Association/PDF transfer PASSED in P1b across
+  independent profiles; physical second-device acceptance remains NOT RUN.
 - Rollback: revert adapter changes; preserve notes, portable identities and
   original bibliographies; never attempt to reverse library identity casually.
 
@@ -810,6 +813,73 @@ changed dependency or evidenced workflow need, recording the reason.
   Revert this focused configuration checkpoint and restart, preserving all
   notes, associations, snapshots and retained preimages. See
   [[file:project-bibliography-snapshots.org][the usage, ownership and QA guide]].
+
+* P1b portable associations and device-local PDFs checkpoint — 19 October 2026
+
+- Baseline: =1f1b8a28ba388e854ec96460df7234b5ebd185a3=, after P1a.
+  Branch: =codex/p1b-portable-associations-and-pdfs=. Original
+  =early-init.el= and =doc/research-workflows.org= edits remain outside this
+  focused change set. Implementation: =4f02aa80d91f30b388ed2c003ff1163d5835b8d4=.
+  [[https://github.com/aceross/emacs/pull/7][Draft PR #7]] targets =codex/p1a-reviewed-project-bibliographies= while
+  P1a PR #6 remains open. Hosted CI is the existing lightweight safety/pin
+  workflow; full installed-package, render and graphical checks are local.
+- Plan/rationale/QA first: transfer canonical citation/library/item identity
+  separately from local paths, keeping existing keys, notes and bibliographies.
+  Use reviewed additive JSON export/import and explicit GET-only PDF resolution.
+  Exercise two disposable profiles/processes with different PDF paths, changed
+  native Zotero keys and a copied renamed note before graphical acceptance.
+- Architecture: =awc-research-portable.el= implements versioned identities,
+  transfer review and local attachment caching, reusing =awc-bibliography='s
+  fingerprints/conflict checks and owned atomic writes. =awc-research= retains
+  established keys, reads legacy mixed records without rewriting them, omits
+  device paths from new bibliography records/notes and opens local PDFs through
+  Citar. =init-workflow= exposes =E/I/f/P= under =C-c w n=. No package added.
+- Ownership: =zotero-associations.json= is canonical path-free identity state;
+  =zotero-files-local.json= holds device PDF paths; =zotero-links.json= remains
+  a read-only legacy source. Transfer rejects =users/0= unless normalized to
+  the actual numeric account ID. Conflicting keys/items/namespaces fail for
+  reconciliation. Imported identities do not import paths or edit notes/bibs.
+- Baseline core PASSED at =/tmp/quarto-checks-r3ffgl8h/logs/= (142 ERT cases).
+  New ERT cases cover transfer schema and collisions, cancellation, stale/dirty
+  inputs, locked targets, atomic-write failure, legacy preservation, Unicode URLs, remote URL
+  refusal, multiple attachments, wrong library/parent, offline linking/opening,
+  HTTP 403/404 and edits during API reads. Final core PASSED at
+  =/tmp/quarto-checks-jbsc6nwg/logs/=: 162/162 ERT cases (20 new), five-mode
+  configured menu dispatch, preference restart/corruption, ESS/prose startup,
+  YAML/research assistance, literature/project-bibliography integration and
+  the new independent-profile transfer/render stage. A final locked-target
+  refusal check also passed in the focused research suite.
+- Independent-profile acceptance PASSED through
+  =python3 test/run-portable-research-check.py=: real loopback HTTP transport,
+  actual PDF files, account ID normalization, established canonical key,
+  changed native key, copied renamed note, rejected reachable device A path,
+  different device B cache paths and copied offline HTML/PDF rendering.
+  Evidence: =/tmp/awc-portable-research-oi1qsdbh/=.
+- Graphical acceptance PASSED with normal installed Emacs 31.1 PGTK/Wayland,
+  private configuration/state, actual menu keys, visible identity diff and
+  keyboard apply. Actual Citar/PDF Tools opens/render-checks device B's PDF
+  with both fixture APIs stopped. Native frame/page images are retained at
+  =/tmp/awc-bibliography-gui-6wp0rrzv/=; review/PDF frame images were visually
+  inspected. Startup records zero Lisp warnings; helper/socket cleanup passes.
+  The initial harness's missing Citar load was corrected before this result.
+- Fast safety PASSED 27/27 (=/tmp/awc-p1b-safety.log=); package audit reports
+  all 134 source pins clean and unchanged (=/tmp/awc-p1b-pins.log=).
+- Limits/recovery: this emulates two environments on one host. Physical
+  second-device data/file sync, sync conflicts, other platforms and a live
+  Zotero attachment read were not run. No sync service, API setting or live
+  library was changed. Legacy note links remain unchanged. The menu's =p=
+  enforces the local cache; other Citar file providers retain their behavior.
+  Replacements are per-file atomic, not a multi-file import transaction;
+  identity is committed after bibliography/cache, with preimages retained.
+  Preserve state, inspect/rerun interrupted imports and revert only this
+  focused configuration checkpoint if necessary. See
+  [[file:portable-associations-and-pdfs.org][the usage, ownership, transfer and QA guide]].
+- Milestone closure: P1a/P1b local acceptance is complete; physical second-device
+  acceptance stays open as a deployment check. Existing property-based note
+  completion already proves renamed-note reuse, so adding =obsidian.el= has
+  no demonstrated value for this gate and remains DEFERRED. The next bounded
+  milestone is P2: evaluate writing diagnostics against a disposable academic
+  corpus, report useful locations and false positives, then choose the adapter.
 
 * Planning baseline (earlier assessment, reconciled)
 

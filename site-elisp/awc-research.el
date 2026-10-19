@@ -28,6 +28,8 @@
 (defvar citar-file-note-extensions)
 (defvar citar-file-sources)
 (defvar url-http-response-status)
+(defvar awc-research-personal-library-id)
+(define-error 'awc-research-http-error "Zotero API request failed" 'user-error)
 
 (defgroup awc-research nil "References and literature notes." :group 'citar)
 (defcustom awc-research-vault-directory "~/Documents/Obsidian Vault/"
@@ -45,21 +47,31 @@
   "Local bibliography, Zotero associations and their backups."
   :type 'directory)
 (defcustom awc-research-zotero-library "users/0"
-  "Local API library, either users/0 or groups/NUMBER."
+  "Local API library, users/0, users/NUMBER or groups/NUMBER."
+  :type 'string)
+(defcustom awc-research-zotero-api-url "http://127.0.0.1:23119/api/"
+  "Loopback Zotero API base. A disposable test server can use another port."
   :type 'string)
 
 (defun awc-research--bibliography ()
   (expand-file-name "zotero.bib" awc-research-data-directory))
 
 (defun awc-research--links-file ()
+  (expand-file-name "zotero-associations.json" awc-research-data-directory))
+
+(defun awc-research--legacy-links-file ()
   (expand-file-name "zotero-links.json" awc-research-data-directory))
 
-(defun awc-research--read-links ()
-  (if (file-exists-p (awc-research--links-file))
+(defun awc-research--read-legacy-links ()
+  (if (file-exists-p (awc-research--legacy-links-file))
       (with-temp-buffer
-        (insert-file-contents (awc-research--links-file))
+        (insert-file-contents (awc-research--legacy-links-file))
         (json-parse-buffer :object-type 'hash-table))
     (make-hash-table :test 'equal)))
+
+(defun awc-research--read-links ()
+  (require 'awc-research-portable)
+  (awc-research-portable--links))
 
 (defun awc-research--write-owned (file text)
   "Atomically replace our FILE with TEXT, preserving an existing version."
@@ -78,28 +90,32 @@
       (when (file-exists-p temporary) (delete-file temporary)))))
 
 (defun awc-research--library (library)
-  (unless (string-match-p "\\`\\(?:users/0\\|groups/[0-9]+\\)\\'" library)
-    (user-error "Use users/0 or groups/NUMBER for the Zotero library"))
+  (unless (and (stringp library) (string-match-p "\\`\\(?:users/[0-9]+\\|groups/[1-9][0-9]*\\)\\'" library))
+    (user-error "Use users/NUMBER or groups/NUMBER for the Zotero library"))
   library)
 
 (defun awc-research--get (path &optional raw)
   "GET PATH from Zotero.  Return JSON unless RAW requests the response text."
+  (unless (string-match-p "\\`http://\\(?:127\\.0\\.0\\.1\\|localhost\\):[0-9]+/api/\\'" awc-research-zotero-api-url)
+    (user-error "Zotero API must use a loopback address and explicit port"))
   (let* ((url-request-method "GET")
          (url-request-extra-headers '(("Zotero-API-Version" . "3")))
          (url-proxy-services nil)
          (url-show-status nil)
          (buffer (condition-case nil
                      (url-retrieve-synchronously
-                      (concat "http://127.0.0.1:23119/api/" path) t t 8)
+                      (concat awc-research-zotero-api-url path) t t 8)
                    (error nil))))
     (unless (buffer-live-p buffer)
       (user-error "Cannot reach Zotero; start it and enable its local API"))
     (unwind-protect
         (with-current-buffer buffer
           (unless (eq url-http-response-status 200)
-            (user-error "Zotero HTTP %s%s" url-http-response-status
-                        (if (eq url-http-response-status 403)
-                            "; enable Settings → Advanced → Allow other applications" "")))
+            (signal 'awc-research-http-error
+                    (list (format "HTTP %s%s" url-http-response-status
+                                  (if (eq url-http-response-status 403)
+                                      "; enable Settings → Advanced → Allow other applications" ""))
+                          url-http-response-status)))
           (goto-char (point-min))
           (unless (re-search-forward "\r?\n\r?\n" nil t)
             (user-error "Invalid Zotero response"))
@@ -148,12 +164,19 @@
 Only our supplemental bibliography and local association file may change.
 LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
   (require 'citar)
+  (require 'awc-research-portable)
   (setq library (awc-research--library (or library awc-research-zotero-library)))
   (unless (string-match-p "\\`[A-Z0-9]\\{8\\}\\'" item-key)
     (user-error "Invalid Zotero item key"))
   (awc-research--activate-bibliography)
-  (let* ((item (awc-research--get (format "%s/items/%s" library item-key)))
+  (let* ((snapshots (mapcar #'awc-bibliography--snapshot
+                           (awc-research-portable--inputs (awc-research--bibliography))))
+         (item (awc-research--get (format "%s/items/%s" library item-key)))
          (data (alist-get 'data item))
+         (library (awc-research-portable--library library item))
+         (awc-research-personal-library-id
+          (if (and (string-prefix-p "users/" library) (not (equal library "users/0")))
+              (string-to-number (substring library 6)) awc-research-personal-library-id))
          (text (awc-research--get
                 (format "%s/items?itemKey=%s&format=bibtex" library item-key) t))
          (entry (awc-research--entry text))
@@ -164,6 +187,8 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
          (entries (let ((citar-bibliography (default-value 'citar-bibliography)))
                     (citar-get-entries)))
          existing matches)
+    (unless (equal (alist-get 'key item) item-key)
+      (user-error "Zotero returned a different item identity"))
     (unless (and export-key (not (string-empty-p export-key)))
       (user-error "Zotero export has no citation key"))
     (when (and zotero-key (not (equal export-key zotero-key)))
@@ -175,7 +200,8 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
     (when (> (length matches) 1)
       (user-error "This Zotero item has multiple local citation keys"))
     (setq existing (car matches))
-    (when (and existing (not (gethash existing entries)))
+    (when (and existing (not (gethash existing entries))
+               (not (gethash existing (awc-research-portable--read))))
       (user-error "Previously linked citation %s is missing; restore its bibliography" existing))
     (unless existing
       (setq matches nil)
@@ -186,34 +212,30 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
         (user-error "Multiple existing keys match this paper: %s" (string-join matches ", ")))
       (setq existing (car matches)))
     (let* ((key (or existing export-key)) (previous (gethash key links)))
+      (when (and (not existing) (gethash key entries))
+        (user-error "Citation key %s already belongs to a different reference" key))
       (when (and previous
                  (not (and (equal library (gethash "library" previous))
                            (equal item-key (gethash "item" previous)))))
         (user-error "Citation %s is already linked to another Zotero item" key))
-      (unless existing
-        (when (gethash key entries)
-          (user-error "Citation key %s already belongs to a different reference" key))
-        ;; Append the exact export.  Never re-key or rewrite a user's .bib.
+      (awc-bibliography--check snapshots)
+      (unless (gethash key entries)
+        ;; Restore the transferred canonical key in our own supplement.
+        ;; Paths belong to this device's cache, not new bibliography records.
         (awc-research--write-owned
          (awc-research--bibliography)
          (concat (when (file-exists-p (awc-research--bibliography))
                    (with-temp-buffer
                      (insert-file-contents (awc-research--bibliography)) (buffer-string)))
-                 "\n" (string-trim text) "\n")))
+                 "\n" (let ((record (car (awc-bibliography--records text "Zotero export"))))
+                          (awc-bibliography--render key record (awc-bibliography--fields record))) "\n")))
       (let ((link (make-hash-table :test 'equal)))
         (puthash "library" library link)
         (puthash "item" item-key link)
         (puthash "zoteroCitationKey" (or zotero-key export-key) link)
-        (puthash "files"
-                 (vconcat (when-let* ((field (citar-get-value "file" entry)))
-                            (citar-file--parse-file-field field (list (expand-file-name "~/")) key)))
-                 link)
-        (unless (and previous
-                     (cl-every (lambda (field) (equal (gethash field previous) (gethash field link)))
-                               '("library" "item" "zoteroCitationKey" "files")))
-          (puthash key link links)
-          (awc-research--write-owned (awc-research--links-file)
-                                    (concat (json-serialize links) "\n"))))
+        (awc-research-portable--save-item
+         key link (when-let* ((field (citar-get-value "file" entry)))
+                    (citar-file--parse-file-field field (list (expand-file-name "~/")) key)) entry))
       (awc-research--activate-bibliography)
       (message "Zotero reference ready: %s" key)
       key)))
@@ -305,7 +327,7 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
     (maphash (lambda (key link)
                (when (or (null keys) (member key keys))
                  (when-let* ((paths (cl-remove-if
-                                    (lambda (path) (or (not (file-readable-p path))
+                                    (lambda (path) (or (file-remote-p path) (not (file-readable-p path))
                                                        (member path (gethash key bib-files))))
                                     (append (gethash "files" link) nil))))
                    (puthash key paths files))))
@@ -325,7 +347,7 @@ LIBRARY defaults to `awc-research-zotero-library'.  Return the citation key."
 (defun awc-research--zotero-uri (link)
   (let ((library (gethash "library" link)))
     (format "zotero://select/%s/items/%s"
-            (if (equal library "users/0") "library" library) (gethash "item" link))))
+            (if (string-prefix-p "users/" library) "library" library) (gethash "item" link))))
 
 (defun awc-research--global-key ()
   "Use a literature note's key, otherwise select from global references."
@@ -386,7 +408,6 @@ ENTRY is supplied by Citar.  Existing notes are never modified."
         (user-error "Note path is already occupied; inspect %s" file))
       (let* ((link (gethash key (awc-research--read-links)))
              (title (or (citar-get-value "title" entry) key))
-             (pdfs (gethash key (citar-get-files (list key))))
              (text (concat
                     "---\ntitle: " (json-encode-string title)
                     "\ncitekey: " (json-encode-string key)
@@ -398,8 +419,7 @@ ENTRY is supplied by Citar.  Existing notes are never modified."
                     "---\n\n# " title "\n\n"
                     "Citation: [@" key "]\n\n"
                     (when link (format "[Open in Zotero](%s)\n\n" (awc-research--zotero-uri link)))
-                    (mapconcat (lambda (pdf)
-                                 (format "[Open PDF](%s)\n\n" (awc-research--file-uri pdf))) pdfs "")
+                    (when link (awc-research-portable--pdf-links link))
                     "## Summary\n\n## Source passages\n\n## My analysis\n\n## Related notes\n")))
         (make-directory directory t)
         ;; MUSTBENEW prevents races from overwriting a file created elsewhere.
@@ -423,10 +443,12 @@ ENTRY is supplied by Citar.  Existing notes are never modified."
   (require 'citar)
   (let* ((citar-bibliography (default-value 'citar-bibliography))
          (citar--entries nil)
-         (files (cl-remove-if-not
-                 (lambda (file) (string-equal (downcase (or (file-name-extension file) "")) "pdf"))
-                 (gethash key (citar-get-files (list key))))))
-    (unless files (user-error "No readable local PDF for %s; check Zotero attachment and export" key))
+         (link (gethash key (awc-research--read-links)))
+         (files (delete-dups (cl-remove-if-not
+                 #'awc-research-portable--pdf-file-p
+                 (if link (append (gethash "files" link) nil)
+                   (gethash key (citar-get-files (list key))))))))
+    (unless files (user-error "No readable device PDF for %s; resolve with C-c w n f or link one with C-c w n P" key))
     (citar-file-open (if (= (length files) 1) (car files)
                        (completing-read "PDF: " files nil t)))))
 
