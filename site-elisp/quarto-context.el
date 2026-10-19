@@ -39,6 +39,9 @@ Unsaved front matter is parsed independently and overlays that metadata."
         (when (file-remote-p file) (user-error "Quarto currently requires a local document"))
         (let* ((default-directory root)
                (process-environment (append (awc-project-environment python) process-environment))
+               ;; Check before allocating logs: repeated missing-tool actions
+               ;; must not leave a fresh hidden inspect buffer on every retry.
+               (program (or (executable-find "quarto") (user-error "Cannot find quarto")))
                (log (generate-new-buffer " *Quarto inspect*"))
                (errors (get-buffer-create (format "*Quarto inspect: %s*" (buffer-name))))
                (format-choice quarto-format) (profile quarto-profile)
@@ -46,7 +49,7 @@ Unsaved front matter is parsed independently and overlays that metadata."
           (setq quarto-context--process
                 (make-process
                  :name "quarto-inspect" :buffer log :stderr errors :coding 'utf-8-unix :noquery t
-                 :command (append (list (or (executable-find "quarto") (user-error "Cannot find quarto")) "inspect" file)
+                 :command (append (list program "inspect" file)
                                   (when profile (list "--profile" profile)))
                  :sentinel
                  (lambda (process _event)

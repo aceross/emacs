@@ -2,6 +2,22 @@
 (require 'ert)
 (require 'quarto-runtime)
 
+(ert-deftest quarto-runtime-interrupt-idle-does-not-poison-the-next-request ()
+  (let ((process (make-pipe-process :name "quarto-interrupt-test" :noquery t)) signalled)
+    (unwind-protect
+        (with-temp-buffer
+          (setq quarto-runtime--process process quarto-runtime--state 'ready
+                quarto-runtime--context '(:engine "knitr"))
+          (cl-letf (((symbol-function 'interrupt-process) (lambda (&rest _) (setq signalled t))))
+            (quarto-interrupt)
+            (should-not signalled)
+            (setq quarto-runtime--current (make-quarto-request :state 'running))
+            (quarto-interrupt)
+            (should signalled)
+            (should (eq (quarto-request-state quarto-runtime--current) 'interrupted)))
+          (when (timerp quarto-runtime--timer) (cancel-timer quarto-runtime--timer)))
+      (delete-process process))))
+
 (ert-deftest quarto-runtime-events-cannot-cross-documents-or-requests ()
   (with-temp-buffer
     (let ((request (make-quarto-request :id 1 :document "first" :revision 3 :state 'running)))

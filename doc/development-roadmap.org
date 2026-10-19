@@ -37,8 +37,10 @@ The first single-paper workflow is implemented: Zotero reference, local PDF,
 Obsidian literature note and rendered Quarto citation. See
 [[file:zotero-obsidian-quarto.org][the usage and validation guide]]. That stage added vault-specific note recovery. P0a now extends recoverable
 editing to ordinary files and restores execution safeguards. P0b now captures
-package source pins and repairs checked bootstrap/rollback; durable preferences
-and interaction reliability remain P0c, before later research features.
+package source pins and repairs checked bootstrap/rollback. P0c1 validates
+durable preferences/bindings; P0c2 now validates measured terminal startup,
+missing-tool recovery and bounded session cleanup. Full external runtime
+coverage and prolonged graphical use retain the limits recorded below.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 The next citation milestone is a project-owned bibliography with stable keys,
@@ -61,9 +63,9 @@ the particular unrun check, not treated as a passing result.
 |-----------------+-------+------------+---------------------------|
 | P0a Safe defaults and recoverable editing | VALIDATED locally | Existing native file/Org behavior | Refused execution, crash recovery, external-edit conflicts and core regressions |
 | P0b Package/bootstrap reproducibility | VALIDATED locally | P0a | 134 source pins restored, clean configuration startup and native rollback; online-only/native-helper limits recorded |
-| P0c Startup, preferences and interaction reliability | IN PROGRESS | P0b | P0c1 passes; P0c2 measurements and session acceptance remain |
+| P0c Startup, preferences and interaction reliability | VALIDATED locally | P0b | P0c1 and bounded P0c2 gates pass; graphical/full external limits recorded |
 | P0c1 Private preferences and accessible bindings | VALIDATED locally | P0b | Native save/restart/trust failures and real mode/menu dispatch pass |
-| P0c2 Measured startup and session reliability | PLANNED | P0c1 | Missing optional tools, timed startup and bounded two-project lifecycle checks |
+| P0c2 Measured startup and session reliability | VALIDATED locally | P0c1 | Five native terminal launches, missing-tool recovery and three real two-project cycles |
 | P1 Portable reference/notes workflow | PLANNED; local foundation validated | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
 | P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
 | P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
@@ -183,8 +185,8 @@ preparing its PR.
 - Objective/problem: make safe choices durable, expose existing commands and
   identify actual optional-package/performance failures. Reliability, not a
   cosmetic rewrite, justifies this work.
-- State/modules/dependencies: IN PROGRESS; P0c1 VALIDATED locally, P0c2
-  PLANNED. =init.el=, =awc-preferences= and =init-core/org/text/gptel/workflow=,
+- State/modules/dependencies: VALIDATED locally; P0c1 and bounded P0c2 pass.
+  =init.el=, =awc-preferences= and =init-core/org/text/gptel/workflow=,
   startup and tests; follows P0b's reproducible package state.
 - Tasks/architecture: establish a private persisted Customize/trust policy;
   resolve =C-c g= through the existing =C-c w= menu; review =C-c p=, =M-p= and
@@ -194,9 +196,10 @@ preparing its PR.
   repositories. Retain overlapping packages unless their responsibilities
   demonstrably conflict. No broad warning suppression or framework migration.
 - Acceptance/results: mode-specific binding/dispatch and native restart
-  persistence pass, including after-init and task-face callbacks. Missing-tool
-  startup, bounded two-project sessions and recorded timings remain P0c2 and
-  are NOT RUN here. See the P0c1 checkpoint and [[file:preferences-and-bindings.org][preferences/binding guide]].
+  persistence pass, including after-init and task-face callbacks. P0c2 adds
+  warning-free terminal startup, missing-tool recovery and bounded real
+  two-project process/timer/buffer/socket checks. See the P0c1/P0c2 checkpoints,
+  [[file:preferences-and-bindings.org][preferences/binding guide]] and [[file:startup-and-session-reliability.org][startup/session QA contract]].
 - Rollback: revert this bounded commit, preserve private preferences/recovery
   data, restart; do not reset the user's working server during validation.
 
@@ -542,6 +545,81 @@ changed dependency or evidenced workflow need, recording the reason.
 - Next bounded milestone: measure configured startup/warnings and optional
   dependency failures, then run bounded two-project lifecycle/cleanup checks.
   Close P0c only when those acceptance conditions actually pass.
+
+* P0c2 checkpoint — 18 October 2026
+
+- Baseline: =273b2c63cd7ddf956dc56e90c88af3958b0cd9c6=, following P0c1.
+  Branch: =codex/p0c2-startup-and-session-reliability=. P0c1's draft PR remains
+  open, so this checkpoint stacks on that branch. The two original local
+  edits remain excluded. No live session is restarted by these checks.
+- Implementation: =3fedfa0a7cb259fc0beab7fc0a3c4d8293e4b076=.
+  [[https://github.com/aceross/emacs/pull/4][Draft PR #4]] targets =codex/p0c1-preferences-and-bindings=.
+  Hosted [[https://github.com/aceross/emacs/actions/runs/39156383501][push CI]] and [[https://github.com/aceross/emacs/actions/runs/39156404887][PR CI]] PASSED. Inspected PR logs confirm
+  GNU Emacs 29.3, Git 2.55.0 and 27/27 safety tests with zero unexpected
+  results, plus committed snapshot validation. The local installed-package
+  and external-tool checks below are separate from that lightweight CI.
+- Plan/justification/QA first: establish the core baseline, measure normal
+  startup with private state, hide optional tools only in fixtures, then
+  repeat real two-project operations and compare resources. Fix reproduced
+  failures with regressions, then rerun acceptance. No speculative GC tuning,
+  broad warning suppression, package replacement or framework migration.
+- Confirmed failures/fixes: missing Quarto allocated hidden inspect buffers
+  on every retry; check its executable before allocating logs. Native Python
+  reinitialization orphaned a fontification buffer on REPL restart; dispose
+  it before restart/reopening an ended REPL. Immediate R document SIGINT
+  could end the bridge outside its evaluator's handler; defer interrupts in
+  protocol handling, allow them during evaluation, and avoid signalling an
+  idle/starting reader. Negative cases failed before the fixes and now pass.
+- Architecture: existing =awc-python=, =quarto-context=, =quarto-runtime= and
+  =quarto-tools/runtime.R=. The explicit =test/run-reliability-checks.py=
+  runner uses installed builds in Straight safe mode, native terminal init
+  and synthetic project/venv/profile fixtures. It never installs dependencies.
+  It is separate from lightweight CI and the heavier Jupyter/renv suites.
+- Baseline core passed 125/125 plus all core integration stages; logs
+  =/tmp/quarto-checks-xqn_rp89/logs/=. Final safety passed 27/27
+  (=/tmp/awc-p0c2-safety.log=); final core passed 127/127 and all startup,
+  preferences, YAML and research stages (=/tmp/quarto-checks-ebqt3rz6/logs/=).
+  Two new ERT cases cover missing-tool buffer leaks and idle cancellation.
+- Final serial command: =python3 test/run-reliability-checks.py --suite all
+  --repetitions 5 --cycles 3 --keep= PASSED; evidence
+  =/tmp/emacs-reliability-lggxpuzq/logs/=. Five normal terminal starts had zero
+  warnings and restored file handlers and GC settings (16 MiB/0.1). Init
+  seconds: 3.376, 2.053, 2.300, 2.049, 2.102; median 2.102. Median process
+  wall time: 6.599 seconds, including PTY negotiation and test exit. GC:
+  7 collections on the first fixture launch, then 6; 0.214–0.325 seconds.
+  These share OS/package caches and are not OS-cold or graphical timings.
+- Missing-tool acceptance PASSED: startup and editable/savable Python, R,
+  Quarto and Markdown with dependencies hidden; explicit actionable failures,
+  repeated Quarto failures without new buffers, same-session tool restoration
+  and real base-library-only R languageserver/httpgd diagnostics. No install
+  or project dependency change was needed.
+- Three real two-project cycles PASSED: distinct venv/interpreter/profile/root
+  identities, Python/ESS and knitr processes, nine immediate R cancellations,
+  active/idle interruptions, restart, unexpected exit/recovery, sibling
+  isolation, source close and real HTTP preview content. The final socket
+  check =--suite session --cycles 3 --keep= also PASSED; logs
+  =/tmp/emacs-reliability-v80tyl0b/logs/=. Preview stop/close releases actual
+  listening sockets. After each cycle, the same shared YAML helper plus its
+  stderr pipe remain, with the same retained log/helper buffers, 1 timer,
+  2 idle timers and 2 project-session keys. Request/timeout tables empty;
+  document artefacts disappear. REPLs intentionally survive source close;
+  explicit session/transcript cleanup precedes the resource comparison.
+- Integrity: all 134 clean package source pins match; =git diff --check=
+  passes. Byte-for-byte original-diff comparison confirms =early-init.el=
+  and =doc/research-workflows.org= are preserved. R and Python syntax checks
+  pass. The selected Emacs is 31.1; R 4.6.0, Quarto 1.4.530 and Node 22.22.1
+  are existing tools, not newly installed versions.
+- Limits: bounded checks are not an all-day graphical soak. WebKit/httpgd UI,
+  daemon startup, native Vterm/PDF helpers, another platform and full current
+  Jupyter/renv coverage are NOT RUN. System Python lacks jupyter_client,
+  ipykernel, nbclient, nbformat and pandas; normal R lacks renv. Earlier
+  specialized results remain historical evidence. Do not claim comprehensive
+  external regression acceptance or start P1 on that assumption; explicitly
+  prepare disposable dependencies and rerun those suites before that claim.
+- Rollback: save buffers, preserve private preferences/recovery data, revert
+  this bounded checkpoint on a clean branch and restart. No package/system
+  executable, project environment, research data or desktop rollback is needed.
+  See [[file:startup-and-session-reliability.org][the usage, QA and rollback guide]].
 
 * Planning baseline (earlier assessment, reconciled)
 

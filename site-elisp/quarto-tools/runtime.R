@@ -1,5 +1,8 @@
 # Document-owned knitr runtime. R starts in the project before this file runs.
-local({
+# SIGINT may arrive immediately after Emacs dispatches a request, before R
+# enters evaluate(). Keep protocol reads/writes intact and deliver a pending
+# interrupt only inside the request's installed handler.
+local(suspendInterrupts({
   for (package in c("jsonlite", "evaluate", "knitr")) {
     if (!requireNamespace(package, quietly = TRUE))
       stop(sprintf("Install %s explicitly in this project's R library", package))
@@ -61,7 +64,7 @@ local({
     failed <- FALSE
     status <- "succeeded"
     emit("running")
-    tryCatch({
+    tryCatch(allowInterrupts({
       setwd(request$directory)
       if (identical(request$method, "table")) {
         name <- request$name
@@ -98,10 +101,10 @@ local({
         reticulate::eng_python(opts)
       } else stop("Unsupported language for knitr")
       if (failed) status <- "failed"
-    }, interrupt = function(e) { status <<- "interrupted"; emit("warning", text = "Interrupted") },
+    }), interrupt = function(e) { status <<- "interrupted"; emit("warning", text = "Interrupted") },
        error = function(e) { status <<- "failed"; emit("error", text = conditionMessage(e)) })
     emit("done", status = status)
   }
   close(input)
   close(protocol)
-})
+}))

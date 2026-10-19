@@ -240,7 +240,9 @@ This is the common execution interface; requests snapshot code and revision."
     (setq quarto-runtime--queue nil)
     (unless (process-live-p quarto-runtime--process) (setq quarto-runtime--state 'stopped))
     (when quarto-runtime--current (setf (quarto-request-state quarto-runtime--current) 'interrupted))
-    (when (process-live-p quarto-runtime--process)
+    ;; Do not leave a pending SIGINT in an idle/starting R protocol reader.
+    ;; Queued requests were cancelled above without needing an engine signal.
+    (when (and quarto-runtime--current (process-live-p quarto-runtime--process))
       (if (equal (plist-get quarto-runtime--context :engine) "jupyter")
           (process-send-string quarto-runtime--process "{\"method\":\"interrupt\"}\n")
         (interrupt-process quarto-runtime--process)))

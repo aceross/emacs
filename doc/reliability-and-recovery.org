@@ -8,8 +8,11 @@ file safety defaults, recovery and clean-note external refresh. It preserves
 project/environment selection, ESS, Quarto, Citar, Org and the installed Emacs
 build. No keybindings, libraries, project environments or desktop integration
 are changed by P0a. P0b subsequently validates package source/bootstrap
-restoration; P0c1 adds persisted preferences and binding fixes. P0 as a whole
-remains IN PROGRESS pending measured startup/session checks in P0c2.
+restoration; P0c1 adds persisted preferences and binding fixes. P0c2 now
+validates measured terminal startup, missing-tool recovery and bounded
+two-project sessions, with three reproduced lifecycle failures fixed. See
+[[file:startup-and-session-reliability.org][the QA contract and limits]]; prolonged GUI use and full current external
+runtime coverage remain separate checks.
 
 =enable-local-variables= is =t= and =enable-local-eval= is =maybe=. Emacs applies
 recognized safe values normally and asks before accepting unknown/risky
