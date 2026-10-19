@@ -178,7 +178,7 @@
       (should-error (awc-research--get "users/0/items") :type 'user-error))
     (should-not (buffer-live-p response))))
 
-(ert-deftest awc-research-attachment-not-duplicated-and-uri-escapes-path ()
+(ert-deftest awc-research-attachment-not-duplicated-and-new-note-has-no-device-path ()
   (awc-research-test--fixture
     (let ((pdf (expand-file-name "paper #1 é.pdf" root)))
       (with-temp-file pdf (insert "PDF fixture"))
@@ -186,11 +186,10 @@
             (format "@article{saved24:key,title={A source},year={2024},file={PDF:%s:application/pdf}}" pdf))
       (awc-research-import-item "ABC12345")
       (should (equal (gethash "saved24:key" (citar-get-files '("saved24:key"))) (list pdf)))
+      (should (string-match-p "paper%20%231%20%C3%A9.pdf" (awc-research--file-uri pdf)))
       (let ((text (with-current-buffer (awc-research-open-note "saved24:key") (buffer-string))))
-        (should (string-match-p "paper%20%231%20%C3%A9.pdf" text))
-        (with-temp-buffer
-          (insert text)
-          (should (= 1 (how-many "\\[Open PDF\\]" (point-min) (point-max)))))))))
+        (should-not (string-match-p "file://\\|paper%20%231" text))
+        (should (string-match-p "zotero://select/library/items/ABC12345" text))))))
 
 (ert-deftest awc-research-import-preserves-unsaved-supplement-edits ()
   (awc-research-test--fixture

@@ -19,6 +19,10 @@
 (autoload 'awc-research-open-zotero "awc-research" nil t)
 (autoload 'awc-research-open-pdf "awc-research" nil t)
 (autoload 'awc-research-open-in-obsidian "awc-research" nil t)
+(autoload 'awc-research-export-associations "awc-research-portable" nil t)
+(autoload 'awc-research-import-associations "awc-research-portable" nil t)
+(autoload 'awc-research-resolve-pdfs "awc-research-portable" nil t)
+(autoload 'awc-research-link-local-pdf "awc-research-portable" nil t)
 (autoload 'awc-bibliography-prepare "awc-bibliography" nil t)
 (autoload 'awc-bibliography-refresh "awc-bibliography" nil t)
 (autoload 'gptel "gptel" nil t)
@@ -51,7 +55,12 @@
     ("N" "Markdown / legacy Org notes" citar-open-notes)
     ("p" "Local PDF" awc-research-open-pdf)
     ("Z" "Open Zotero item" awc-research-open-zotero)
-    ("o" "Open current note in Obsidian" awc-research-open-in-obsidian)]])
+    ("o" "Open current note in Obsidian" awc-research-open-in-obsidian)]
+   ["Portable identities / device PDFs"
+    ("E" "Review export associations" awc-research-export-associations)
+    ("I" "Review import associations" awc-research-import-associations)
+    ("f" "Resolve PDFs from local Zotero" awc-research-resolve-pdfs)
+    ("P" "Link a local PDF explicitly" awc-research-link-local-pdf)]])
 
 (transient-define-prefix awc/workflow ()
   "Research project commands."

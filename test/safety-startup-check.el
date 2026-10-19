@@ -98,6 +98,11 @@
     (execute-kbd-macro (kbd "C-c w n"))
     (should (eq (key-binding (kbd "b")) #'awc-bibliography-prepare))
     (should (eq (key-binding (kbd "r")) #'awc-bibliography-refresh))
+    (dolist (binding '(("E" . awc-research-export-associations)
+                       ("I" . awc-research-import-associations)
+                       ("f" . awc-research-resolve-pdfs)
+                       ("P" . awc-research-link-local-pdf)))
+      (should (eq (key-binding (kbd (car binding))) (cdr binding))))
     (execute-kbd-macro (kbd "C-q"))
     (princ (format "%s: C-c g=%S; C-c p=%S; M-p=%S; C-q=%S\n"
                    mode (key-binding (kbd "C-c g")) (key-binding (kbd "C-c p"))

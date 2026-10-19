@@ -24,6 +24,7 @@ def helper(name, filename):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--emacs', default=shutil.which('emacs-xwidgets'))
+    parser.add_argument('--check', choices=('bibliography', 'portable'), default='bibliography')
     args = parser.parse_args()
     if not args.emacs:
         parser.error('Choose an installed graphical Emacs with --emacs')
@@ -49,7 +50,7 @@ def main():
     try:
         runner.run([args.emacs, '--init-directory', str(config), '--no-splash',
                     '--name', 'Disposable reference review', '--load',
-                    str(REPO / 'test' / 'bibliography-graphical-session-check.el')],
+                    str(REPO / 'test' / (args.check + '-graphical-session-check.el'))],
                    env, root / 'startup.log', timeout=90)
         record = json.loads((root / 'result.json').read_text())
         if record.get('failure') or record.get('warnings'):

@@ -1,0 +1,173 @@
+#+TITLE: Portable reference identities and device-local PDFs
+#+DATE: 2026-10-19
+
+* Move identities, resolve files locally
+
+The canonical citation key belongs to the research workflow. A Zotero
+library/item pair identifies its source even when Zotero's native citation
+key later changes. PDF locations belong to each device. Transfer the
+associations deliberately, alongside the bibliographies and vault; resolve
+PDFs on the receiving device after Zotero has its local files available.
+
+This extends [[file:project-bibliography-snapshots.org][reviewed project bibliography snapshots]]. It configures no
+synchronization service and writes no Zotero data. Existing bibliography
+records and notes retain their contents. Restart Emacs for the new menu.
+
+| =C-c w n= key | Action |
+|--------------+--------|
+| E | Review exporting associations to a separate JSON file |
+| I | Review importing a transfer file into this device |
+| f | Resolve the selected reference's PDFs through local Zotero |
+| P | Explicitly link an existing local PDF, including offline |
+| p | Open an available local PDF; choose when several exist |
+| n | Reopen the same literature note, including after a rename |
+| Z | Open the associated item in Zotero |
+
+Export/import first show a read-only diff. =C-c C-c= applies that exact
+review; =q= leaves it unapplied. If inputs change, prepare a fresh review.
+An identical transfer is a no-op. A transfer adds associations; it does not
+remove associations, rename keys or overwrite an identity conflict.
+
+* Ownership and format
+
+All state below is under =awc-research-data-directory= (normally
+=~/.emacs.d/var/research/=), ignored by configuration Git and backed up
+separately. Do not synchronize the whole runtime directory between devices.
+
+| File | Owner and contents |
+|------+--------------------|
+| =zotero-associations.json= | Canonical keys and Zotero library/item identities; versioned and path-free |
+| =zotero-files-local.json= | This device's attachment IDs and absolute file paths; derived or explicitly selected locally |
+| =zotero-links.json= | Legacy mixed identity/path records; retained read-only for compatibility |
+| =zotero.bib= | Append-only supplemental bibliography; newly appended records omit local attachment fields |
+| Separate exported JSON | Reviewed transfer of identities; copy this deliberately |
+
+A transfer uses schema version 1:
+
+#+begin_src json
+{
+  "version": 1,
+  "associations": [
+    {
+      "citekey": "legacy:key",
+      "library": "users/12345",
+      "item": "ABC12345",
+      "zoteroCitationKey": "current-native-key",
+      "reference": {"doi": "10.1/source", "title": "A source", "year": "2024"}
+    }
+  ]
+}
+#+end_src
+
+=citekey=, =library= and =item= are required. The native key is a hint, never
+an instruction to rename the canonical key. Reference hints validate an
+incoming association against an existing bibliography entry. No attachment
+paths or arbitrary additional fields are accepted. One library/item pair
+can have one canonical key. Personal and group namespaces are distinct.
+
+=users/0= is a local API alias and cannot be exported. A new API response's
+actual numeric user ID is retained. For legacy aliases, export reads item
+metadata to discover that ID; offline, set =awc-research-personal-library-id=
+to the verified numeric account ID before preparing the export. Group
+identities use =groups/NUMBER=. Never substitute another account's ID to
+make a transfer pass. The numeric API route lets Zotero reject a different
+personal account on the receiving device. See Zotero's
+[[https://www.zotero.org/support/dev/web_api/v3/local_api][local API documentation]] and [[https://www.zotero.org/support/dev/web_api/v3/basics][library namespaces]].
+
+The device cache is keyed by library and parent item. A resolved entry
+records each child attachment's item key and local path. Those paths never
+enter the transfer file. The receiving device discovers its own child
+attachments and paths. Manually linked PDFs may have no Zotero attachment
+ID; their selection is local and does not invent a portable attachment link.
+
+* Use another device
+
+1. On the established device, keep backups of the bibliographies, vault and
+   runtime association data. Use =E= to a separate writable =.json= file,
+   inspect the identities and apply with =C-c C-c=.
+2. Copy that transfer file, the relevant bibliographies, and the existing
+   vault using the chosen transport. Copy manuscript sources, their
+   =references.bib= and any styles together. Configure vault/global
+   bibliography paths and application URI handlers on the receiving device.
+3. Use =I= on the receiving device, inspect the diff and apply. An existing
+   key with a different identity, an item under another canonical key, or
+   conflicting bibliography metadata stops the import for reconciliation.
+   Transfer import does not fetch Zotero or edit bibliographies/notes.
+4. Reopen the note with =n=. Its =citekey= property recovers the renamed
+   file. Re-importing the Zotero item preserves the transferred canonical
+   key. If its bibliography record is absent, explicit item import can
+   reconstruct that key in the owned supplement from Zotero metadata.
+5. With the correct Zotero account and files locally available, use =f=.
+   This performs GET requests for the parent, its children and each PDF's
+   =file/view/url=. Only readable local PDF files enter the cache. Then =p=
+   opens through Citar/PDF Tools without contacting Zotero. For a PDF held
+   elsewhere, use =P= to select it explicitly.
+
+A copied BibTeX =file= field is not a source for an associated key opened
+with =p= on the receiving device, even if that old path happens to exist.
+Other Citar file providers retain their existing behavior; use this menu's
+=p= for device-local resolution of associated references.
+Zotero file sync/download is separate; resolving does not download files.
+
+New notes retain portable Zotero item links and, when resolved attachment
+IDs are known at creation, =zotero://open-pdf/...= links. Zotero must have
+the corresponding library/account available for those app links. A note
+created before resolution still opens its PDF through =p=. Existing notes,
+including older absolute links, are never automatically rewritten.
+
+* Preservation and recovery
+
+Reading legacy state does not create or migrate files. A reviewed transfer
+or explicit item import can populate the new identity ledger; the legacy
+file remains intact. Keep it until its associations are verified. Legacy
+local paths remain usable only with the matching local identity and no
+overriding cache entry. Do not import a legacy mixed file as a transfer.
+
+Reviews capture file identities, digests and visited-buffer state. Unsaved
+edits or stale input files prevent application. Linked, locked, unwritable
+or internal export targets are refused. Owned replacements use a private
+temporary file and retain the previous version; unchanged content causes
+no write. Cache/identity files are owner-only on creation.
+
+An API failure, invalid URL, wrong library or wrong attachment parent leaves
+the previous PDF cache intact. A successful lookup with no locally available
+PDF clears that reference's cache and reports the absence. Check file sync,
+then resolve again, or explicitly link a local PDF. Resolution replaces
+that reference's prior resolved/manual selection.
+
+Each file replacement is atomic; an item import spanning bibliography,
+cache and identities is not one multi-file transaction. The supplement is
+appended first when needed, derived cache next and canonical identity last.
+After an interrupted import, inspect retained preimages and rerun import;
+do not delete bibliographies or notes to recover derived cache state.
+Use one writing Emacs session; this is not a concurrent merge protocol.
+To roll back the configuration, preserve all state and notes, revert this
+focused checkpoint and restart. The old adapter does not read the new
+identity/cache files, so retain the legacy file and transfer backup.
+
+* Disposable QA
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+python3 test/run-portable-research-check.py --gui
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+The two-profile runner uses independent Emacs processes, separate data and
+vault directories, real loopback fixture APIs and actual PDF files. It
+transfers an established key and renamed note, changes the native Zotero
+key, rejects a copied but reachable old PDF path, resolves different local
+paths (including Unicode, spaces, =#= and =?=), skips an unavailable attachment
+and renders the copied manuscript as HTML/PDF with both APIs stopped.
+Graphical acceptance opens the actual received PDF with PDF Tools, captures
+the frame/page and checks private helper/socket cleanup.
+
+ERT also covers schema/version errors, namespace/key conflicts, legacy
+preservation, cancelled/stale/dirty reviews, failed atomic replacement,
+remote URLs, multiple attachments, wrong parents/libraries, HTTP 403/404,
+offline manual linking and state changed during API reads. No package or
+live research environment is installed or modified by these checks.
+
+This validates two environments on one Linux host. A physical second
+computer, real cross-device Zotero file sync, cloud conflict handling and
+other operating systems remain unvalidated. No sync method is selected.

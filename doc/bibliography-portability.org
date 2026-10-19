@@ -9,8 +9,8 @@ in all three places. A manuscript should render from its own files without
 Zotero running or access to a particular computer's home directory.
 
 P1a implements [[file:project-bibliography-snapshots.org][reviewed project snapshot additions and refreshes]] after the first
-Zotero → Obsidian → Quarto trial. It does not configure synchronization,
-replace existing bibliographies or migrate keys. See the
+Zotero → Obsidian → Quarto trial. P1b adds [[file:portable-associations-and-pdfs.org][reviewed identity transfer and local PDF resolution]].
+Neither configures synchronization, replaces existing bibliographies or migrates keys. See the
 [[file:zotero-obsidian-quarto.org][workflow guide]] for the implemented commands.
 
 * Which copy owns what?
@@ -22,7 +22,9 @@ replace existing bibliographies or migrate keys. See the
 | =~/.emacs.d/var/research/zotero.bib= | Additional records imported by the current Emacs adapter | Import adds missing records; it does not refresh existing metadata |
 | Project =references.bib= | Bibliography snapshot used to build that manuscript | Deliberately add or refresh entries, review the diff and render |
 | Vault Markdown notes | Reading notes and analysis, with unchanged =citekey= properties | Edit the same vault files through Emacs or Obsidian |
-| =var/research/zotero-links.json= | Local key-to-item associations and attachment paths | Back up; it contains both identity information and machine-specific paths |
+| =var/research/zotero-associations.json= | Canonical key-to-library/item identities | Back up; deliberately export/import reviewed path-free transfers |
+| =var/research/zotero-files-local.json= | Device PDF cache | Rebuild through local Zotero or explicitly link a PDF; do not transfer |
+| =var/research/zotero-links.json= | Legacy mixed identity and path records | Retain read-only; do not copy as a portable transfer |
 
 The personal bibliography and the supplement are currently both needed.
 Neither is a proven complete export of Zotero. Replacing either with a fresh
@@ -58,8 +60,8 @@ Keep =.qmd=, =references.bib= and any local CSL file together in the project's
 version history. A second device can then use exactly the same reference
 snapshot. For documents in subdirectories, check the resolved bibliography
 path rather than assuming it is relative to the shell's working directory.
-Local PDF attachment paths are not needed to format citations; future project
-exports should omit those machine-specific fields. Include any supporting
+Local PDF attachment paths are not needed to format citations; reviewed project
+snapshots omit those machine-specific fields. Include any supporting
 entries needed by BibTeX =crossref= or BibLaTeX =xdata= references.
 
 * Adding and updating references
@@ -106,11 +108,10 @@ without checking the installed versions. See the
 
 There is still a local compatibility issue: our adapter can retain an older
 BibTeX key when Zotero has a different one. That choice lives in the existing
-bibliographies and local association file; it does not write the chosen key
-back into Zotero. A fresh device must not independently invent a replacement
-for a key already used in notes or manuscripts. Reconcile these differences
-explicitly, keeping established citations intact, before enabling imports
-on both devices. Renaming a key is a migration, not a routine metadata update.
+bibliographies and canonical association file; it does not write the chosen
+key back into Zotero. Export/import that association before importing on a
+fresh device. Conflicting canonical keys or item identities require explicit
+reconciliation. Renaming a key is a migration, not a metadata update.
 
 * What to sync, and what to configure locally
 
@@ -125,29 +126,26 @@ on both devices. Renaming a key is a migration, not a routine metadata update.
   together, preferably through the project's Git repository.
 - Configure the vault directory, global Citar bibliography paths, local
   Zotero API access and application URI handlers on each device.
-- Prefer Zotero item identity for locating a source. The current note
-  template also embeds absolute PDF file links; those links are specific to
-  the originating machine. Re-import refreshes cached attachment paths, but
-  deliberately does not rewrite an existing note's links.
+- Prefer Zotero item identity for locating a source. New notes use portable
+  Zotero PDF links when resolved attachment IDs are known. Existing notes'
+  absolute links remain untouched. Resolve the current device's PDF with
+  =C-c w n f=, then open with =C-c w n p=; =P= links a local PDF explicitly.
 - Back up =var/research/= separately: it is ignored by this Emacs repository's
   Git rules. Do not assume copying the configuration carries its references
-  or key associations. Do not treat the association file as a disposable
-  cache, or merge two devices' copies blindly.
+  or key associations. Export/import the canonical identities deliberately;
+  do not merge runtime/cache directories blindly.
 
-Until key associations are portable, keep new Emacs imports on the established
-device. Other devices can still edit synced notes and render manuscripts from
-their project bibliography snapshots.
+Transfer the canonical associations before starting fresh imports on another
+device, keeping the same bibliography keys and vault notes.
 
-* Next implementation: portable associations and local attachments (P1b)
+* P1b acceptance and remaining limits
 
-Separate portable citation-key/item associations from local attachment paths
-and reconcile legacy keys without changing manuscripts, then validate those
-identities on another configured device. P1a provides the reviewed project
-add/refresh commands and checks duplicate keys and missing declarations.
+P1b separates identities from paths, with reviewed transfer, conflict checks
+and explicit local resolution. Disposable independent profiles on this host
+preserve a legacy key and renamed note despite a changed native Zotero key;
+device B resolves its own PDFs and renders copied manuscript HTML/PDF with
+the fixture APIs stopped. Native PDF Tools opening is separately validated.
+See [[file:portable-associations-and-pdfs.org][the command, ownership and QA guide]].
 
-P1a's copied manuscript renders as HTML/PDF from a different working directory
-with Zotero unavailable and without global Citar sources. The remaining
-acceptance is to open the same literature note and Zotero item, resolve the
-local PDF, and re-import without changing any citation key or creating a
-duplicate note on a second configured device. That identity/attachment
-acceptance has not yet been run.
+A physical second computer, real cross-device Zotero file sync, vault sync
+conflicts and other platforms remain unvalidated. No sync service is configured.

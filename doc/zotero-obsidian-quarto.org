@@ -33,6 +33,8 @@ references and literature-notes menu.
 | e | Visit the current bibliography entry |
 | b | Review adding/updating a reference from the local Citar snapshot |
 | r | Review refreshing a project reference from its associated Zotero item |
+| E / I | Review exporting / importing portable reference associations |
+| f / P | Resolve PDFs through local Zotero / explicitly link a local PDF |
 
 From a literature note, =n=, =p= and =Z= use its =citekey= property. Otherwise,
 they offer a reference selector. Multiple local PDFs or matching Markdown
@@ -64,7 +66,9 @@ writing. Existing bibliography records are not refreshed or reformatted.
 
 A new reference goes into =~/.emacs.d/var/research/zotero.bib=, added alongside
 the existing personal bibliography. Explicit item associations and available
-attachment paths go into =zotero-links.json= in the same directory. Repeated
+attachment paths now have separate owners: =zotero-associations.json= holds
+path-free identities; =zotero-files-local.json= holds device PDF paths.
+Legacy =zotero-links.json= remains read-only. Repeated
 imports reuse the established key; changing a Zotero key later does not
 silently rename the local citation.
 
@@ -73,8 +77,12 @@ This installation's export preserves its saved key. A different installation
 that returns inconsistent keys is rejected rather than guessed.
 
 Zotero can be closed for ordinary citation insertion, note access and reading
-an already available PDF. Re-importing an associated item refreshes its cached
-attachment paths. A missing PDF is reported; nothing is downloaded or installed.
+an already available PDF. Use =C-c w n f= to explicitly resolve attachment
+paths on this device; =C-c w n P= links a chosen local PDF offline.
+The menu's =p= does not use copied bibliography paths for associated keys. A missing
+PDF is reported; nothing is downloaded or installed. New notes use Zotero
+PDF links when attachment IDs are known, preserving existing notes unchanged.
+See [[file:portable-associations-and-pdfs.org][transfer, cache ownership and recovery]].
 
 * Bibliographies in other Quarto projects
 
@@ -142,7 +150,9 @@ The small adapter is [[file:../site-elisp/awc-research.el][awc-research.el]]. It
 - =awc-research-notes-subdirectory=: =Literature= by default.
 - =awc-research-data-directory=: the supplemental bibliography and recovery data.
 - =awc-research-legacy-notes-directories=: existing filename-based Org notes.
-- =awc-research-zotero-library=: =users/0=, or =groups/NUMBER=.
+- =awc-research-zotero-library=: =users/0=, =users/NUMBER= or =groups/NUMBER=.
+- =awc-research-personal-library-id=: verified numeric user ID for offline
+  export of legacy personal-library aliases, otherwise discovered via API.
 
 No new Emacs package is required. The implementation uses the installed Citar,
 Markdown, PDF Tools and Quarto stack. App handoff commands use the operating
