@@ -756,6 +756,10 @@ changed dependency or evidenced workflow need, recording the reason.
   Branch: =codex/p1a-reviewed-project-bibliographies=. This stacks on the
   existing P0c3 branch; original =early-init.el= and
   =doc/research-workflows.org= edits remain outside the change set.
+- Implementation: =659fdea=. [[https://github.com/aceross/emacs/pull/6][Draft PR #6]] targets
+  =codex/p0c3-external-and-graphical-validation= while PR #5 remains open.
+  Hosted CI uses the existing lightweight safety/snapshot workflow; the
+  installed-package, render and graphical evidence below is local acceptance.
 - Plan/rationale/QA first: deliver a usable project-owned snapshot path
   before transferring global identities. Reuse Citar, the read-only Zotero
   adapter and Quarto's effective bibliography model. Prepare a diff, then
