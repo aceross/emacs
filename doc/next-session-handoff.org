@@ -1,0 +1,163 @@
+#+TITLE: Next-session prompt: P2 academic writing QA
+#+DATE: 2026-10-19
+
+Copy the prompt below into a new session working in =/home/awc/.emacs.d=.
+The development roadmap and specialized guides are the durable evidence;
+temporary QA directories may no longer exist in a later session.
+
+* Prompt
+
+Continue developing my Emacs research and development environment in
+=/home/awc/.emacs.d=, repository =aceross/emacs=. Implement the next bounded
+milestone, P2 academic writing QA. First outline the approach, rationale and
+QA plan, using disposable environments, then carry the agreed scope through
+implementation and validation. Preserve the working configuration rather
+than replacing it with a distribution or a new editor/framework stack.
+
+** Establish the merged baseline
+
+PRs #1–#7 (P0a through P1b) were merged into =master= with merge commits on
+19 October 2026. The code integration baseline is =45cbf784e7609d11015c35d01c1f648f034a551c=; a handoff
+documentation checkpoint follows it. Git remote is named =emacs=; the
+default branch is =master=, not =main=. Verify current HEAD, status, upstream
+and recent history before editing. Start a focused =codex/p2-...= branch
+from current =master=; the earlier stacked feature branches are historical.
+
+The two edits previously preserved outside milestone commits are now
+included in =b989539f48fcc0721fff0f3cb28d661f62fb772e=: the Straight activation
+comment in =early-init.el= and the package.el/PDF archive documentation in
+=doc/research-workflows.org=. Do not recreate them as pending work. Preserve
+any genuinely new user edits found at session start.
+
+Read first:
+
+- =README.org= and =doc/development-roadmap.org=, especially the current
+  P0–P7 gates and P1b/merge checkpoints. Older planning sections are historical.
+- =site-elisp/init-workflow.el=, =site-elisp/init-text.el= and relevant prose
+  hooks/LSP configuration; inspect actual existing writing diagnostics.
+- =doc/preferences-and-bindings.org= and
+  =doc/startup-and-session-reliability.org= for interaction and lifecycle rules.
+- =test/prose-startup-check.el=, =test/safety-startup-check.el=,
+  =test/run-tests.el= and =test/run-quarto-checks.py=.
+- =doc/project-bibliography-snapshots.org= and
+  =doc/portable-associations-and-pdfs.org= when touching citations/notes.
+
+=doc/emacs-refresh-handoff.org= is the older 12 October assessment. Many of
+its proposed fixes are already complete. Do not restart that task list.
+
+** Completed work to preserve
+
+- P0a: native confirmation/trust defaults, backups/auto-save/locks, recovery
+  and external-edit protection. Do not weaken these for convenience.
+- P0b: 134 package source pins, checked Straight bootstrap/restoration and
+  rollback. No package/framework upgrade is needed for P2 by default.
+- P0c1/P0c2: persisted private preferences, accessible workflow menus,
+  measured startup and bounded two-project process/timer/socket cleanup.
+- P0c3: disposable Jupyter/renv external acceptance and a 15-minute active
+  graphical session passed. This does not establish all-day stability.
+- P1a: reviewed project bibliography add/refresh, preserved manuscript keys
+  and manual fields, dependency closure and copied offline HTML/PDF render.
+- P1b: reviewed path-free identity transfer and a separate device PDF cache.
+  Independent profiles preserve the canonical key and renamed note despite a
+  changed native Zotero key; the receiver resolves its own PDFs. New notes
+  use Zotero links; existing notes and legacy mixed records remain intact.
+
+The P1b adapter is =site-elisp/awc-research-portable.el=. Under =C-c w n=,
+=E/I= review export/import, =f= resolves local PDFs, =P= explicitly links a
+local file and =p= opens cached PDFs offline. Identities live in
+=var/research/zotero-associations.json=, device paths in
+=zotero-files-local.json=, and =zotero-links.json= remains read-only legacy
+input. Do not sync or blindly merge the entire runtime directory. Other
+Citar file providers retain their existing behavior.
+
+P1 is validated locally in two profiles on one Linux host. A physical second
+computer, actual cross-device Zotero/vault file synchronization and other
+platforms remain unvalidated. No sync service has been configured. These
+deployment checks do not justify reopening completed P1 implementation.
+
+** P2 scope and rationale
+
+Deliver useful, located academic prose diagnostics with measured false
+positives, respecting project-owned rules and UK English. Evaluate Vale or
+an established alternative against the existing tools before choosing a
+bounded adapter. Writegood is already exposed through =C-c w W=. Optional
+LTeX has a recorded startup/crash concern; verify its current state before
+making it a dependency and do not enable prose language servers globally.
+
+Use a small synthetic academic corpus covering Quarto, Markdown, Org and
+any additional format the chosen integration actually supports. Include
+positive and negative examples of terminology/spelling, acronym policy,
+placeholders and stylistic candidates. Exclude code/chunks, YAML, citation
+syntax, mathematics, URLs and identifiers where appropriate. Distinguish
+objective errors from suggestions requiring editorial judgment.
+
+Measure useful findings, false positives and source-location correctness;
+record the corpus size, counting method and observed runtime. Do not claim
+the tool verifies scholarly accuracy. Support project dictionaries/rules
+and intentional exceptions. A missing executable or rule set must leave
+ordinary editing usable with a clear diagnosis. Use existing Flycheck or
+compilation navigation where suitable and extend the existing writing menu.
+Avoid automatic rewriting and broad new global hooks.
+
+Do not start P3 manuscript manifests, P4 evidence search, full-vault migration,
+embeddings or LLM research sessions in this milestone. Adding =obsidian.el=
+remains deferred because existing property-based completion already proves
+renamed-note reuse. Keep Org for agenda, executable documents and repository
+documentation; Obsidian remains the primary literature-notes system.
+
+** QA and operating constraints
+
+All fixtures, temporary dictionaries, dependency installations and GUI state
+must be disposable under =/tmp=. Use synthetic texts, bibliographies, vaults
+and PDFs; do not use live research as committed fixtures or modify live
+project Python/R libraries to satisfy tests. New external tools or releases
+should be verified against current official documentation. Preserve the
+existing package source snapshot and explain any genuinely required change.
+
+Use the installed =/home/awc/.local/bin/emacs-xwidgets= (Emacs 31.1 PGTK)
+for configured/graphical acceptance. Its matching client is
+=/home/awc/.local/opt/emacs-31.1-xwidgets/bin/emacsclient=. Default =emacs=
+may still be Snap. Do not rebuild Emacs, switch launchers, reload or kill the
+user's ordinary running session. GUI checks need a private configuration,
+server, state directory and exact helper cleanup. Preserve first-line
+lexical-binding directives; do not convert existing dynamic modules blindly.
+
+Saved baseline commands:
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+emacs-xwidgets -Q --batch -L site-elisp -l awc-packages --eval '(let ((user-emacs-directory default-directory)) (awc-packages-audit))'
+#+end_src
+
+P1b acceptance recorded 162/162 core ERT cases plus startup/integration
+stages, 35/35 final focused research cases, 27/27 safety cases and 134 clean
+package sources. Native graphical identity review and actual offline PDF
+Tools display passed with zero Lisp warnings. These are prior results,
+not a claim that P2 has passed. Hosted CI runs the lightweight built-in
+safety/preference/package-snapshot checks, not the full installed-package,
+external-tool or graphical acceptance.
+
+The core suite uses a disposable loopback API server; a restricted sandbox
+may require network/process approval. Follow the environment's escalation
+mechanism instead of weakening tests. Install any missing test dependencies
+only into the disposable environment. Inspect the current working tree
+before broadening or repeating completed checks.
+
+Add meaningful P2 tests for located diagnostics, exclusions, project-local
+rules/exceptions and missing-tool behavior. Re-run affected configured modes
+and core/safety checks. Exercise actual keyboard navigation to findings and
+inspect diagnostic source ranges. If the feature has a graphical flow, use
+a private normal GUI session. Record passed, failed, not run and deferred
+checks separately; do not expand a passing milestone speculatively.
+
+** Required checkpoint
+
+Update =doc/development-roadmap.org= with the chosen tool/adapter, rationale,
+dependencies, corpus/evaluation results, validation evidence, limitations and
+rollback. Add a focused usage/QA guide under =doc/=. Report the user-visible
+change, architecture, exact tests/results, remaining risks, branch/commit
+state and the next bounded task. Keep changes focused and reviewable. The
+current request merged the earlier stack; do not assume it authorizes
+merging future P2 work without a new request. Manuscript workflows must not
+commit, push or publish research automatically.

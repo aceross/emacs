@@ -881,6 +881,46 @@ changed dependency or evidenced workflow need, recording the reason.
   milestone is P2: evaluate writing diagnostics against a disposable academic
   corpus, report useful locations and false positives, then choose the adapter.
 
+* Merged baseline and next-session handoff — 19 October 2026
+
+The user requested pushing and merging all current work, then preparing a
+fresh-session prompt. PRs #1–#7 are now MERGED into =master= in dependency
+order, using merge commits. Remaining PRs were retargeted to =master= after
+their predecessors merged. Each exact head had passing hosted checks; no
+check/protection bypass or branch deletion was used.
+
+| Milestone | Merged PR | Merge commit |
+|-----------+-----------+--------------|
+| P0a safe execution/recovery | [[https://github.com/aceross/emacs/pull/1][#1]] | =1481042= |
+| P0b package reproducibility | [[https://github.com/aceross/emacs/pull/2][#2]] | =ee9eef0= |
+| P0c1 preferences/bindings | [[https://github.com/aceross/emacs/pull/3][#3]] | =283c157= |
+| P0c2 startup/session reliability | [[https://github.com/aceross/emacs/pull/4][#4]] | =fa3755e= |
+| P0c3 external/graphical acceptance | [[https://github.com/aceross/emacs/pull/5][#5]] | =782fbce= |
+| P1a reviewed bibliography snapshots | [[https://github.com/aceross/emacs/pull/6][#6]] | =626ecee= |
+| P1b identities/device PDFs | [[https://github.com/aceross/emacs/pull/7][#7]] | =45cbf78= |
+
+The code integration baseline is =45cbf784e7609d11015c35d01c1f648f034a551c=.
+Its tracked file tree is identical to the tested P1b branch plus the two
+previously preserved edits, now committed as
+=b989539f48fcc0721fff0f3cb28d661f62fb772e=. Those edits document Straight
+activation and the earlier local package archive; neither remains pending.
+The earlier checkpoint descriptions of draft PRs and excluded edits record
+their state at the time and are superseded by this merge checkpoint.
+
+The full P1b core/external/graphical evidence remains in its checkpoint
+above. Merge verification confirms no content conflict or source change.
+The post-merge safety check passes 27/27 and the package audit reports all
+134 source pins clean; logs are =/tmp/awc-merged-safety.log= and
+=/tmp/awc-merged-pins.log=. This handoff adds documentation only; it does
+not reopen completed milestones or claim a new graphical/external run.
+
+Continue with [[file:next-session-handoff.org][the current P2 handoff prompt]]: outline approach/rationale/QA first,
+evaluate prose diagnostics on disposable academic fixtures, report useful
+located findings and false positives, then implement the smallest justified
+adapter. The old [[file:emacs-refresh-handoff.org][12 October refresh brief]] remains historical context.
+Physical second-device/sync checks stay open as deployment acceptance, and
+P3/P4/LLM expansion remains outside the next milestone.
+
 * Planning baseline (earlier assessment, reconciled)
 
 | Area | Existing foundation | Development need |
