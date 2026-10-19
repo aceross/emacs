@@ -10,6 +10,7 @@
 (require 'ess-site)
 (require 'awc-files-test)
 (require 'awc-packages-test)
+(require 'awc-preferences-test)
 (require 'quarto-preview-test)
 (require 'awc-project-test)
 (require 'quarto-edit-test)

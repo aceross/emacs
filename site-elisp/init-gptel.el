@@ -6,6 +6,4 @@
   (setq gptel-model "gpt-4")
   (setq gptel-default-mode 'org-mode))
 
-(global-set-key (kbd "C-c g") #'gptel)
-
 (provide 'init-gptel)

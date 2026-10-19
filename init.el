@@ -67,6 +67,10 @@
   (require 'init-workflow)
 
   ;; ---- GPT / AI helpers ----
-  (require 'init-gptel))
+  (require 'init-gptel)
+
+  ;; Saved user choices take precedence over module defaults.  Keep native
+  ;; execution and recovery safeguards effective after loading preferences.
+  (awc-preferences-load))
 
 ;;; init.el ends here

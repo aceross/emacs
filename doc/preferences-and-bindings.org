@@ -1,0 +1,148 @@
+#+TITLE: Persistent preferences and accessible workflow commands
+#+DATE: 2026-10-18
+
+* Scope and use
+
+P0c1 replaces transient Customize storage and resolves the confirmed command
+collisions. It builds on =awc-files=, native Custom and the existing workflow
+Transient. It does not change package versions, project environments or the
+selected Emacs installation. P0c2 retains measured startup/session work.
+
+Restart Emacs after saving your buffers. Old keymaps and hooks in a running
+session are not removed merely by evaluating the changed definitions.
+
+Use the normal Customize interface, for example =M-x customize-variable=,
+and choose /Apply and Save/. Native file-local approval continues to offer
+its usual session/save choices. Settings live in
+=var/preferences/custom.el= below the active configuration directory. The
+directory is owner-only (0700), and the file is owner-read/write (0600),
+including after native Customize saves. This personal file is ignored by
+Git; include it in your private machine backups.
+
+=init-core= prepares the file before packages can save preferences. The
+bounded =awc-preferences.el= module loads it once at the end of =init.el=,
+after repository module defaults. Native Custom handles saved options,
+faces and deferred package values. Repeated ordinary initialization preserves
+the file. The existing Org task-face callback now respects explicit Customize
+choices through startup and frame callbacks; otherwise it retains its theme
+defaults.
+
+No old temporary file is imported automatically: its provenance and ownership
+cannot reliably be reconstructed. Re-enter known settings through Customize
+or deliberately review a known old file. The private file is executable,
+user-owned Emacs Lisp, not a sandbox or an appropriate destination for copied
+project instructions. Keep backend credentials in the existing credential
+mechanism; do not save literal credentials as preferences.
+
+* Trust and safety policy
+
+Private settings do not disable the established startup defaults for local
+variable review, Babel confirmation, backups, auto-save or lockfiles. Obsolete
+permissive saved values are preserved for inspection but those defaults are
+reapplied after loading, including delayed Org loading. Explicit native trust
+records remain governed by Emacs's own rules; no directories, languages or
+classes of executable strings are automatically approved.
+
+- =y=: accept the displayed values for this session/visit as native Emacs
+  permits, without adding permanent approvals.
+- =!=: save the exact eligible variable/value pairs to the private Custom
+  file. Python's =awc-project-python= approval survives restart. Emacs excludes
+  risky variables such as =inferior-ess-r-program= from this saved list; the
+  reviewed R value works for the visit but receives review again next session.
+- =n=: decline. Changed/unrecognized interpreter values and untrusted local
+  evaluation still receive confirmation; a declined value is not saved.
+
+Native exact-value approvals apply globally, not to a particular project's
+identity or executable hash. A relative interpreter string can match the
+same string in another repository. Prefer session approval, or a deliberately
+reviewed absolute interpreter path, when that distinction matters. Existing
+explicit trust is not a guarantee about the contents of an executable or a
+source block. This checkpoint does not extend trust to whole repositories.
+
+* Commands and migration
+
+| Command | Current entry | Previous entry / behavior |
+|---------+---------------+---------------------------|
+| Existing gptel UI | =C-c w a= | =C-c g= conflicted with writing commands |
+| Writing submenu | =C-c w W= | Previously scattered global bindings |
+| Grade level | =C-c w W g= | =C-c g g= was unreachable after gptel loaded |
+| Reading ease | =C-c w W e= | =C-c g e= was unreachable |
+| Toggle Writegood | =C-c w W w= | Existing minor mode, now discoverable |
+| Org document header | =C-c w W h= | =C-q h= |
+| Org R block | =C-c w W r= | =C-q s r= |
+| Org inline R | =C-c w W i= | =C-q i r= |
+| Literal character input | =C-q= | Org previously replaced this with a prefix |
+
+The Org templates are active only in Org buffers in the new menu. The
+existing =C-c o h=, =C-c o s r= and =C-c o i r= aliases remain available.
+No model request is made merely by opening a menu or GPT buffer; this stage
+adds no new LLM retrieval or sending workflow. Readability scores expose the
+existing Writegood functions, not a new manuscript validation service.
+
+The intentional mode differences remain explicit: =C-c p= invokes Pomodoro
+in Org and completion elsewhere; =M-p= follows the previous Markdown link in
+Markdown/Quarto and invokes completion in Org/Python/R. =C-c w= and =C-c q=
+retain their existing roles. =C-c g= is free after a fresh restart.
+
+* Preference-file failure and recovery
+
+An absent file is created privately. Existing symlinked/foreign-owned paths,
+unreadable or read-only files, and non-files are refused with a visible
+=awc-preferences= warning. Their contents are preserved. Directory/file
+permissions for valid owned storage are tightened to the private policy.
+
+The loader parses the whole file before evaluating it. A syntax error
+therefore cannot apply just the first settings. An uncaught runtime error
+restores the prior native trust lists and their Custom metadata, reapplies
+safety defaults and warns.
+Cancellation also restores those lists/defaults and propagates the quit.
+Other side effects of arbitrary trusted Lisp cannot be rolled back; keep
+Custom files limited to deliberate preferences. Native Custom setters can
+also report their own invalid-value warnings.
+
+Following a storage/load failure, Customize saving is disabled for the
+session: =custom-file= points to the existing configuration directory so
+native saving fails instead of falling back to editing =init.el= or following
+a rejected file symlink. Repair the indicated private file/path, retaining
+its original for comparison, then restart. Do not clear =custom-file= to nil.
+
+For rollback, preserve =var/preferences/=, =var/recovery/= and =var/research/=,
+revert only the P0c1 configuration commit on a clean branch and restart.
+The preceding configuration does not load these saved preferences, and
+reinstates the older conflicting bindings. Keep recovery data and unrelated
+local edits intact; package rollback and Emacs rebuilding are unnecessary.
+
+* QA
+
+The built-in/Git safety suite now includes native Custom save/restart tests:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+It exercises private creation/repeated initialization, actual native saves
+and separate child-process reloads, explicit Python approval and R session
+review, changed interpreter values, declined local evaluation, stale safety
+settings including deferred Org, malformed input with no partial execution,
+uncaught error/quit trust restoration, unreadable/read-only storage and
+rejected symlinks without modifying their targets or init files.
+
+The established external core runner additionally checks the real configured
+bindings in Org/Markdown/Python/R/Quarto, opens the actual nested menus,
+calculates a grade score, rejects an inactive Org action, inserts a real Org
+template and uses literal character input. Three independent full-config
+processes save, reload and reject corrupted private settings; configured
+=after-init-hook= callbacks also run. They verify ordinary preferences, GPT
+buffer defaults, EPUB settings and explicitly chosen Org task colours.
+Installed package builds are shared read-only; all writable state is under
+the disposable root.
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+These checks do not contact a model, edit live notes or install dependencies
+in research projects. The GTK UI, all possible customized options, long
+sessions and full missing-tool/runtime/LSP tests are separate checks. Exact
+executed results, logs, Git checkpoint and remaining work are recorded in
+[[file:development-roadmap.org][the development roadmap]].

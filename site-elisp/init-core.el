@@ -2,6 +2,8 @@
 
 (require 'awc-files)
 (awc-files-initialize)
+(require 'awc-preferences)
+(awc-preferences-initialize)
 
 (setq straight-use-package-by-default t)
 (setq straight-vc-git-default-clone-depth 1)
@@ -36,7 +38,6 @@
                           ,(expand-file-name "eln-cache/" user-emacs-directory)
                           ,(expand-file-name "etc/" user-emacs-directory)
                           ,(expand-file-name "var/" user-emacs-directory))
-        custom-file (make-temp-file "")
         custom-safe-themes t
         vc-follow-symlinks t
         byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local)

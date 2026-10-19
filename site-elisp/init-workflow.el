@@ -11,6 +11,21 @@
 (autoload 'awc-research-open-zotero "awc-research" nil t)
 (autoload 'awc-research-open-pdf "awc-research" nil t)
 (autoload 'awc-research-open-in-obsidian "awc-research" nil t)
+(autoload 'gptel "gptel" nil t)
+(autoload 'writegood-grade-level "writegood-mode" nil t)
+(autoload 'writegood-reading-ease "writegood-mode" nil t)
+(autoload 'writegood-mode "writegood-mode" nil t)
+
+(transient-define-prefix awc/writing ()
+  "Writing checks and contextual Org templates."
+  [["Writing"
+    ("g" "Grade level" writegood-grade-level)
+    ("e" "Reading ease" writegood-reading-ease)
+    ("w" "Toggle Writegood" writegood-mode)]
+   ["Org templates"
+    ("h" "Document header" org-skeleton-header :if (lambda () (derived-mode-p 'org-mode)))
+    ("r" "R source block" org-skeleton-R-src :if (lambda () (derived-mode-p 'org-mode)))
+    ("i" "Inline R" org-inline-R-src :if (lambda () (derived-mode-p 'org-mode)))]])
 
 (transient-define-prefix awc/research ()
   "References, literature notes and source documents."
@@ -47,6 +62,8 @@
     ("V" "R plots (httpgd)" awc/r-httpgd-init-and-open)
     ("I" "R objects" awc/r-env-list)]
    ["Documents / IDE"
+    ("W" "Writing / Org templates" awc/writing)
+    ("a" "Assistant (gptel)" gptel)
     ("n" "References / literature notes" awc/research)
     ("B" "Quarto render" quarto-build-document)
     ("v" "Quarto preview" quarto-preview-document)

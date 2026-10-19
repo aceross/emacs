@@ -187,8 +187,11 @@
 ;; Dynamic Faces Based on Theme
 (defun set-org-todo-faces (&optional frame)
   "Set org todo faces based on FRAME's theme background.
-FRAME defaults to the selected frame when called without arguments."
-  (let ((bg (if (display-graphic-p frame)
+FRAME defaults to the selected frame when called without arguments.
+Keep explicit Customize choices across startup and frame callbacks."
+  (unless (or (get 'org-todo-keyword-faces 'saved-value)
+              (get 'org-todo-keyword-faces 'customized-value))
+   (let ((bg (if (display-graphic-p frame)
                 (frame-parameter frame 'background-mode)
               "light"))) ; Fallback for terminal use
     (setq org-todo-keyword-faces
@@ -198,7 +201,7 @@ FRAME defaults to the selected frame when called without arguments."
             ("MEETING" . (:foreground ,(if (string-equal bg "dark") "#00a0af" "#0087af")
                                       :background ,(if (string-equal bg "dark") "#002f3f" "#bfefff") :weight bold))
             ("CANCELLED" . (:background ,(if (string-equal bg "dark") "#770000" "#ffaaaa") :weight bold))
-            ("GRAVEYARD" . (:background ,(if (string-equal bg "dark") "#707070" "#d0d0d0") :weight bold))))))
+            ("GRAVEYARD" . (:background ,(if (string-equal bg "dark") "#707070" "#d0d0d0") :weight bold)))))))
 
 ;; Apply the dynamic face setting on theme changes and after initialization
 ;; (use-package cus-theme
@@ -232,14 +235,8 @@ FRAME defaults to the selected frame when called without arguments."
   (interactive)
   (insert "src_R[:session :results raw]{}"))
 
-;; Bind skeletons within org-mode using use-package
-(use-package org
-  :after org
-  :bind
-  (:map org-mode-map
-        ("C-q h" . org-skeleton-header)
-        ("C-q s r" . org-skeleton-R-src)
-        ("C-q i r" . org-inline-R-src)))
+;; Templates are available through C-c w W and the existing C-c o prefix.
+;; Leave C-q available for native quoted-insert in Org, as in other modes.
 
 ;; Define a prefix key for org-related commands
 (define-prefix-command 'org-custom-prefix)

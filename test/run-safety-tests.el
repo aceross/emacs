@@ -5,4 +5,5 @@
   (add-to-list 'load-path (expand-file-name "test" root)))
 (require 'awc-files-test)
 (require 'awc-packages-test)
+(require 'awc-preferences-test)
 (ert-run-tests-batch-and-exit)
