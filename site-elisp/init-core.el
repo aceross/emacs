@@ -8,20 +8,8 @@
 (setq straight-recipes-gnu-elpa-use-mirror t)
 (setq straight-check-for-modifications nil)
 
-(defvar bootstrap-version)
-(let* ((straight-repo-dir
-        (expand-file-name "straight/repos" user-emacs-directory))
-       (bootstrap-file
-        (concat straight-repo-dir "/straight.el/bootstrap.el"))
-       (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (shell-command
-     (concat
-      "mkdir -p " straight-repo-dir " && "
-      "git -C " straight-repo-dir " clone "
-      "https://github.com/raxod502/straight.el.git && "
-      "git -C " straight-repo-dir " checkout 2d407bc")))
-  (load bootstrap-file nil 'nomessage))
+(require 'awc-packages)
+(awc-packages-bootstrap)
 
 (straight-use-package 'use-package)
 
@@ -439,6 +427,8 @@
 (setenv "TERM" "eterm-color")
 
 (use-package vterm
+  ;; Native compilation is an explicit terminal action, never a startup task.
+  :commands vterm
   :ensure t)
 
 (require 'ansi-color)

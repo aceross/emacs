@@ -1,4 +1,4 @@
-name: File safety and recovery
+name: Safety and package recovery
 
 on:
   push:
@@ -19,8 +19,10 @@ jobs:
       - name: Install distribution Emacs
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y emacs-nox
-      - name: Exercise native safety and recovery with synthetic files
+          sudo apt-get install --no-install-recommends -y emacs-nox git
+      - name: Exercise safety and pinned bootstrap with disposable files and Git repositories
         run: |
           emacs --version
+          git --version
           emacs -Q --batch -l test/run-safety-tests.el
+          emacs -Q --batch -L site-elisp -l awc-packages --eval '(let ((user-emacs-directory default-directory)) (awc-packages-read-snapshot))'

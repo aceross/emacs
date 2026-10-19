@@ -4,7 +4,10 @@ eln-cache/
 auto-save-list/
 .cache/
 elpa/
-straight/
+straight/*
+!straight/versions/
+straight/versions/*
+!straight/versions/default.el
 var/
 tools/pyright/node_modules/
 projectile-bookmarks.eld

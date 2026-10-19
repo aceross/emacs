@@ -1,5 +1,5 @@
 #+TITLE: Emacs development roadmap
-#+DATE: 2026-10-17
+#+DATE: 2026-10-18
 #+TODO: PLANNED IN_PROGRESS BLOCKED | IMPLEMENTED VALIDATED DEFERRED
 #+OPTIONS: toc:2
 
@@ -20,6 +20,11 @@ This is a living plan and implementation record. The first reference trial
 started at =30e744d=; the verified 17 October implementation baseline is
 =0b6879c1d1e2dbbd801b87e6c2899f115406138a=. Existing validation is recorded in
 [[file:research-workflows.org][research workflows]] and [[file:quarto-source-editor.org][Quarto source editing]].
+The 18 October continuation starts at
+=02950fba083dccd5eed823ffad2836323380a6a1= on
+=codex/p0-safe-recoverable-editing=, with P0a already validated. Its two local
+edits (=early-init.el= and =doc/research-workflows.org=) are preserved outside
+the focused =codex/p0b-package-reproducibility= branch's change set.
 The current P0–P7 gates below supersede both the older handoff ordering and
 the earlier delivery sequence retained later in this document.
 
@@ -28,8 +33,9 @@ the earlier delivery sequence retained later in this document.
 The first single-paper workflow is implemented: Zotero reference, local PDF,
 Obsidian literature note and rendered Quarto citation. See
 [[file:zotero-obsidian-quarto.org][the usage and validation guide]]. That stage added vault-specific note recovery. P0a now extends recoverable
-editing to ordinary files and restores execution safeguards; the broader
-package snapshot/bootstrap work and later research features remain.
+editing to ordinary files and restores execution safeguards. P0b now captures
+package source pins and repairs checked bootstrap/rollback; durable preferences
+and interaction reliability remain P0c, before later research features.
 
 The trial also exposed the need for [[file:bibliography-portability.org][bibliography ownership and device portability]].
 The next citation milestone is a project-owned bibliography with stable keys,
@@ -37,7 +43,7 @@ portable item associations and an explicit add/refresh command, verified by
 rendering from another directory and then using the workflow on a second device.
 This portability work is planned; synchronization has not been configured.
 
-* Current prioritized plan — 17 October 2026
+* Current prioritized plan — 18 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
 analyze → write → verify → revise → validate → submit → archive. Reliability,
@@ -51,7 +57,7 @@ the particular unrun check, not treated as a passing result.
 | Priority / gate | State | Dependency | Next acceptance condition |
 |-----------------+-------+------------+---------------------------|
 | P0a Safe defaults and recoverable editing | VALIDATED locally | Existing native file/Org behavior | Refused execution, crash recovery, external-edit conflicts and core regressions |
-| P0b Package/bootstrap reproducibility | PLANNED | P0a | Restore and roll back a reviewed package snapshot in a disposable clean installation |
+| P0b Package/bootstrap reproducibility | VALIDATED locally | P0a | 134 source pins restored, clean configuration startup and native rollback; online-only/native-helper limits recorded |
 | P0c Startup, preferences and interaction reliability | PLANNED | P0b | Durable reviewed settings, confirmed key collisions resolved, measured session behavior |
 | P1 Portable reference/notes workflow | PLANNED; local foundation validated | P0, stable citation identities | Portable project render with Zotero closed; second-device identity/note reuse |
 | P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
@@ -82,12 +88,14 @@ preparing its PR.
   by the core suite. The system Python currently lacks =jupyter_client=;
   the normal R libraries lack =renv=. Do not install into a live project to
   satisfy those tests.
-- *Confirmed P0 defects:* =enable-local-variables :all=, Babel confirmation
+- *Confirmed P0 defects at the earlier baseline:* =enable-local-variables :all=, Babel confirmation
   disabled, and global backups/auto-save/locks disabled. Straight bootstrap
   runs =git checkout= in =straight/repos= instead of the cloned repository,
   interpolates unquoted paths, and does not enforce command success before
   loading. No package snapshot exists. =custom-file= is a fresh temporary
-  file, so durable Customize/trust restoration is not established.
+  file, so durable Customize/trust restoration is not established. P0a fixed
+  execution/recovery defaults; P0b addresses the source/bootstrap defects.
+  The Customize issue remains P0c. Do not reopen the validated P0a gate.
 - *Confirmed interaction conflicts:* the actual configured mode audit finds
   =C-c g= bound to gptel, making the older =C-c g g/e= writing commands
   unreachable; =C-c p= means Pomodoro in Org and completion elsewhere;
@@ -138,25 +146,32 @@ preparing its PR.
 
 - Objective/problem/justification: make restoration independent of today's
   upstream package versions. This is the highest remaining P0 gate.
-- State/modules/dependencies: PLANNED; =init-core.el=, Straight recipes,
+- State/modules/dependencies: VALIDATED locally; =init-core.el=, =awc-packages.el=, Straight recipes,
   version control rules and bootstrap tests; depends on P0a. Existing
   installed builds work, but that does not validate a clean install.
-- Architecture/tasks: inspect installed Straight APIs and repository dirtiness;
-  capture exact revisions (including recipe repositories) without upgrading;
-  commit a reviewed lockfile despite the current =straight/= ignore rule;
-  replace shell interpolation with checked argument-vector Git calls against
-  the correct repository; use a full bootstrap revision. Fail visibly on
-  missing Git/network, partial clone, invalid commit and paths with spaces.
+- Architecture/tasks: =awc-packages.el= extends the existing Straight stack;
+  the native snapshot owns the single bootstrap pin. Checked argument-vector
+  Git calls stage/verify/rename a new checkout with native branch/tracking
+  references. Existing trees are never silently reset. A documented post-clone
+  hook checks requested pins and quarantines wrong-revision fallbacks before
+  activation. Read-only audit and exclusive candidate capture cover every
+  installed source, including retained inactive packages and recipe providers.
+  Native thaw/rebuild remain the rollback mechanisms; no new package manager.
 - Risks/alternatives: a revision list may omit local patches or untracked
   files; retain backups and report those separately. Do not freeze dirty
   packages as though their HEAD alone reproduces them. Keep system binaries
   and native artifacts separate from source/package reproducibility.
-- Acceptance/results: NOT RUN. Fresh disposable config installs at pinned
-  revisions; failed bootstrap leaves a recoverable state; deliberate update
-  can be rolled back and revalidated. Extend CI only when dependencies and
-  network requirements are explicit. No live package upgrades.
+- Acceptance/results: real-Git negative/recovery cases, native all-source
+  restore, clean representative builds and native thaw/rebuild pass. An HTTPS
+  bootstrap smoke check passes. Full startup from restored sources exposed
+  Vterm's native compile prompt; autoloading its existing command removes
+  startup compilation, with native terminal validation still separate.
+  Final checkpoint below records executed results and limits. Fast CI needs
+  only distribution Emacs/Git; package/Quarto integration remains explicit.
+  No installed source/package version or live research environment is upgraded.
 - Rollback: preserve the prior installed package tree and lockfile; restore
   both in isolation first, then restart. Never erase the only working tree.
+  See [[file:package-recovery.org][the executable restoration/update/rollback guide]].
 
 ** P0c — startup, preferences, bindings and measured reliability
 
@@ -360,6 +375,87 @@ changed dependency or evidenced workflow need, recording the reason.
   P0 sub-milestone. Package/bootstrap reproducibility is neither implemented
   nor claimed complete in the same change set.
 
+** P0b checkpoint — VALIDATED locally, P0 remains IN PROGRESS
+
+- Baseline: =02950fba083dccd5eed823ffad2836323380a6a1=, with the original
+  two local edits preserved. =python3 test/run-quarto-checks.py --suite core --keep=
+  passed 109/109 ERT plus every core integration stage; logs:
+  =/tmp/quarto-checks-gn02ueeb/logs/=.
+- Implementation: =codex/p0b-package-reproducibility=. Added =awc-packages.el=,
+  the native =straight/versions/default.el= snapshot and focused real-Git / native
+  Straight tests; changed =init-core=, ignore rules, existing test runners,
+  lightweight CI, root README and this roadmap. Usage/rollback:
+  [[file:package-recovery.org][package recovery guide]]. The snapshot includes recipe providers and
+  retained inactive sources; it is an inventory, not a declaration to activate
+  extra packages. A minimal cold startup may not clone inactive repositories;
+  the full-inventory audit deliberately reports missing entries.
+  Implementation commit: =692dbfdef35b087c4481ae453f25d907d839bec7=;
+  [[https://github.com/aceross/emacs/pull/2][draft PR #2]], stacked on the still-open P0a PR #1 so its diff is focused.
+- Confirmed/closed defects: wrong bootstrap checkout directory, shell path
+  interpolation, unchecked command results and missing source pins. Native
+  rollback testing exposed missing branch/tracking references after a commit
+  fetch; those are now created before activation. Actual invalid-pin testing
+  exposed Straight's warning/fallback behavior, including clearing its COMMIT
+  argument; the hook reads the snapshot and preserves mismatched sources in
+  quarantine, so subsequent startup cannot load them from the active path.
+- Small justified scope extension: clean startup tried to compile Vterm's
+  missing native module, prompting/failing in batch. =:commands vterm= now
+  defers that existing optional feature to explicit terminal use. No bindings
+  changed; broader P0c preferences/interaction work remains separate.
+- =emacs-xwidgets -Q --batch -l test/run-safety-tests.el=: PASS, 19/19,
+  with final log =/tmp/awc-p0b-safety-final.log=. Includes all prior recovery
+  cases plus real Git bootstrap, repeat/offline startup, missing Git/upstream,
+  invalid commit, valid commit missing bootstrap, preserved partial/dirty
+  trees, tracked/untracked edits, drift/rollback, malformed/duplicate snapshot
+  records, candidate/symlink exclusivity and repeated quarantined failures.
+- =emacs-xwidgets -Q --batch -l test/package-restore-check.el=: PASS.
+  Native Straight restored all 134 pins in independently fetched disposable
+  Git repositories from read-only local sources, with no installed builds.
+  A real invalid pin was quarantined; clean bind-key/use-package/dash builds,
+  activation, disposable committed update, drift detection, candidate capture,
+  native thaw/rebuild and final audit passed. Log:
+  =/tmp/awc-p0b-package-restore-final.log=; fixtures:
+  =/tmp/awc-package-restore-fCo2cY/=.
+- =AWC_PACKAGE_CONFIG='/tmp/awc-package-restore-fCo2cY/config with spaces'
+  emacs-xwidgets -Q --batch -l test/package-startup-check.el=: PASS.
+  Built/activated the actual configuration from those restored sources with
+  disposable Org/server state, then audited all sources, final safety values
+  and deferred Vterm. Log: =/tmp/awc-p0b-clean-startup-final.log=.
+- =emacs-xwidgets -Q --batch -L site-elisp -l /tmp/awc-p0b-network-bootstrap.el=:
+  PASS for actual HTTPS bootstrap at =0ad6fd8f37bd918c72989df18c76a68649f0a372=,
+  in =/tmp/awc-package-network-xMCqhx/=. Network access was explicitly allowed
+  after the restricted run failed. Log: =/tmp/awc-p0b-network-bootstrap.log=.
+- Final =python3 test/run-quarto-checks.py --suite core --keep=: PASS,
+  117/117 ERT plus actual configured safety/ESS/prose startup, YAML schemas,
+  research assistance and fixture reference → note → rendered citation.
+  Logs: =/tmp/quarto-checks-amlbny70/logs/=. Additional negative/symlink test
+  assertions added afterward passed in the final 19-test fast suite above;
+  production code was unchanged after this core run.
+- Installed-source comparison against the pre-change inventory: PASS, all
+  134 HEADs unchanged and clean. Snapshot parsing and =git diff --check= pass.
+  Existing user edits, Emacs executables, desktop associations and live
+  projects/libraries/vaults remain unchanged. No package source was upgraded.
+- CI checks real-Git unit/recovery cases and committed snapshot syntax with
+  distribution Emacs/Git. Hosted runs PASSED: [[https://github.com/aceross/emacs/actions/runs/39135401901][push]] (19 seconds) and
+  [[https://github.com/aceross/emacs/actions/runs/39135477597][PR]] (20 seconds). The inspected PR job log confirms GNU Emacs 29.3,
+  Git 2.55.0 and 19/19 tests, zero unexpected results, plus snapshot validation.
+  Core and full source/build integration remain separate local checks.
+- Limits: complete Internet-only installation of all packages, native terminal/
+  parser/PDF helper operation, GUI/other-machine/long-session checks remain
+  unvalidated here. Full runtime/output/LSP suites were not rerun: current
+  system Python lacks Jupyter/kernel/pandas/nbclient/nbformat, and R lacks
+  =renv=. Dependencies were not installed into a live research environment.
+- Rollback: preserve working configuration, =straight/= and =var/=; use a
+  disposable copy of the matching older configuration/snapshot, native thaw,
+  rebuild and restart before adoption. Preserve/rename a changed Straight
+  checkout if the pin check refuses it. Reverting P0b code restores the old
+  broken bootstrap, so use the complete known-working backup instead for
+  that older baseline. Keep quarantined clones until inspected.
+- Next bounded milestone: P0c durable private Customize/trust preferences and
+  the demonstrated =C-c g= collision, with restart/mode tests and measured
+  startup behavior. Later research features remain PLANNED. P0a is closed;
+  P0 as a whole is not complete until P0c acceptance passes.
+
 * Planning baseline (earlier assessment, reconciled)
 
 | Area | Existing foundation | Development need |
@@ -380,8 +476,8 @@ Concrete findings in the configuration:
   also conflicts with the longer writing-command sequences in =init-text.el=.
   There is no configured research-source workflow.
 - The baseline [[file:../site-elisp/init-core.el][init-core.el]] disabled recovery; P0a corrects that. Its
-  bootstrap still checks out in the repositories parent directory, and no
-  =straight/versions/= package snapshot is present (P0b).
+  bootstrap originally checked out in the repositories parent directory,
+  with no package snapshot; P0b repairs that and records all source pins.
 - The recent Quarto citation and readiness work is already implemented.
   Zotero integration should build on it, rather than recreate completion
   and bibliography discovery.
