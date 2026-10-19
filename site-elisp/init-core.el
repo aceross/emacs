@@ -133,6 +133,8 @@
   :diminish smartparens-mode)
 
 (use-package flycheck
+  ;; Scratch buffers have no file header for the byte compiler to check.
+  :custom (flycheck-global-modes '(not lisp-interaction-mode))
   :init (global-flycheck-mode t)
   :config
   (use-package flycheck-pos-tip

@@ -725,6 +725,24 @@ changed dependency or evidenced workflow need, recording the reason.
   Disposable dependency removal needs no system/project rollback. See
   [[file:external-and-graphical-validation.org][the commands, QA contract, evidence and rollback guide]].
 
+** Startup scratch warning follow-up — 19 October 2026
+
+- Baseline: =f9e008d=. Reproduced the reported first-line =lexical-binding=
+  warning in the empty =*scratch*= buffer: global Flycheck byte-compiled it
+  as a temporary file without a header. Configuration source headers were
+  already present.
+- Change/rationale: exclude =lisp-interaction-mode= from global Flycheck.
+  Scratch stays empty and available for evaluation; ordinary Emacs Lisp
+  files retain compiler and Checkdoc diagnostics.
+- QA PASSED on installed Emacs 31.1: fresh normal terminal and Wayland
+  startup, empty scratch with Flycheck disabled, and real =.el= files that
+  still report missing-header and free-variable compiler warnings. Private
+  state/files remain under =/tmp/awc-lexical-startup-pznd7v9l/= (terminal)
+  and =/tmp/awc-lexical-startup-sp05bnon/= (graphical); each retains
+  =flycheck.txt= and =result.json=. Fast safety: 27/27 passed. Original
+  user edits remain unchanged. Rollback: remove only the Flycheck
+  =flycheck-global-modes= setting, then restart Emacs.
+
 * Planning baseline (earlier assessment, reconciled)
 
 | Area | Existing foundation | Development need |
