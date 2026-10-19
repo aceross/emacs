@@ -4,7 +4,7 @@ Personal configuration for Python/R analysis, Quarto manuscripts and
 Zotero–Obsidian literature work. It extends ordinary Emacs with the existing
 ESS, lsp-mode, Citar and completion stack. The current implementation plan
 and acceptance gates are in [[file:doc/development-roadmap.org][the development roadmap]].
-For a new development session, use [[file:doc/next-session-handoff.org][the current P2 handoff prompt]].
+For a new development session, use [[file:doc/next-session-handoff.org][the current milestone handoff]].
 
 * Supported environment
 
@@ -56,6 +56,7 @@ cleanup and missing-Quarto inspection buffers. See
 | =C-c w= | Project, environment, execution, diagnostics and research menu |
 | =C-c w n= | Zotero reference, local PDF, literature note and citation |
 | =C-c w W= | Writing checks and contextual Org templates |
+| =C-c w W c= | Explicit project prose QA (Vale; Markdown, Quarto, Org) |
 | =C-c w a= | Existing gptel assistant |
 | =C-c q= | Quarto editing, execution, readiness, rendering and recovery |
 | =C-x p= | Built-in project operations |
@@ -66,6 +67,8 @@ cleanup and missing-Quarto inspection buffers. See
 [[file:doc/zotero-obsidian-quarto.org][literature workflow]], [[file:doc/bibliography-portability.org][bibliography ownership]],
 [[file:doc/project-bibliography-snapshots.org][reviewed project bibliography snapshots]],
 and [[file:doc/portable-associations-and-pdfs.org][portable associations and device-local PDFs]].
+[[file:doc/academic-writing-qa.org][Academic writing QA]] adds project rules, UK dictionaries and located reports;
+Vale and a project rule set must be installed/adopted explicitly.
 Opening a source must not install project dependencies. Interpreter overrides
 from new directory-local settings require review. Org Babel execution prompts,
 including during export; no project or language is automatically trusted.

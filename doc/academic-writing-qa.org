@@ -1,0 +1,210 @@
+#+TITLE: Explicit project academic writing QA
+#+DATE: 2026-10-19
+
+* Use the writing menu
+
+=C-c w W c= checks the current local Markdown (=.md= / =.markdown=), Quarto
+(=.qmd=) or Org file buffer. Vale runs asynchronously against the entire
+unsaved buffer, including when invoked inside an indirect Quarto chunk or
+a narrowed buffer. The document is neither saved nor rewritten.
+
+| Key | Action |
+|-----+--------|
+| =C-c w W c= | Check the current buffer |
+| =C-c w W l= | Show its last report, including failures |
+| =C-c w W v= | Visit the nearest project Vale configuration |
+| =C-c w W k= | Cancel this document's check |
+| =M-g n= / =M-g p= | Navigate findings through native compilation navigation |
+| =RET= in a report | Visit the finding at point |
+| =g= / =k= in a report | Recheck / cancel |
+
+Each document has a separate report. Errors express spelling or an explicit
+project policy; suggestions require editorial judgment. The example rules
+do not establish scholarly accuracy, evidential support or journal compliance.
+The acronym suggestion is incomplete: it does not reliably catch use before
+an expansion later in the same paragraph. Review first use yourself.
+
+Source edits or renames invalidate navigation. Changes during a check discard
+its output. Recheck after editing. Reports are buffer snapshots, not durable
+revision-bound evidence; changes to rules or dictionaries also require a
+recheck. A source/report close, explicit cancellation or the default 30-second
+deadline stops only that document's process and releases its timer/output
+buffers. The ordinary editing session starts no Vale process on file open.
+
+* Install dependencies explicitly; adopt project rules deliberately
+
+The validated executable is [[https://github.com/vale-cli/vale/releases/tag/v3.24.0][Vale 3.24.0]]. P2 downloads it only into a disposable
+=/tmp/= evaluation directory; it does not install a permanent executable or
+change the 134-source Straight snapshot. For durable use, follow the
+[[https://vale.sh/docs/install][official installation instructions]], then put the chosen executable on PATH or
+set =awc-writing-program= through Customize. Older versions and other
+platforms are not validated here. The adapter uses =--path=, =--no-global=,
+=--no-exit= and JSON output from the [[https://docs.vale.sh/topics/cli][official CLI]].
+
+Start from [[file:../etc/writing/.vale.ini][the example configuration]] and [[file:../etc/writing/styles/Academic][five small example rules]]. Stage a copy in a
+disposable directory, review it, then deliberately adopt the configuration
+and its =styles/= directory in the manuscript project. Preserve any existing
+=.vale.ini= or =styles/= ownership; these examples are not a mandated house
+style. Nothing in Emacs creates or replaces project rules automatically.
+
+The example spelling rule requires =en_GB.aff= and =en_GB.dic= in
+=styles/config/dictionaries/=. Alternatively, set its =dicpath= explicitly
+to an installed dictionary directory. The acceptance runner copies the
+installed =hunspell-en-gb= files from =/usr/share/hunspell/= into each
+disposable project. No dictionaries or external styles are bundled in Git;
+review provenance/licensing before distributing project dictionary copies.
+The rule deliberately replaces Vale's default US dictionary with UK English.
+Flyspell retains its existing =en_GB-ise-w_accents= Aspell setting.
+
+The examples provide:
+
+- UK spelling candidates as errors, with a project ignore word list at
+  =styles/config/ignore/project.txt=. Extend it with intentional domain terms.
+- An example =data-set → dataset= terminology policy as an error. Change or
+  disable this policy to suit the project.
+- =TODO=, =FIXME= and =TBD= placeholders as errors.
+- An uppercase 3–5-letter acronym expansion candidate as a suggestion;
+  =DNA= is an example exception, and placeholder names are excluded.
+- =in order to= as a suggestion to consider shortening, not an automatic edit.
+
+Use Vale's native rule =exceptions=, [[https://docs.vale.sh/keys/vocabularies][project vocabularies]],
+[[https://docs.vale.sh/checks/spelling][spelling dictionaries/ignore lists]] and path-specific sections. For example:
+
+#+begin_src ini
+[chapters/methods.qmd]
+Academic.Wordiness = NO
+#+end_src
+
+For a deliberate local exception, bracket only the relevant text with
+=<!-- vale Academic.Placeholders = NO -->= and
+=<!-- vale Academic.Placeholders = YES -->= in Markdown/Quarto, or
+=# vale Academic.Placeholders = NO= / =YES= in Org. This changes the source
+only when you edit it. There is no automatic dismissal write or replacement.
+
+The nearest ancestor configuration wins, in Vale's documented name order:
+=.vale.ini=, =_vale.ini=, =vale.ini=, =.vale=, =_vale=. Invocation runs from
+that directory and passes the document's relative path, preserving sections
+such as =[chapters/*.md]=. Global configuration and inherited
+=VALE_CONFIG_PATH= and =VALE_STYLES_PATH= are excluded. The chosen project's
+normal Vale configuration controls its rules; the adapter never runs
+=vale sync= or installs styles. Run only rules/configuration you intend to use.
+
+* Syntax and failure boundaries
+
+The adapter sends unmodified UTF-8 text on stdin. Vale and the project's
+configuration own syntax exclusions; Emacs adds no second document parser.
+The example rules exclude frontmatter, fenced/inline code, citation syntax,
+maths, URLs and lowercase snake-case identifiers. Quarto attributes, shortcodes
+and cells use its native parser. See [[https://docs.vale.sh/formats/quarto][Quarto]], [[https://docs.vale.sh/formats/org][Org]],
+[[https://docs.vale.sh/keys/tokenignores][TokenIgnores]] and [[https://docs.vale.sh/keys/blockignores][BlockIgnores]].
+
+Evaluation exposed two configuration details worth preserving:
+
+- Vale 3.24 lints frontmatter scalar values by default. =IgnoredScopes=
+  includes =frontmatter= while retaining the usual code scopes.
+- Its Org parser fails to exclude lowercase source/example delimiters.
+  The example's single Org block pattern captures the body and replaces the
+  delimiters using Vale's uppercase example wrapper. A single combined
+  citation pattern avoids overlapping token wrappers. Lowercase and mixed-case
+  blocks, maths within code, and repeated diagnostics after excluded blocks
+  are exercised by acceptance. This is a bounded workaround, not a complete
+  Org/Quarto parser conformance claim.
+
+Remote and unsupported file types are refused. LaTeX/AUCTeX, plain text,
+exotic citation keys, multiline citation syntax, nested/unterminated special
+blocks and arbitrary custom rule formats remain outside this acceptance.
+The adapter accepts validated one-line character ranges, including tabs,
+accents and emoji. A malformed/out-of-range finding fails the report rather
+than guessing a location. General custom multiline spans remain unsupported.
+
+A missing executable/configuration is diagnosed immediately, leaving editing
+usable. Missing styles/dictionaries, bad JSON, stderr diagnostics, launch
+failure and timeout appear in the report. An empty JSON report cannot tell
+Emacs whether the source is clean or no rules apply: it explicitly says rules
+may be absent/disabled and asks for review. It never labels this a validation
+pass. Re-run after fixing dependencies, rules or exceptions.
+
+* Evaluation and reproducible QA
+
+Run the independent adapter tests without Vale or third-party Emacs packages:
+
+#+begin_src sh
+emacs-xwidgets -Q --batch -L site-elisp -L test -l awc-writing-test -f ert-run-tests-batch-and-exit
+#+end_src
+
+Use an explicitly installed Vale for the real corpus, configured-mode checks
+and optional private normal Wayland session:
+
+#+begin_src sh
+python3 test/run-writing-checks.py --vale /path/to/vale --keep
+python3 test/run-writing-checks.py --vale /path/to/vale --gui --keep
+python3 test/run-quarto-checks.py --suite core --keep
+emacs-xwidgets -Q --batch -l test/run-safety-tests.el
+#+end_src
+
+The writing runner creates synthetic projects, UK dictionary copies, a domain
+word exception, config overrides, private GUI preferences/vault/database/server
+and logs under =/tmp/emacs-writing-qa-*=. Installed package builds are shared
+read-only in Straight safe mode. It does not use personal notes or research
+data and never installs dependencies. The GUI has an exact fixture tag and
+owned-helper cleanup, independent of the ordinary Emacs server.
+
+The corpus has 3 files, 126 lines and 2,327 whitespace-delimited source words
+(including syntax/code). There are 31 labelled candidate findings: 22 objective
+spelling/policy errors and 9 editorial suggestions. Matching uses the complete
+tuple =(file, line, start column, inclusive end column, rule, matched text)=.
+Each returned range must also slice exactly the matched original source.
+Missing and extra tuples are counted separately, without deduplicating repeated
+occurrences. The three known acronym misses remain asserted in the runner.
+
+The final 19 October evaluation reported 28 useful findings (all 22 objective
+errors and 6 suggestions), zero extras/false positives and 3 misses. This is
+observed precision on a small constructed corpus, not an estimate for live
+academic manuscripts. The additional controlled manuscript has 14,505
+whitespace-delimited words / 108,041 bytes and one planted placeholder.
+The final retained run took 0.162 seconds for the corpus and 0.185 seconds for
+the substantial manuscript; both timings include a fresh Vale CLI process,
+with warm host/filesystem caches. They are not cold-machine benchmarks.
+
+The installed Writegood regexes produced 15 candidates across the same corpus:
+9 weasel-word and 6 passive candidates, all in deliberately acceptable prose
+(=significantly=, =Several=, =few=, =is defined=, =were collected=). This is
+a candidate/noise comparison, not a grammar-engine accuracy claim. A separate
+plain-prose Aspell probe found =recieved=, =TODO= and =XYZ=, with no terminology
+or acronym-definition policy. Existing Flyspell remains useful for interactive
+spelling. LTeX has no executable on PATH, its managed directory is empty and
+the existing startup/crash concern is not retested; opening prose still does
+not load/start it. Vale adds project policy and located explicit reports
+without requiring a Java language server or any new Emacs package.
+
+PASSED: 13/13 focused ERT cases; real configured Markdown/Quarto/Org menu
+dispatch and all 28 exact =M-g n=/=M-g p=/=RET= ranges; path overrides, inline
+exceptions, domain word list, unsaved snapshots and missing rules/dictionaries;
+private graphical menu/navigation/highlights with zero Lisp warnings and no
+surviving helpers/socket; 175/175 core ERT cases plus every core integration
+stage; 27/27 safety cases; 134 clean source pins; warning-free byte compilation
+of the adapter into =/tmp/=; and =git diff --check=.
+
+Earlier failures were repaired: overlapping token ignores, lowercase Org
+block leakage and parser warnings, report navigation starting after the final
+message, never-saved file navigation, and a spurious default stderr-pipe
+sentinel message. The first core attempt was sandbox-blocked at the loopback
+API stage; the permitted complete rerun passed. GUI frame export was corrected
+to native binary PNG after SVG conversion/initial PNG capture failed.
+
+The exact retained roots and image-review outcome are recorded in
+[[file:development-roadmap.org][the roadmap]]. NOT RUN: live research/editorial acceptance, full external
+Jupyter/renv regression, long-session soak, macOS/Windows, physical second-device
+use, LaTeX/SyncTeX and exhaustive custom configuration coverage. These are
+separate from the bounded P2 result, not implied passes.
+
+* Rollback
+
+Revert the focused P2 configuration checkpoint and restart after saving buffers.
+Remove the four writing-menu autoloads/suffixes and =awc-writing.el= together.
+Keep any deliberately adopted manuscript rules, dictionaries and source
+exceptions unless you choose to revise them. Preserve private preferences,
+recovery data and unrelated edits. No package snapshot, research library,
+project Python/R environment, running user session or document content needs
+rollback. The next bounded milestone is P3 manuscript lifecycle/submission;
+it has not been started here.

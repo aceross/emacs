@@ -1,0 +1,6 @@
+extends: substitution
+message: "Use '%s' instead of '%s' (project terminology)."
+level: error
+ignorecase: true
+swap:
+  data-set: dataset

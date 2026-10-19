@@ -29,10 +29,19 @@
 (autoload 'writegood-grade-level "writegood-mode" nil t)
 (autoload 'writegood-reading-ease "writegood-mode" nil t)
 (autoload 'writegood-mode "writegood-mode" nil t)
+(autoload 'awc-writing-check "awc-writing" nil t)
+(autoload 'awc-writing-show-results "awc-writing" nil t)
+(autoload 'awc-writing-open-config "awc-writing" nil t)
+(autoload 'awc-writing-cancel "awc-writing" nil t)
 
 (transient-define-prefix awc/writing ()
   "Writing checks and contextual Org templates."
-  [["Writing"
+  [["Project prose QA (Vale)"
+    ("c" "Check buffer" awc-writing-check)
+    ("l" "Last report / findings" awc-writing-show-results)
+    ("v" "Review project rules" awc-writing-open-config)
+    ("k" "Cancel check" awc-writing-cancel)]
+   ["Writing"
     ("g" "Grade level" writegood-grade-level)
     ("e" "Reading ease" writegood-reading-ease)
     ("w" "Toggle Writegood" writegood-mode)]

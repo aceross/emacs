@@ -50,6 +50,10 @@ Citar sources. P1b now adds [[file:portable-associations-and-pdfs.org][portable 
 validated across two independent disposable profiles on this Linux host.
 Physical second-device use and synchronization remain unvalidated.
 
+P2 now adds [[file:academic-writing-qa.org][explicit project academic writing QA]] with Vale and native
+compilation navigation. The synthetic corpus, configured modes and private
+graphical acceptance pass with the three acronym-order misses recorded below.
+
 * Current prioritized plan — 19 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
@@ -72,7 +76,7 @@ the particular unrun check, not treated as a passing result.
 | P1 Portable reference/notes workflow | VALIDATED locally in two profiles | P0, stable citation identities | Offline project render and identity/note/PDF reuse pass; physical second-device acceptance remains open |
 | P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
 | P1b Portable associations and device-local attachments | VALIDATED locally in two profiles | P1a | Path-free transfer, same key/renamed note, different local PDFs and offline render pass; physical second device unrun |
-| P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
+| P2 Academic writing QA | VALIDATED locally, bounded corpus | P0, explicit Vale/project rules | 28 useful findings, zero false positives, 3 known acronym misses; exact source ranges and private GUI pass |
 | P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
 | P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
 | P5 Reviewer/collaborator feedback | PLANNED | P3, P4 source/revision identity | Import, track, resolve and export a representative review without information loss |
@@ -241,18 +245,29 @@ preparing its PR.
 ** P2 — academic prose and terminology QA
 
 - Objective/justification: reduce repetitive editorial checks while preserving
-  substantive human judgment. PLANNED; dependent on P0 project settings.
-- Modules/architecture: evaluate Vale or an established alternative first;
-  introduce =awc-writing.el= only for a bounded adapter. Reuse Flycheck or
-  compilation diagnostics and project-owned dictionaries/rules.
-- Tasks: UK English and terminology/acronym/placeholder checks; distinguish
-  objective errors from stylistic candidates. Exclude code/YAML/citation syntax.
-- Risks/alternatives: avoid automatic rewriting and crude phrase/length bans;
-  retain manual tools if false positives outweigh utility.
-- Acceptance/results: documented positive/negative manuscript corpus, useful
-  source locations and dismissal/overrides, measured false positives and time
-  on a substantial document; missing tool must not break editing. NOT RUN.
-- Rollback: remove adapter hooks/rules without editing manuscript contents.
+  substantive human judgment. VALIDATED locally on the bounded corpus;
+  live editorial acceptance remains unrun.
+- Modules/architecture: =awc-writing.el= invokes Vale 3.24.0 explicitly from
+  =C-c w W c=; native compilation reports navigate an unsaved UTF-8 snapshot.
+  Nearest project configuration owns rules/UK dictionaries/intentional
+  exceptions. No global hook, package upgrade, prose LSP or source rewrite.
+- Rationale: Writegood's 15 candidates all occur in accepted fixture prose;
+  Aspell supplies spelling but no terminology/acronym policy. Vale provides
+  syntax-aware custom rules and source spans without LTeX's Java dependency.
+  Existing Writegood/Flyspell remain available. Optional LTeX is unavailable
+  locally and its earlier crash concern is not relabelled as retested.
+- Acceptance/results: 3 files / 126 lines / 2,327 whitespace-delimited words;
+  28 useful findings, zero extras/false positives, 3 measured acronym-order
+  misses. Every returned source tuple and highlight is checked. Substantial
+  14,505-word synthetic manuscript reports its one planted placeholder in
+  0.185 seconds. Configured modes, missing dependencies, cancellation/stale
+  output and private Wayland navigation pass; see checkpoint and
+  [[file:academic-writing-qa.org][the usage, corpus, failure boundaries and rollback guide]].
+- Limits: not scholarly verification or complete first-use acronym checking;
+  empty reports explicitly say rules may be absent/disabled. LaTeX, remote
+  files, custom multiline spans and long/live/other-platform use are unrun.
+- Rollback: revert the focused adapter/menu checkpoint and restart, preserving
+  project-owned rules and source exceptions. No manuscript content is rewritten.
 
 ** P3 — manuscript lifecycle and submission
 
@@ -914,12 +929,103 @@ The post-merge safety check passes 27/27 and the package audit reports all
 =/tmp/awc-merged-pins.log=. This handoff adds documentation only; it does
 not reopen completed milestones or claim a new graphical/external run.
 
-Continue with [[file:next-session-handoff.org][the current P2 handoff prompt]]: outline approach/rationale/QA first,
+The handoff at this merge requested P2: outline approach/rationale/QA first,
 evaluate prose diagnostics on disposable academic fixtures, report useful
 located findings and false positives, then implement the smallest justified
 adapter. The old [[file:emacs-refresh-handoff.org][12 October refresh brief]] remains historical context.
 Physical second-device/sync checks stay open as deployment acceptance, and
 P3/P4/LLM expansion remains outside the next milestone.
+
+* P2 academic writing QA checkpoint — 19 October 2026
+
+- Baseline: clean =master= at =211e1ac180d76e71211cd2710be2fd4850de7560=,
+  tracking =emacs/master=. This includes merged PR #8's documentation
+  handoff after PRs #1–#7. Work is on =codex/p2-academic-writing-qa=.
+- Plan/rationale/QA first: evaluate actual existing spelling/Writegood/LTeX
+  state, then choose a small explicit project-policy adapter. Use synthetic
+  Markdown/Quarto/Org sources, measured findings/noise and exact Unicode
+  ranges, including code/YAML/citation/maths exclusions. Validate failure and
+  process ownership, configured menus, private normal GUI and core/safety.
+- Dependencies: Vale =3.24.0= (official release dated 1 October 2026), verified
+  Linux x86-64 archive SHA-256
+  =867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214=,
+  downloaded/extracted only under =/tmp/awc-p2-evaluation/=. UK Hunspell
+  dictionary files are copied from installed =hunspell-en-gb= into disposable
+  project rule directories. No permanent Vale installation, new Emacs package,
+  source-pin update or live Python/R dependency change is made.
+- Implementation: explicit async =awc-writing-check= and last-report,
+  project-rule review and cancel commands under =C-c w W c/l/v/k=.
+  =--config= / =--path= preserve nearest-ancestor and path-specific policy;
+  =--no-global= and isolated Vale environment variables exclude global drift.
+  UTF-8 stdin contains the entire unsaved base buffer. Native compilation
+  navigation resolves to that buffer and validates character columns, with
+  stale edit/rename/close guards. Each document owns its process, output,
+  timeout and report. The example =etc/writing/= rules are reviewed/adopted
+  explicitly and carry spelling/terminology/placeholders plus editorial
+  acronym/wordiness suggestions. There is no automatic rewriting or install.
+- Evaluation: 3 files / 126 source lines / 2,327 whitespace-delimited source
+  words; 31 labelled candidates. Exact tuple matching counts 28 useful findings
+  (22 objective errors, 6 suggestions), zero false positives and 3 missed
+  acronym-before-later-expansion cases. All 28 returned matches slice the
+  original source at the reported line and inclusive character span.
+  Negative cases cover UK words, prior acronym definitions, DNA/domain-word
+  exceptions, inline rule suppression, frontmatter, narrative/bracket/Org
+  citations, URLs, maths, inline code, lowercase/mixed-case Org blocks,
+  Quarto cells/attributes and repeated terms after excluded blocks.
+- Runtime: final retained CLI run =0.162s= for the corpus; =0.185s= for a
+  separate 14,505-word / 108,041-byte synthetic manuscript with one planted
+  placeholder. Wall timings include fresh Vale process startup, on the warm
+  host/filesystem. These are controlled fixtures, not live scholarly accuracy
+  estimates or cold-machine performance measurements.
+- Alternatives: installed Writegood regexes yield 15 editorial candidates
+  (9 weasel, 6 passive) on deliberately acceptable fixture prose; all remain
+  review-only. Aspell 0.60.8.2's plain-prose probe flags =recieved=, =TODO=
+  and =XYZ= but supplies no terminology/expansion policy. LTeX has no executable
+  on PATH and its managed directory is empty; no attempt is made to revive it
+  or claim its recorded crash fixed. Prose startup still starts no LSP/Vale.
+- QA PASSED: =test/run-writing-checks.py --vale /tmp/awc-p2-evaluation/vale
+  --gui --keep=; 13/13 focused ERT; real configured mode/menu dispatch;
+  =M-g n= / =M-g p= / =RET= and 28 exact source ranges; project path overrides,
+  dictionaries/inline exceptions, unsaved input, missing tool/config/style/
+  dictionary, malformed JSON/ranges, startup failure, timeout, cancellation,
+  two independent sources and stale/closed source handling. No leaked owned
+  helper buffers/processes/timers were observed.
+- GUI PASSED: private normal Emacs 31.1 PGTK/Wayland session, new config,
+  preferences, vault/database and server under the disposable root. All three
+  modes dispatch through the actual menu and navigate 28 exact highlighted
+  source ranges. Zero Lisp warnings; source window selection, helper cleanup
+  and dedicated socket removal pass. Native PNG exports were decoded and
+  visually inspected for source/report readability and highlight placement.
+  Earlier SVG rendering and the initial nonbinary PNG capture were unusable;
+  final binary PNG exports have valid chunk CRCs and decompression.
+- Regressions PASSED: full core runner, 175/175 ERT plus configured
+  safety/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stages; 27/27 standalone safety cases; 134 clean pinned package sources;
+  warning-free byte compilation into =/tmp/=; =git diff --check=.
+  The first core attempt stopped at a sandbox-blocked loopback socket;
+  the complete permitted rerun passed without weakening the fixture server.
+- Evidence roots: final writing run =/tmp/emacs-writing-qa-wfqzruuq/=,
+  with =evaluation.json=, =expected.json=, raw =corpus.json=/=long.json=,
+  =unit.log=, =integration.log=, =writegood.json=, =gui/result.json=,
+  =gui/md.png=, =gui/qmd.png= and =gui/org.png=. The earlier Aspell probe is
+  =/tmp/emacs-writing-qa-r180d8x8/aspell.json=. Core rerun:
+  =/tmp/quarto-checks-v_1fowd0/logs/=. Safety/package logs:
+  =/tmp/awc-p2-evaluation/safety.log= and =packages.log=. Temporary roots may
+  expire; the committed runner/corpus generator and this record are durable.
+- NOT RUN/DEFERRED: real manuscript editorial acceptance, full external
+  Jupyter/renv rerun, long-session soak, other operating systems, physical
+  second-device deployment, LaTeX/AUCTeX/SyncTeX, arbitrary multiline rules,
+  exotic citation keys and exhaustive markup/parser coverage. Empty reports
+  cannot prove that rules were enabled. Rule changes require rechecking;
+  reports are not revision-bound manuscript manifests.
+- Rollback: revert this focused P2 configuration checkpoint and restart;
+  preserve preferences/recovery data, adopted project rules and intentional
+  source exceptions. See [[file:academic-writing-qa.org][the focused usage/QA guide]].
+- Next bounded task: P3 manuscript lifecycle/submission, starting with a
+  reviewable manifest tied to a source revision and validation commands that
+  also run outside Emacs. P3/P4/LLM implementation is not started here; future
+  manuscript commands must never commit, push or publish research automatically.
+  The earlier merge request does not authorize merging P2.
 
 * Planning baseline (earlier assessment, reconciled)
 

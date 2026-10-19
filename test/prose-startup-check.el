@@ -26,4 +26,6 @@
       (funcall mode))))
 (when (featurep 'lsp-ltex)
   (error "Opening notes should not load the optional LTeX client"))
+(when (featurep 'awc-writing)
+  (error "Opening prose should not load or start the explicit Vale adapter"))
 (princ "PASS: text, Markdown and Org modes do not start or queue LSP; LTeX requires explicit opt-in.\n")

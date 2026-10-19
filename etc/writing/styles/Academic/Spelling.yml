@@ -1,0 +1,8 @@
+extends: spelling
+message: "Check UK spelling: '%s'."
+level: error
+# Supply en_GB.aff and en_GB.dic in styles/config/dictionaries.
+dictionaries: [en_GB]
+ignore: [project.txt]
+filters:
+  - '[a-z]+_[a-z_]+'

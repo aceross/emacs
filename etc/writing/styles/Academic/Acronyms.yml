@@ -1,0 +1,7 @@
+extends: conditional
+message: "Check the expansion of '%s' (editorial review; not a complete first-use check)."
+level: suggestion
+scope: text
+first: '\b([A-Z]{3,5})\b'
+second: '(?:\b[A-Z][a-z]+ )+\(([A-Z]{3,5})\)'
+exceptions: [TODO, FIXME, TBD, DNA]

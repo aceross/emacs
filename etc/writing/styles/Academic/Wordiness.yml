@@ -1,0 +1,5 @@
+extends: existence
+message: "Consider shortening '%s' (editorial review)."
+level: suggestion
+ignorecase: true
+tokens: ['in order to']

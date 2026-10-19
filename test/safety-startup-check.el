@@ -76,6 +76,10 @@
     (execute-kbd-macro (kbd "W"))
     (should (eq (key-binding (kbd "g")) #'writegood-grade-level))
     (should (eq (key-binding (kbd "e")) #'writegood-reading-ease))
+    (should (eq (key-binding (kbd "c")) #'awc-writing-check))
+    (should (eq (key-binding (kbd "l")) #'awc-writing-show-results))
+    (should (eq (key-binding (kbd "v")) #'awc-writing-open-config))
+    (should (eq (key-binding (kbd "k")) #'awc-writing-cancel))
     ;; This pinned Transient keeps inactive suffixes in its raw keymap and
     ;; rejects them through its predicate map.  Check state AND real dispatch.
     (should (eq (not (oref (transient-suffix-object 'org-skeleton-R-src) inactive))
