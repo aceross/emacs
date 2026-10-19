@@ -27,6 +27,12 @@ project buffers have unsaved edits. No action silently saves manuscript text.
 Execution and freeze confirmations display the concrete current report first;
 an exact review token rejects changes between that review and the action.
 
+Declining execution or pressing =C-g= during a review leaves the refreshed
+status report available. If no manual requirement applies, a message explains
+that without replacing the report with an unavailable-backend error. Edits
+made during prompts still block the action and mark the report's unsaved
+buffer state. These local review exits write no manuscript record.
+
 READY means all declared automatic contracts passed and applicable manual
 requirements are satisfied for the recorded files. It does not establish
 scholarly validity, exhaustive dependency coverage or a journal's acceptance.
@@ -196,12 +202,20 @@ The optional normal Wayland session uses a private configuration, preferences,
 vault/database and actual server; keyboard events answer real minibuffer
 prompts, and native PNG captures are validated before visual inspection.
 
-Acceptance passed 24/24 runner tests, 9/9 focused Emacs tests and a final
+Original P3 acceptance passed 24/24 runner tests, 9/9 focused Emacs tests and a final
 184/184 core ERT run plus all core integration stages. Safety passed 27/27,
 all 134 package sources remain clean, and byte compilation is warning-free.
 The final private graphical replay passed all seven expected prompt answers,
 the exact saved review/label, ready/stale display, cancellation and server/helper
 cleanup with zero Lisp warnings; native PNGs were visually inspected.
+
+The subsequent review-path simplification passes 13/13 focused Emacs cases,
+the same 24/24 runner cases and 188/188 core ERT cases plus all integration
+stages. Its private GUI replay answers ten native prompts, including declined
+execution and =C-g= at a checkpoint label, then checks ordinary run/review/
+freeze, staleness and owned cancellation/cleanup. The three report captures
+are binary-validated and visually inspected; see the roadmap for this pass's
+evidence, preserved contracts, deferred findings and rollback.
 
 Exact evidence paths, failures repaired and deferred checks
 are recorded in [[file:development-roadmap.org][the roadmap]]. Preserve project records, outputs and sources when

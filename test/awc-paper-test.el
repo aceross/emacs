@@ -57,6 +57,100 @@
         (awc-paper-status))
       (should (equal seen (list root "status" nil))))))
 
+(ert-deftest awc-paper-inapplicable-review-retains-the-current-report ()
+  (awc-paper-test--project
+    (with-temp-file (expand-file-name "paper.qmd" root) (insert "Synthetic manuscript\n"))
+    (with-temp-file (expand-file-name ".awc-paper.json" root)
+      (insert "{\"version\":1,\"inputs\":[\"paper.qmd\"]}"))
+    (let ((report (get-buffer-create (format "*Paper: %s*" root))) messages)
+      (unwind-protect
+          (save-window-excursion
+            (cl-letf (((symbol-function 'message)
+                       (lambda (format-string &rest args)
+                         (push (apply #'format format-string args) messages))))
+              (awc-paper-verify)
+              (let ((deadline (+ (float-time) 5)))
+                (while (and (buffer-local-value 'awc-paper--process report) (< (float-time) deadline))
+                  (accept-process-output nil 0.02))))
+            (with-current-buffer report
+              (should-not awc-paper--process)
+              (should-not (gethash "error" awc-paper--data))
+              (should (gethash "snapshot" awc-paper--data))
+              (should (string-match-p "Status: INCOMPLETE" (buffer-string))))
+            (should (member "No applicable manual requirement" messages))
+            (should-not (file-exists-p (expand-file-name ".awc-paper" root)))
+            (should-not (get-buffer " *paper-stdout*"))
+            (should-not (get-buffer " *paper-stderr*")))
+        (kill-buffer report)))))
+
+(ert-deftest awc-paper-every-review-rechecks-unsaved-buffers-after-prompts ()
+  (awc-paper-test--project
+    (dolist (command '(awc-paper-check awc-paper-verify awc-paper-freeze))
+      (with-temp-buffer
+        (setq buffer-file-name (expand-file-name "paper.qmd" root))
+        (let ((source (current-buffer)) (awc-paper--root root) actions)
+          (cl-letf (((symbol-function 'awc-paper--start)
+                     (lambda (_root action &optional _args callback)
+                       (push action actions)
+                       (when callback
+                         (let ((data (json-parse-string "{\"manual\":[{\"id\":\"review\"}]}" :array-type 'list)))
+                           (funcall callback data)))))
+                    ((symbol-function 'yes-or-no-p)
+                     (lambda (&rest _) (with-current-buffer source (insert "Unsaved")) t))
+                    ((symbol-function 'completing-read) (lambda (&rest _) "review"))
+                    ((symbol-function 'awc-paper--render) #'ignore)
+                    ((symbol-function 'read-string)
+                     (lambda (&rest _) (with-current-buffer source (insert "Unsaved")) "Synthetic review")))
+            (funcall command))
+          (should (equal actions '("status"))))))))
+
+(ert-deftest awc-paper-aborted-or-unsaved-review-keeps-status-and-creates-no-state ()
+  (awc-paper-test--project
+    (with-temp-file (expand-file-name "paper.qmd" root) (insert "Synthetic manuscript\n"))
+    (with-temp-file (expand-file-name ".awc-paper.json" root)
+      (insert "{\"version\":1,\"inputs\":[\"paper.qmd\"]}"))
+    (let ((source (generate-new-buffer "paper-review-source"))
+          (report (get-buffer-create (format "*Paper: %s*" root))))
+      (unwind-protect
+          (save-window-excursion
+            (with-current-buffer source (setq buffer-file-name (expand-file-name "paper.qmd" root)))
+            (dolist (outcome '(quit unsaved))
+              (cl-letf (((symbol-function 'yes-or-no-p)
+                         (lambda (&rest _)
+                           (if (eq outcome 'quit) (signal 'quit nil)
+                             (with-current-buffer source (insert "Unsaved")) t))))
+                (with-current-buffer source (awc-paper-check))
+                (let ((deadline (+ (float-time) 5)))
+                  (while (and (buffer-local-value 'awc-paper--process report) (< (float-time) deadline))
+                    (accept-process-output nil 0.02))))
+              (with-current-buffer report
+                (should-not awc-paper--process)
+                (should-not (gethash "error" awc-paper--data))
+                (should (string-match-p (if (eq outcome 'quit) "Status: INCOMPLETE" "STALE.*UNSAVED") (buffer-string))))
+              (should-not (file-exists-p (expand-file-name ".awc-paper" root)))
+              (should-not (get-buffer " *paper-stdout*"))
+              (should-not (get-buffer " *paper-stderr*"))))
+        (with-current-buffer source (set-buffer-modified-p nil))
+        (kill-buffer source)
+        (kill-buffer report)))))
+
+(ert-deftest awc-paper-manual-and-freeze-forward-the-exact-reviewed-token ()
+  (awc-paper-test--project
+    (dolist (entry '((awc-paper-verify "verify" ("review" "--reviewer" "Fixture" "--note" "Fixture"))
+                     (awc-paper-freeze "freeze" ("--label" "Fixture"))))
+      (let ((awc-paper--root root) actions)
+        (cl-letf (((symbol-function 'awc-paper--start)
+                   (lambda (_root action &optional args callback)
+                     (push (cons action args) actions)
+                     (when callback
+                       (funcall callback (json-parse-string "{\"review_token\":\"exact-token\",\"manual\":[{\"id\":\"review\"}]}" :array-type 'list)))))
+                  ((symbol-function 'yes-or-no-p) (lambda (&rest _) t))
+                  ((symbol-function 'completing-read) (lambda (&rest _) "review"))
+                  ((symbol-function 'read-string) (lambda (&rest _) "Fixture")))
+          (funcall (car entry)))
+        (should (equal (nreverse actions)
+                       (list '("status") (list (cadr entry) :expect "exact-token" :args (caddr entry)))))))))
+
 (ert-deftest awc-paper-missing-python-allocates-no-report-or-helper ()
   (awc-paper-test--project
     (let ((awc-paper-python "/missing/awc-python"))

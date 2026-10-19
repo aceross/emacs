@@ -7,6 +7,7 @@
 (defvar awc-paper-gui-answers nil)
 (defvar awc-paper-gui-answer-count 0)
 (defvar awc-paper-gui-last-prompt nil)
+(defvar awc-paper-gui-reviewed-token nil)
 (defvar awc-paper-gui-deadline (+ (float-time) 150))
 (defvar awc-paper-gui-rules nil)
 (defvar awc-paper-gui-config nil)
@@ -33,10 +34,12 @@
        ((and (active-minibuffer-window)
              (not (equal (minibuffer-prompt) awc-paper-gui-last-prompt)))
         (let* ((answer (pop awc-paper-gui-answers))
-               (short (and (equal answer "yes")
+               (short (and (member answer '("yes" "no"))
                            (eq (indirect-function 'yes-or-no-p) (indirect-function 'y-or-n-p)))))
           (setq awc-paper-gui-last-prompt (minibuffer-prompt)
-                unread-command-events (append (if short (list ?y) (append (string-to-list answer) (list ?\r)))
+                unread-command-events (append (cond ((eq answer 'quit) (list ?\C-g))
+                                                    (short (list (if (equal answer "yes") ?y ?n)))
+                                                    (t (append (string-to-list answer) (list ?\r))))
                                               unread-command-events)))
         (cl-incf awc-paper-gui-answer-count)
         (run-at-time 0.1 nil #'awc-paper-gui-answer))
@@ -80,6 +83,19 @@
           (switch-to-buffer awc-paper-gui-report)
           (pcase awc-paper-gui-phase
             (1
+             (setq awc-paper-gui-reviewed-token (gethash "review_token" (awc-paper-gui-data))
+                   awc-paper-gui-phase 6)
+             (awc-paper-gui-input '("no") "c"))
+            (6
+             (should (equal awc-paper-gui-reviewed-token (gethash "review_token" (awc-paper-gui-data))))
+             (should (string-match-p "Status:" (buffer-string)))
+             (setq awc-paper-gui-phase 7)
+             (awc-paper-gui-input '("yes" quit) "f"))
+            (7
+             (should (equal awc-paper-gui-reviewed-token (gethash "review_token" (awc-paper-gui-data))))
+             (should-not awc-paper--last-checkpoint)
+             (should (string-match-p "Status:" (buffer-string)))
+             (awc-paper-gui-capture "review-cancelled.png")
              (setq awc-paper-gui-phase 2)
              (awc-paper-gui-input '("yes") "c"))
             (2
@@ -130,6 +146,7 @@
              (awc-paper-gui-input '("yes") "c"))
             (9
              (should (equal (gethash "state" (car (gethash "checks" (awc-paper-gui-data)))) "cancelled"))
+             (should (= awc-paper-gui-answer-count 10))
              (should-not awc-gui-warnings)
              (should-not (cl-some (lambda (proc) (string-prefix-p "paper-runner" (process-name proc))) (process-list)))
              (awc-paper-gui-finish "passed")))))

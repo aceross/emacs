@@ -154,7 +154,8 @@ def main():
                                     '--name', 'Disposable manuscript QA', '--load', str(REPO / 'test/awc-paper-gui-check.el')])
                 gui_result = json.loads((gui / 'result.json').read_text())
                 assert gui_result['status'] == 'passed', gui_result
-                png.validate_png(gui / 'status.png')
+                for name in ('status.png', 'stale.png', 'review-cancelled.png'):
+                    png.validate_png(gui / name)
                 assert not helpers.owned_helpers(gui), 'Owned GUI helpers survived'
                 assert not (gui / 'server/disposable-gui').exists(), 'Private socket survived'
             finally:

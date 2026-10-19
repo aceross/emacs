@@ -197,50 +197,56 @@
   (interactive)
   (awc-paper--start (awc-paper--project) "status"))
 
-;;;###autoload
-(defun awc-paper-check ()
-  "Review the exact project execution plan, then explicitly run its checks."
-  (interactive)
+(defun awc-paper--review (action prompt)
+  "Refresh status, then use PROMPT's argv for an explicitly reviewed ACTION.
+PROMPT receives the current record and returns nil to decline.  Guard unsaved
+buffers on both sides of the prompts and bind the action to that exact record."
   (let ((root (awc-paper--project)))
     (awc-paper--saved root)
     (awc-paper--start
      root "status" nil
      (lambda (data)
-       (when (yes-or-no-p "Run the displayed manuscript commands and tool probes? ")
-         (awc-paper--saved root)
-         (awc-paper--start root "check" (list :expect (gethash "review_token" data) :args '("--execute"))))))))
+       (condition-case problem
+           (when-let* ((args (funcall prompt data)))
+             (awc-paper--saved root)
+             (awc-paper--start root action (list :expect (gethash "review_token" data) :args args)))
+         ;; Local review exits keep the fresh report, including unsaved labels,
+         ;; instead of becoming backend failures in the response handler.
+         (user-error (awc-paper--render data)
+                     (message "%s" (error-message-string problem)))
+         (quit (awc-paper--render data)
+               (message "Manuscript review cancelled")))))))
+
+;;;###autoload
+(defun awc-paper-check ()
+  "Review the exact project execution plan, then explicitly run its checks."
+  (interactive)
+  (awc-paper--review
+   "check" (lambda (_data)
+             (when (yes-or-no-p "Run the displayed manuscript commands and tool probes? ")
+               '("--execute")))))
 
 ;;;###autoload
 (defun awc-paper-verify ()
   "Record an explicitly reviewed manual requirement against this snapshot."
   (interactive)
-  (let ((root (awc-paper--project)))
-    (awc-paper--saved root)
-    (awc-paper--start
-     root "status" nil
-     (lambda (data)
-       (let* ((choices (cl-loop for item in (gethash "manual" data)
-                                unless (equal (gethash "state" item) "not-applicable") collect (gethash "id" item)))
-              (id (if choices (completing-read "Reviewed requirement: " choices nil t) (user-error "No applicable manual requirement")))
-              (reviewer (read-string "Reviewer: "))
-              (note (read-string "Concrete review note: ")))
-         (awc-paper--saved root)
-         (awc-paper--start root "verify" (list :expect (gethash "review_token" data)
-                                               :args (list id "--reviewer" reviewer "--note" note))))))))
+  (awc-paper--review
+   "verify" (lambda (data)
+              (let* ((choices (cl-loop for item in (gethash "manual" data)
+                                       unless (equal (gethash "state" item) "not-applicable") collect (gethash "id" item)))
+                     (id (if choices (completing-read "Reviewed requirement: " choices nil t) (user-error "No applicable manual requirement")))
+                     (reviewer (read-string "Reviewer: "))
+                     (note (read-string "Concrete review note: ")))
+                (list id "--reviewer" reviewer "--note" note)))))
 
 ;;;###autoload
 (defun awc-paper-freeze ()
   "Review and write a checkpoint, preserving failed/unrun states explicitly."
   (interactive)
-  (let ((root (awc-paper--project)))
-    (awc-paper--saved root)
-    (awc-paper--start
-     root "status" nil
-     (lambda (data)
-       (when (yes-or-no-p (format "Freeze this reviewed %s snapshot, including unresolved items? " (gethash "state" data)))
-         (let ((label (read-string "Checkpoint label: ")))
-           (awc-paper--saved root)
-           (awc-paper--start root "freeze" (list :expect (gethash "review_token" data) :args (list "--label" label)))))))))
+  (awc-paper--review
+   "freeze" (lambda (data)
+              (when (yes-or-no-p (format "Freeze this reviewed %s snapshot, including unresolved items? " (gethash "state" data)))
+                (list "--label" (read-string "Checkpoint label: "))))))
 
 (provide 'awc-paper)
 ;;; awc-paper.el ends here

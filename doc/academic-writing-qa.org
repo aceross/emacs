@@ -206,5 +206,6 @@ Keep any deliberately adopted manuscript rules, dictionaries and source
 exceptions unless you choose to revise them. Preserve private preferences,
 recovery data and unrelated edits. No package snapshot, research library,
 project Python/R environment, running user session or document content needs
-rollback. The next bounded milestone is P3 manuscript lifecycle/submission;
-it has not been started here.
+rollback. P3 manuscript checks/checkpoints are now implemented; see
+[[file:manuscript-checkpoints.org][their focused guide]] and the later [[file:development-roadmap.org][P2/P3 streamlining checkpoint]].
+P4 remains planned pending a separate instruction.
