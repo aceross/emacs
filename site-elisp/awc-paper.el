@@ -103,8 +103,10 @@
         (maphash (lambda (name command) (insert (format "  Tool version %s: %S\n" name command)))
                  (or (gethash "tools" (gethash "plan" data)) (make-hash-table)))
         (dolist (spec (gethash "checks" (gethash "plan" data)))
-          (insert (format "  %s: %S\n    Contract: %s; outputs: %S; env: %S\n"
-                          (gethash "id" spec) (gethash "argv" spec)
+          (insert (format "  %s:\n" (gethash "id" spec)))
+          (dolist (command (gethash "commands" spec)) (insert (format "    %S\n" command)))
+          (when-let* ((skip (gethash "skip" spec))) (insert (format "    Skipped: %s\n" skip)))
+          (insert (format "    Contract: %s; outputs: %S; env: %S\n"
                           (or (gethash "success" spec) (gethash "type" spec))
                           (gethash "outputs" spec) (gethash "env" spec))))
         (insert "\nInputs (declared coverage; undeclared dependencies are not verified):\n")

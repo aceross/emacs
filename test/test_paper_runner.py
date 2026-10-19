@@ -203,6 +203,48 @@ class PaperRunnerTests(unittest.TestCase):
             {'t': 'CodeBlock', 'c': [[], 'code words']}]}
         self.assertEqual(paper.word_count(ast), 7)
 
+    def test_reviewed_plan_matches_executed_argv_without_implicit_execution(self):
+        source = 'supplement with spaces é.qmd'
+        (self.root / source).write_text('More synthetic prose.\n')
+        (self.root / 'pandoc.py').write_text(
+            "import json,sys\nfrom pathlib import Path\n"
+            "with Path('invocations.jsonl').open('a') as out: out.write(json.dumps(sys.argv)+'\\n')\n"
+            "print(json.dumps({'blocks':[{'t':'Para','c':[{'t':'Str','c':'two words'}]}]}))\n")
+        self.cfg['inputs'].append(source)
+        launcher = [sys.executable, 'pandoc.py', '--fixture', 'one argument']
+        self.cfg['checks'] += [
+            {'id': 'words', 'type': 'word-count', 'argv': launcher, 'files': ['paper.qmd', source]},
+            {'id': 'deferred', 'argv': ['never-run'], 'success': 'exit-code', 'skip': 'Explicitly deferred'}]
+        self.write()
+        initial = self.cli('status')
+        planned = initial['plan']['checks']
+        expected = [launcher + ['--from=markdown', '--to=json', name] for name in ('paper.qmd', source)]
+        self.assertEqual(planned[0]['commands'], [self.cfg['checks'][0]['argv']])
+        self.assertEqual(planned[1]['commands'], expected)
+        self.assertEqual(planned[2]['commands'], [])
+        self.assertFalse((self.root / 'invocations.jsonl').exists())
+        self.assertFalse((self.root / paper.STATE).exists())
+        # A different source order changes the reviewed configuration/token.
+        self.cfg['checks'][1]['files'].reverse()
+        self.write()
+        self.cli('--expect', initial['review_token'], 'check', '--execute', code=2)
+        self.assertFalse((self.root / 'invocations.jsonl').exists())
+        self.cfg['checks'][1]['files'].reverse()
+        self.write()
+        result = self.cli('--expect', initial['review_token'], 'check', '--execute', code=1)
+        actual = [json.loads(line) for line in (self.root / 'invocations.jsonl').read_text().splitlines()]
+        self.assertEqual(actual, [command[1:] for command in expected])
+        self.assertEqual(result['checks'][1]['commands'], expected)
+        self.assertEqual(result['checks'][1]['total'], 4)
+        self.assertEqual(result['checks'][2]['state'], 'skipped')
+        # The plan covers both sources; a failed first invocation records only
+        # the command actually attempted, preserving partial-run provenance.
+        (self.root / 'pandoc.py').write_text('raise SystemExit(9)\n')
+        failed = self.cli('check', '--execute', code=1)
+        self.assertEqual(failed['checks'][1]['state'], 'failed')
+        self.assertEqual(failed['plan']['checks'][1]['commands'], expected)
+        self.assertEqual(failed['checks'][1]['commands'], expected[:1])
+
     def test_word_limit_requires_dated_policy_and_reports_failure(self):
         self.cfg['checks'] = [{'id': 'words', 'type': 'word-count', 'files': ['paper.qmd'],
                                'argv': [sys.executable, '-c', "import json;print(json.dumps({'blocks':[{'t':'Para','c':[{'t':'Str','c':'one two three'}]}]}))"],

@@ -91,6 +91,51 @@
     (awc-writing-test--wait)
     (should (string-match-p "discarded" (awc-writing-test--report)))))
 
+(ert-deftest awc-writing-report-actions-resolve-the-unsaved-source-and-nearest-rules ()
+  (awc-writing-test--fixture
+    (let* ((chapter (expand-file-name "chapter/" root))
+           (config (expand-file-name "_vale.ini" chapter))
+           config-buffer)
+      (make-directory chapter)
+      (with-temp-file config (insert "[*]\n"))
+      (setq buffer-file-name (expand-file-name "draft.qmd" chapter))
+      (awc-writing-check)
+      (awc-writing-test--wait)
+      (let ((report awc-writing--results))
+        (unwind-protect
+            (save-window-excursion
+              (switch-to-buffer report)
+              (awc-writing-show-results)
+              (should (eq (current-buffer) report))
+              (awc-writing-open-config)
+              (setq config-buffer (current-buffer))
+              (should (equal buffer-file-name config))
+              (with-current-buffer source (goto-char (point-max)) (insert "Changed unsaved prose\n"))
+              (switch-to-buffer report)
+              (awc-writing-check)
+              (with-current-buffer source
+                (should (eq awc-writing--results report))
+                (should (equal (process-get awc-writing--process 'config) config))
+                (awc-writing-test--wait)
+                (should (buffer-modified-p))
+                (should-not (file-exists-p buffer-file-name))
+                (should (string-match-p "1 findings" (awc-writing-test--report)))))
+          (when (buffer-live-p config-buffer) (kill-buffer config-buffer)))))))
+
+(ert-deftest awc-writing-report-actions-refuse-a-closed-source-without-helpers ()
+  (awc-writing-test--fixture
+    (awc-writing-check)
+    (awc-writing-test--wait)
+    (let ((report awc-writing--results))
+      (set-buffer-modified-p nil)
+      (kill-buffer source)
+      (with-current-buffer report
+        (dolist (command '(awc-writing-check awc-writing-recheck awc-writing-show-results awc-writing-open-config))
+          (should (equal (should-error (funcall command) :type 'user-error) '(user-error "Writing source is closed"))))
+        (awc-writing-cancel))
+      (should-not (get-buffer " *writing-stdout*"))
+      (should-not (get-buffer " *writing-stderr*")))))
+
 (ert-deftest awc-writing-stale-navigation-and-rename-are-refused ()
   (awc-writing-test--fixture
     (awc-writing-check)

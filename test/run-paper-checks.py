@@ -90,9 +90,13 @@ def main():
         start = time.monotonic()
         initial = call('status')
         assert initial['state'] == 'incomplete' and not (project / '.awc-paper').exists()
+        assert initial['plan']['checks'][-1]['commands'] == [
+            ['quarto', 'pandoc', '--from=markdown', '--to=json', name]
+            for name in ('paper.qmd', 'supplement.qmd')]
         result = call('check', '--execute', code=1)  # Manual review is still pending.
         (root / 'cli-check.json').write_text(json.dumps(result, indent=2) + '\n')
         assert all(item['state'] == 'passed' for item in result['checks']), result['checks']
+        assert [item['commands'] for item in result['checks']] == [spec['commands'] for spec in initial['plan']['checks']]
         assert result['checks'][-1]['total'] == 20, result['checks'][-1]
         ready = call('verify', 'submission-policy', '--reviewer', 'Synthetic reviewer', '--note',
                      'Inspected both fixture artifacts and the dated synthetic policy')
@@ -154,7 +158,7 @@ def main():
                                     '--name', 'Disposable manuscript QA', '--load', str(REPO / 'test/awc-paper-gui-check.el')])
                 gui_result = json.loads((gui / 'result.json').read_text())
                 assert gui_result['status'] == 'passed', gui_result
-                for name in ('status.png', 'stale.png', 'review-cancelled.png'):
+                for name in ('status.png', 'stale.png', 'review-cancelled.png', 'plan.png'):
                     png.validate_png(gui / name)
                 assert not helpers.owned_helpers(gui), 'Owned GUI helpers survived'
                 assert not (gui / 'server/disposable-gui').exists(), 'Private socket survived'

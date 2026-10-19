@@ -25,8 +25,12 @@
 (defvar-local awc-writing--file nil)
 
 (defun awc-writing--base ()
-  "Return the entire document, including from an indirect Quarto chunk."
-  (or (buffer-base-buffer) (current-buffer)))
+  "Return the source document from prose, an indirect chunk or its QA report."
+  (let ((source (if (derived-mode-p 'awc-writing-results-mode)
+                    (if (buffer-live-p awc-writing--source) awc-writing--source
+                      (user-error "Writing source is closed"))
+                  (current-buffer))))
+    (or (buffer-base-buffer source) source)))
 
 (defun awc-writing--config (file)
   "Find the nearest readable Vale configuration above FILE."
@@ -271,20 +275,17 @@ Check unsaved text through stdin; do not save or rewrite the document."
     (unless (buffer-live-p results) (user-error "No writing report; run awc-writing-check"))
     (pop-to-buffer results)))
 
-(defun awc-writing-recheck ()
-  "Check the source of the current result buffer again."
-  (interactive)
-  (unless (buffer-live-p awc-writing--source) (user-error "Writing source is closed"))
-  (with-current-buffer awc-writing--source (awc-writing-check)))
+(defalias 'awc-writing-recheck #'awc-writing-check)
 
 ;;;###autoload
 (defun awc-writing-open-config ()
   "Visit this source's nearest project Vale configuration for review."
   (interactive)
-  (with-current-buffer (awc-writing--base)
-    (unless (and buffer-file-name (not (file-remote-p buffer-file-name)))
-      (user-error "Visit a local prose file first"))
-    (find-file (awc-writing--config buffer-file-name))))
+  (find-file
+   (with-current-buffer (awc-writing--base)
+     (unless (and buffer-file-name (not (file-remote-p buffer-file-name)))
+       (user-error "Visit a local prose file first"))
+     (awc-writing--config buffer-file-name))))
 
 (provide 'awc-writing)
 ;;; awc-writing.el ends here

@@ -18,6 +18,13 @@ a narrowed buffer. The document is neither saved nor rewritten.
 | =RET= in a report | Visit the finding at point |
 | =g= / =k= in a report | Recheck / cancel |
 
+The writing-menu actions also work from a QA report: check/recheck uses its
+entire current source buffer, last-report returns to the same report, and
+rule review visits that source's nearest configuration. Rule review starts
+no check. Unsaved prose stays unsaved, including when invoked from a report
+or indirect chunk. A closed source is diagnosed clearly; cancel/cleanup stays
+safe after closure. =awc-writing-recheck= remains an alias for the same check.
+
 Each document has a separate report. Errors express spelling or an explicit
 project policy; suggestions require editorial judgment. The example rules
 do not establish scholarly accuracy, evidential support or journal compliance.
@@ -177,7 +184,7 @@ the existing startup/crash concern is not retested; opening prose still does
 not load/start it. Vale adds project policy and located explicit reports
 without requiring a Java language server or any new Emacs package.
 
-PASSED: 13/13 focused ERT cases; real configured Markdown/Quarto/Org menu
+Original P2 acceptance PASSED: 13/13 focused ERT cases; real configured Markdown/Quarto/Org menu
 dispatch and all 28 exact =M-g n=/=M-g p=/=RET= ranges; path overrides, inline
 exceptions, domain word list, unsaved snapshots and missing rules/dictionaries;
 private graphical menu/navigation/highlights with zero Lisp warnings and no
@@ -197,6 +204,14 @@ The exact retained roots and image-review outcome are recorded in
 Jupyter/renv regression, long-session soak, macOS/Windows, physical second-device
 use, LaTeX/SyncTeX and exhaustive custom configuration coverage. These are
 separate from the bounded P2 result, not implied passes.
+
+The later report-action follow-up passes 15/15 focused cases, the same labelled
+corpus and configured integration. Private GUI acceptance additionally covers
+report-menu check/last-report/rules/cancel and =g= in all three modes, with
+three unsaved placeholder findings added to the original 28 located ranges.
+Disk source bytes stay unchanged; all 31 GUI ranges, source/report reuse and
+owned cleanup pass. The roadmap records this follow-up separately from the
+original P2 acceptance and the intervening manuscript-review simplification.
 
 * Rollback
 

@@ -1,13 +1,53 @@
-#+TITLE: Next-session handoff: P2/P3 review and bounded simplification completed
+#+TITLE: Next-session handoff: P3 command plans and P2 report actions
 #+DATE: 2026-10-19
 
-This session reviewed P2/P3 and consolidated P3's Emacs review path, preserving
-status through local prompt refusals and cancellation. P4 remains planned.
-The completion record below supersedes the original review brief retained
-after it. The roadmap and focused guides are durable evidence; disposable
-QA directories may expire.
+Two approved follow-up batches make the P3 command plan explicit and P2
+report actions consistent. P4 and shared-harness extraction remain deferred.
+The current record supersedes the previous committed checkpoint and original
+review brief retained below. Disposable QA directories may expire; the guides,
+tests and roadmap are durable evidence.
 
 * Current handoff
+
+Read the [[file:development-roadmap.org][P3 command-plan and P2 report-action follow-up checkpoint]],
+[[file:manuscript-checkpoints.org][manuscript guide]] and [[file:academic-writing-qa.org][writing QA guide]].
+
+- Git: branch =codex/p3-manuscript-checkpoints=. This local checkpoint has
+  parent =5da909d= and subject =Expose manuscript command plans and unify
+  writing report actions=. The user authorized committing all 15 files after
+  validation: four documentation files and eleven implementation/acceptance
+  files. The working tree is clean after the commit. No branch switch, push
+  or merge was performed. Remote state was not refreshed during these
+  follow-ups; the earlier verification below is historical.
+- P3: one canonical runner-owned plan supplies exact ordered =commands= for
+  review and execution, including each Pandoc source; Emacs displays it
+  directly. Skipped checks retain a reason and no commands. The plan is bound
+  into the review token; the configuration schema stays version 1. Attempted
+  commands remain distinct from the full plan in partial/failed run records.
+- P2: check, last-report and nearest-rule review work from a QA report as well
+  as a source/indirect chunk. Recheck aliases the same command. Rule review
+  selects the configuration normally and starts no check. Closed sources
+  produce a clear refusal; cancel/cleanup stays safe after source closure.
+- Preserved: explicit execution and unsaved-buffer guards, tokens, provenance/
+  staleness, immutable checkpoints, native diagnostic navigation and owned
+  cleanup. Updating the runner intentionally invalidates prior checks/reviews
+  through its recorded hash; rerun/review explicitly. Old frozen manifests
+  remain unchanged. P0/P1, package pins and project environments are unchanged.
+- QA: 25 Python, 14 P3 ERT and 15 P2 ERT tests; real P3 HTML/PDF/citation/
+  supplement and 20-word acceptance; real P2 corpus/configured modes; private
+  Wayland acceptance for both workflows. P2 retains 28 useful corpus findings,
+  zero extras and three known misses; GUI checks 31 ranges including three
+  unsaved findings. Core passes 191 ERT plus all integration stages, safety
+  27 and package audit 134 clean pins. Adapter byte compilation is warning-free.
+  The roadmap records exact evidence, repaired GUI-harness failure, limits
+  and rollback. Two consecutive fresh P3 graphical replays pass after adopting
+  the pinned completion UI's native accept-input binding.
+- Next: this local checkpoint is complete; publication requires a separate
+  instruction. Do not push or merge yet. Keep harness extraction and P4
+  deferred; live editorial, full external, all-day and second-device limits
+  remain open.
+
+* Previous committed review checkpoint (historical)
 
 The authorized review/simplification batch is complete. Read the
 [[file:development-roadmap.org][P2/P3 review and bounded streamlining checkpoint]] and
@@ -17,7 +57,7 @@ P4 remains PLANNED and requires a separate instruction.
 - Git: branch =codex/p3-manuscript-checkpoints=. The simplification checkpoint
   has parent =18c4493022bb92c0c8389ed98c130f9acf07faf0= (P3), whose parent
   is P2 =2b6f48a=. Its commit subject is =Simplify manuscript review and
-  preserve status on local exits=; use =git log -1 --oneline= for its hash.
+  preserve status on local exits= (=5da909d=).
   Neither branch has an upstream; read-only remote verification found
   =master= at =211e1ac= and neither P2/P3 branch published. The user authorized
   the local commit after validation; no push, merge or branch switch was

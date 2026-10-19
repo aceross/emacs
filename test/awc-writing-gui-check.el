@@ -9,12 +9,15 @@
 (defvar awc-writing-gui-source nil)
 (defvar awc-writing-gui-expected nil)
 (defvar awc-writing-gui-ranges 0)
+(defvar awc-writing-gui-report-actions 0)
+(defvar awc-writing-gui-rechecked nil)
 (defvar awc-writing-gui-deadline (+ (float-time) 60))
 (setq awc-writing-program (getenv "AWC_WRITING_VALE"))
 
 (defun awc-writing-gui-finish (status &optional error)
   (with-temp-file (expand-file-name "result.json" awc-gui-root)
     (insert (json-encode `((status . ,status) (ranges . ,awc-writing-gui-ranges)
+                          (report_actions . ,awc-writing-gui-report-actions)
                           (warnings . ,(vconcat awc-gui-warnings)) (error . ,error)))))
   (kill-emacs (if (equal status "passed") 0 1)))
 
@@ -25,6 +28,34 @@
        ((and awc-writing-gui-source
              (buffer-local-value 'awc-writing--process awc-writing-gui-source))
         (run-at-time 0.1 nil #'awc-writing-gui-step))
+       ((and awc-writing-gui-source (not awc-writing-gui-rechecked))
+        (let* ((source awc-writing-gui-source)
+               (results (buffer-local-value 'awc-writing--results source))
+               (file (buffer-file-name source))
+               (original (with-temp-buffer (insert-file-contents file) (buffer-string))))
+          (switch-to-buffer results)
+          (execute-kbd-macro (kbd "C-c w W l"))
+          (should (eq (current-buffer) results))
+          (execute-kbd-macro (kbd "C-c w W v"))
+          (should (equal buffer-file-name (expand-file-name ".vale.ini" (file-name-directory file))))
+          (should-not (buffer-local-value 'awc-writing--process source))
+          (with-current-buffer source
+            (goto-char (point-max))
+            (let ((line (line-number-at-pos)))
+              (insert "FIXME\n")
+              (setq awc-writing-gui-expected
+                    (append awc-writing-gui-expected (list (list line 1 5 "Academic.Placeholders" "FIXME"))))))
+          (switch-to-buffer results)
+          (execute-kbd-macro (kbd "C-c w W c"))
+          (execute-kbd-macro (kbd "C-c w W k"))
+          (should-not (buffer-local-value 'awc-writing--process source))
+          (should (string-match-p "cancelled" (buffer-string)))
+          (execute-kbd-macro (kbd "g"))
+          (should (buffer-modified-p source))
+          (should (equal original (with-temp-buffer (insert-file-contents file) (buffer-string))))
+          (setq awc-writing-gui-rechecked t)
+          (cl-incf awc-writing-gui-report-actions)
+          (run-at-time 0.1 nil #'awc-writing-gui-step)))
        (awc-writing-gui-source
         (let* ((source awc-writing-gui-source)
                (results (buffer-local-value 'awc-writing--results source))
@@ -58,7 +89,7 @@
               (write-region (x-export-frames nil 'png) nil
                             (expand-file-name (concat (file-name-extension (buffer-file-name source)) ".png") awc-gui-root)
                             nil 'silent)))
-          (setq awc-writing-gui-source nil)
+          (setq awc-writing-gui-source nil awc-writing-gui-rechecked nil)
           (run-at-time 0.1 nil #'awc-writing-gui-step)))
        (awc-writing-gui-queue
         (let* ((entry (pop awc-writing-gui-queue))
@@ -74,6 +105,8 @@
           (execute-kbd-macro (kbd "C-c w W c"))
           (run-at-time 0.1 nil #'awc-writing-gui-step)))
        (t
+        (should (= awc-writing-gui-report-actions 3))
+        (should (= awc-writing-gui-ranges 31))
         (should-not awc-gui-warnings)
         (should-not (cl-some (lambda (process) (string-prefix-p "writing-qa" (process-name process))) (process-list)))
         (awc-writing-gui-finish "passed")))

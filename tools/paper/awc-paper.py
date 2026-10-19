@@ -269,6 +269,20 @@ def owner_alive(record):
     return not record.get('owner_start') or owner_start(pid) == record['owner_start']
 
 
+def execution_plan(cfg):
+    """Expand the exact argv once in the runner, for review and execution."""
+    checks = []
+    for spec in cfg.get('checks', []):
+        if spec.get('skip'):
+            commands = []
+        elif spec.get('type') == 'word-count':
+            commands = [spec['argv'] + ['--from=markdown', '--to=json', source] for source in spec['files']]
+        else:
+            commands = [spec['argv']]
+        checks.append(dict(spec, commands=commands))
+    return dict(cfg, checks=checks)
+
+
 def status(root, config_path, cfg):
     current = snapshot(root, config_path, cfg)
     run = read(local(root, STATE + '/latest.json'), {})
@@ -302,9 +316,10 @@ def status(root, config_path, cfg):
         manual.append(entry)
     versions_ok = all(tool.get('exit') == 0 and tool.get('version', '').strip() for tool in run.get('tools', {}).values())
     ready = bool(checks) and not current['missing'] and versions_ok and all(c['state'] in GOOD for c in checks + manual)
+    plan = execution_plan(cfg)
     value = {'version': 1, 'snapshot': current, 'run': run, 'checks': checks, 'manual': manual,
              'outputs': outputs, 'ready': ready, 'state': 'ready' if ready else 'incomplete',
-             'plan': cfg, 'review_token': digest({'snapshot': current, 'run': run, 'manual': manuals, 'outputs': outputs, 'checks': checks})}
+             'plan': plan, 'review_token': digest({'snapshot': current, 'run': run, 'manual': manuals, 'outputs': outputs, 'checks': checks, 'plan': plan})}
     return value
 
 
@@ -355,7 +370,7 @@ def check_project(root, config_path, cfg):
                 record['tools'][tool] = {'argv': command, 'exit': code, 'version': log.read_text(errors='replace')[:4000]}
             except (OSError, PaperError) as error:
                 record['tools'][tool] = {'argv': command, 'unavailable': str(error)}
-        for spec, item in zip(cfg.get('checks', []), record['checks']):
+        for spec, item in zip(execution_plan(cfg)['checks'], record['checks']):
             if snapshot(root, config_path, cfg)['id'] != start['id']:
                 item.update(state='stale', detail='Inputs changed during validation; rerun')
                 break
@@ -369,11 +384,10 @@ def check_project(root, config_path, cfg):
             before = {n: artifact(root, n, True) for n in spec.get('outputs', [])}
             began = time.monotonic()
             try:
+                item['commands'] = []
                 if spec.get('type') == 'word-count':
                     counts = {}
-                    item['commands'] = []
-                    for source in spec['files']:
-                        command = spec['argv'] + ['--from=markdown', '--to=json', source]
+                    for source, command in zip(spec['files'], spec['commands']):
                         item['commands'].append(command)
                         code = run_command(root, command, log, spec.get('timeout', 60), spec.get('env'))
                         if code:
@@ -383,7 +397,8 @@ def check_project(root, config_path, cfg):
                     if 'limit' in spec and item['total'] > spec['limit']:
                         item.update(state='failed', detail=f'Word count {item["total"]} exceeds configured limit {spec["limit"]}')
                 else:
-                    code = run_command(root, spec['argv'], log, spec.get('timeout', 60), spec.get('env'))
+                    item['commands'].append(spec['commands'][0])
+                    code = run_command(root, spec['commands'][0], log, spec.get('timeout', 60), spec.get('env'))
                     item.update(exit=code, state='passed' if code == 0 else 'failed')
                     text = log.read_text(errors='replace')
                     rejected = [pattern for pattern in spec.get('reject', []) if re.search(pattern, text)]

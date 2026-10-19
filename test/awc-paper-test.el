@@ -57,6 +57,18 @@
         (awc-paper-status))
       (should (equal seen (list root "status" nil))))))
 
+(ert-deftest awc-paper-renders-runner-commands-without-expanding-the-launcher ()
+  (awc-paper-test--project
+    (with-temp-buffer
+      (setq awc-paper--root root)
+      (awc-paper--render
+       (json-parse-string
+        "{\"state\":\"incomplete\",\"run\":{},\"snapshot\":{\"id\":\"fixture\",\"git\":{},\"files\":{}},\"plan\":{\"checks\":[{\"id\":\"words\",\"type\":\"word-count\",\"argv\":[\"launcher-only\"],\"commands\":[[\"runner-command\",\"--to=json\",\"paper with spaces é.qmd\"]]},{\"id\":\"deferred\",\"commands\":[],\"skip\":\"Explicitly deferred\"}]}}"
+        :array-type 'list))
+      (should (string-match-p (regexp-quote "(\"runner-command\" \"--to=json\" \"paper with spaces é.qmd\")") (buffer-string)))
+      (should (string-match-p "Skipped: Explicitly deferred" (buffer-string)))
+      (should-not (string-match-p "launcher-only" (buffer-string))))))
+
 (ert-deftest awc-paper-inapplicable-review-retains-the-current-report ()
   (awc-paper-test--project
     (with-temp-file (expand-file-name "paper.qmd" root) (insert "Synthetic manuscript\n"))

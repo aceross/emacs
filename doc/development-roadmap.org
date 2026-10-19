@@ -58,10 +58,10 @@ P3 now adds [[file:manuscript-checkpoints.org][project-owned manuscript checks a
 one standalone runner and a thin Emacs report. Its bounded acceptance and
 remaining coverage limits are recorded in the P3 checkpoint below.
 
-The P2/P3 review selected one bounded simplification: a common Emacs review
-path that retains useful manuscript status through local prompt refusals.
-The findings, acceptance and deferred follow-ups are recorded in the
-streamlining checkpoint below. P4 remains planned until a separate instruction.
+The P2/P3 review first consolidated manuscript review handling. Two subsequent
+bounded batches add runner-owned expanded command plans and consistent writing
+report actions. Their findings, acceptance and limits are recorded in the
+checkpoints below. P4 and GUI-harness extraction remain deferred for this pass.
 See [[file:next-session-handoff.org][the current handoff prompt]].
 
 * Current prioritized plan — 19 October 2026
@@ -1256,6 +1256,111 @@ P3/P4/LLM expansion remains outside the next milestone.
   configuration, outputs, logs, all checkpoints and private state. No package
   or live environment rollback is needed. Review the remaining findings
   before choosing another bounded pass; do not start P4 automatically.
+
+* P3 command-plan and P2 report-action follow-ups — 19 October 2026
+
+- Baseline/scope: clean =codex/p3-manuscript-checkpoints= at =5da909d=.
+  The user approved the outlined P3 execution-plan and separate P2 usability
+  batches. No package changes, live manuscript/library use, shared GUI-harness
+  extraction or P4 work is included. After validation the user authorized
+  the 15-file local commit, including tests, guides, roadmap and handoff.
+  Commit subject: =Expose manuscript command plans and unify writing report
+  actions=; parent =5da909d=. The working tree is clean after this checkpoint.
+  No push, merge or branch switch was performed; P4 remains deferred.
+- Batch 1, P3: the raw configuration previously showed only the Pandoc
+  launcher. =execution_plan= now derives exact ordered =commands= arrays in
+  the canonical Python runner, used by status and execution. It expands every
+  word-count source once per plan, retains argv boundaries, and gives skipped
+  checks an empty list plus their existing reason. Ordinary checks use the
+  same representation. Emacs renders these arrays directly; the exact plan
+  participates in the review token. Project configuration remains version 1
+  with no new input options. Results record attempted command arrays; a
+  first-source failure retains the full plan without claiming later commands
+  ran. A focused regression covers this partial-run provenance boundary.
+- Batch 1 contracts/compatibility: status executes no project code; reviewed
+  execution and fresh/saved-buffer/token guards remain in place. Check
+  contracts, word-count semantics, provenance/staleness, locks, cancellation
+  and immutable manifests are preserved. The updated runner hash makes prior
+  checks and manual reviews stale; deliberately rerun and review them. Prior
+  frozen JSON files are not migrated or rewritten. See
+  [[file:manuscript-checkpoints.org][the updated plan, provenance and usage guide]].
+- Batch 2, P2: the existing source resolver now handles a document, indirect
+  chunk or QA report. Check, last-report and nearest-rule review therefore
+  work from either source or report. Recheck remains a compatibility alias
+  for the same check command. Rule review resolves the path in the source
+  context, then visits it normally; this also fixes current-buffer restoration
+  interfering with direct invocation. Closed-source actions explain the
+  failure; cancellation/cleanup remains safe after source closure. No rules,
+  dictionaries, execution hooks, menu keys or source content are changed.
+- Focused QA PASSED: =25/25= Python runner tests, =14/14= P3 ERT and =15/15=
+  P2 ERT. New negative tests failed before implementation. The runner fixture
+  records actual argv for two sources with spaces/Unicode, confirms passive
+  status, verifies plan/execution order and boundaries, rejects a changed
+  file-order token, preserves explicit skip state and distinguishes attempted
+  commands from the full plan after a first-source failure. The Emacs plan test
+  proves it displays runner commands without reconstructing the launcher.
+  P2 covers report reuse, unsaved sources, nearest nested rules, config-window
+  selection and closed-source refusal without helpers; prior indirect/source
+  isolation, stale navigation and cleanup checks continue to pass.
+- P2 real acceptance PASSED: unchanged corpus result =28= useful, =0= extras
+  and =3= known acronym misses, plus configured three-mode menu/navigation and
+  rule/dictionary failure checks. A private normal Wayland run uses report
+  menu =l/v/c/k= and report =g= in Markdown, Quarto and Org. Each adds an
+  unsaved placeholder, cancels/rechecks the same source/report and proves
+  disk bytes are unchanged. It checks =31= exact ranges (28 original plus
+  three unsaved findings), three report-action sequences, zero Lisp warnings
+  and owned-helper/socket cleanup. All three native PNGs were binary-validated
+  and visually inspected. Evidence: =/tmp/emacs-writing-qa-djfj3gjg/=.
+- P3 real stages PASSED with the final implementation: =25/25= runner cases,
+  real HTML/PDF/supplement/citations and the =20=-word count, immutable failed/
+  ready manifests, moved-project checks, stale input/manual-review checks and
+  configured Emacs/CLI plan/token parity at =/tmp/emacs-paper-qa-fernc56e/=
+  (=unit.log=, =cli-check.json=, =broken-citation.json=, =expected-status.json=,
+  =emacs.log= and project records). Its whole invocation failed only at the
+  graphical-input stage; final graphical acceptance is a separate fresh-project
+  replay of the same checked-in GUI fixture, with the launcher retained at
+  =/tmp/awc-writing-followups/replay-paper-gui.py=.
+- GUI fixture failures/repair: intermittent requirement-input stalls are
+  retained at =/tmp/emacs-paper-qa-79q8rrwh/=,
+  =/tmp/emacs-paper-qa-fernc56e/= and
+  =/tmp/emacs-paper-gui-followup-990uk9pz/=. The last trace proves the valid
+  =submission-policy= input was present but ordinary =RET= had not accepted it.
+  The fixture now reads/fills the actual minibuffer, uses the pinned Vertico
+  =M-RET= accept-input binding when available, and ordinary =RET= for plain
+  text prompts. Native matching/validation, confirmation/quit events and exact
+  saved reviewer/note/label assertions remain active. Prompt/answer/pending-input
+  traces make failures inspectable. The plan capture positions its window at
+  the complete command section. An intermediate acceptance at
+  =/tmp/emacs-paper-qa-3fmidj0_/= correctly became stale when the final
+  partial-run correction changed the runner mid-check; final verification
+  holds the implementation fixed. These are harness/input issues and an
+  expected stale safeguard, not ignored passing results.
+- Final P3 GUI PASSED at =/tmp/emacs-paper-gui-followup-p5ep4ay2/=: all ten
+  native prompt submissions, exact saved review/label, complete expanded plan,
+  ready/stale/cancelled states and owned-helper/socket cleanup, with zero Lisp
+  warnings. All four native PNGs pass binary validation and visual inspection.
+  A second fresh-project replay at =/tmp/emacs-paper-gui-followup-d4mcjldk/=
+  also PASSED all ten submissions, saved-field assertions, PNG validation and
+  helper/socket cleanup with no warnings. No production code changed between
+  these two final graphical passes.
+- Shared regressions PASSED: full core =191/191= ERT and all configured
+  startup/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stages, =27/27= safety, =134= clean package sources, warning-free adapter
+  byte compilation into =/tmp/= and diff checks. Evidence:
+  =/tmp/quarto-checks-etg8j5v5/logs/= (final fixed implementation) and
+  =/tmp/awc-writing-followups/=
+  (=p3-before.log=, =p2-before.log=, focused, compile, safety and pin logs).
+- Limits/remaining work: no live editorial/journal acceptance, all-day soak,
+  full external Jupyter/renv rerun, physical second-device/synchronization or
+  other-platform validation. Existing P2 acronym/markup and P3 declared-input,
+  transitive-environment and source-count limitations remain. Harness sharing
+  is deferred until a concrete ownership/maintenance benefit justifies it.
+  P4 requires a separate instruction and remains outside this pass.
+- Rollback: restore the runner, P3 adapter/acceptance files or P2 adapter/
+  acceptance files independently from =5da909d=, then save buffers and restart.
+  Preserve adopted rules, source edits, configuration, outputs, runtime records,
+  every prior checkpoint and private state. Record any rollback in the guides
+  without erasing validation history. No package/environment rollback is needed.
 
 * Planning baseline (earlier assessment, reconciled)
 

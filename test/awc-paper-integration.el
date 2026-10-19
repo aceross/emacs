@@ -26,6 +26,13 @@
                                    (buffer-string)) :object-type 'hash-table :array-type 'list :null-object nil :false-object nil)))
   (should (equal (gethash "review_token" expected) (gethash "review_token" awc-paper--data))))
 (princ "PASS: actual C-c w M s and CLI/Emacs snapshot/result parity\n")
+(let* ((words (car (last (gethash "checks" (gethash "plan" awc-paper--data)))))
+       (commands (gethash "commands" words)))
+  (should (equal commands '(("quarto" "pandoc" "--from=markdown" "--to=json" "paper.qmd")
+                            ("quarto" "pandoc" "--from=markdown" "--to=json" "supplement.qmd"))))
+  (dolist (command commands)
+    (should (string-match-p (regexp-quote (format "%S" command)) (buffer-string)))))
+(princ "PASS: report displays the runner's exact per-source word-count plan\n")
 
 (with-current-buffer awc-paper-qa-source
   (goto-char (point-max)) (insert "Unsaved change\n")

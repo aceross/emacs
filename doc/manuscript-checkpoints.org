@@ -27,6 +27,15 @@ project buffers have unsaved edits. No action silently saves manuscript text.
 Execution and freeze confirmations display the concrete current report first;
 an exact review token rejects changes between that review and the action.
 
+The runner's =plan.checks[].commands= lists the exact ordered argv arrays
+before execution, including one fully expanded Pandoc command per word-count
+source. Emacs displays those arrays directly. Skipped checks have an empty
+command list and retain their reason. The same runner-owned plan drives
+execution and participates in the review token; configuration remains version
+1, with no new project options. Status still executes no project code.
+Run-result =commands= records only attempted invocations; if the first source
+fails, the plan still shows later sources without claiming they were checked.
+
 Declining execution or pressing =C-g= during a review leaves the refreshed
 status report available. If no manual requirement applies, a message explains
 that without replacing the report with an unavailable-backend error. Edits
@@ -110,6 +119,10 @@ Quarto includes/shortcodes or establish a publisher's counting convention.
 Use a project validator when a different convention is required. The full
 expanded command list and per-source/total counts are recorded; the log holds
 the final source's Pandoc JSON.
+
+Updating the runner changes its recorded hash, so prior checks/manual reviews
+become stale and need an explicit rerun/review. Existing frozen manifests stay
+unchanged; they retain their historical plan and results.
 
 An optional positive =limit= must have =policy.source= and =policy.date=.
 There is no fabricated default word limit or journal rule. A manual policy's
@@ -216,6 +229,12 @@ execution and =C-g= at a checkpoint label, then checks ordinary run/review/
 freeze, staleness and owned cancellation/cleanup. The three report captures
 are binary-validated and visually inspected; see the roadmap for this pass's
 evidence, preserved contracts, deferred findings and rollback.
+
+The later command-plan follow-up passes 25/25 runner and 14/14 focused Emacs
+cases. Its real fixture compares the complete pre-execution command arrays
+with executed records, including both word-count sources, and the private
+GUI captures the expanded plan before its ordinary review/freeze/cancel replay.
+See the separate follow-up checkpoint in the roadmap for evidence and limits.
 
 Exact evidence paths, failures repaired and deferred checks
 are recorded in [[file:development-roadmap.org][the roadmap]]. Preserve project records, outputs and sources when
