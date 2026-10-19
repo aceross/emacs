@@ -23,4 +23,5 @@
 (require 'awc-r-lsp-test)
 (require 'awc-lsp-test)
 (require 'awc-research-test)
+(require 'awc-bibliography-test)
 (ert-run-tests-batch-and-exit)

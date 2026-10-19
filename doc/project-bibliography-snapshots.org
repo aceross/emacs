@@ -1,0 +1,150 @@
+#+TITLE: Reviewed project bibliography snapshots
+#+DATE: 2026-10-19
+
+* Purpose and ownership
+
+P1a adds a deliberate path from a selected reference to a manuscript-owned
+BibTeX snapshot. The manuscript renders from its committed bibliography with
+Zotero closed. Zotero remains the metadata authority; existing personal
+bibliographies, associations and literature notes are preserved.
+
+Use a manually maintained snapshot as the target. An automatic Zotero/Better
+BibTeX export must own a different file. Common generated-file warning headers
+are refused, but an unmarked automatic export cannot be identified reliably.
+Check ownership before applying. The reviewed diff adds this comment:
+
+#+begin_example
+% awc-bibliography: reviewed snapshot
+#+end_example
+
+This comment records the chosen update method; it does not configure or
+turn off an exporter. It is not a second metadata authority.
+
+* Prepare, review, apply
+
+Create an empty =references.bib= in the manuscript project and declare its
+relative path in the document or inherited Quarto metadata. Save the document
+and metadata first. For example:
+
+#+begin_src yaml
+bibliography: references.bib
+#+end_src
+
+Run the commands from a saved =.qmd= document. Existing Quarto resolution
+handles project, directory, profile and document metadata, including sources
+in subdirectories. These commands do not edit YAML.
+
+| Keys | Action |
+|------+--------|
+| =C-c w n b= | Select a global Citar reference and review adding/updating its local snapshot |
+| =C-c w n r= | Select a project reference and review fresh metadata from its associated Zotero item |
+| =C-c C-c= in the review | Apply exactly the displayed candidate |
+| =q= in the review | Leave it unapplied |
+
+The first command uses existing local bibliography files without contacting
+Zotero. It does not imply their metadata is current. For fresh metadata, use
+=C-c w n r= with Zotero running and the local API enabled. Associate an item
+with =C-c w n z= first when necessary. Personal and group libraries use the
+existing explicit item association. The review identifies the item URI.
+
+When several bibliographies are declared, choose the destination explicitly.
+A key already present in a different declared file must be updated there.
+All declared sources must be readable BibTeX files. The writable target must
+already exist inside the project and must not be a symlink. Missing
+bibliography declarations and unsupported CSL JSON/YAML sources are reported
+before a review can be applied.
+
+Preparation changes no bibliography. Inspect the diff, including source-field
+changes, then apply or leave it unapplied. Applying retains a preimage under
+=awc-research-data-directory=, normally
+=~/.emacs.d/var/research/bibliography-before-*=, with owner-only permissions.
+The message gives its exact path. The target's file permissions and newline
+convention are retained. An unchanged candidate does not write or create a
+new backup. Back up personal runtime data separately from this configuration.
+
+Review the resulting Git diff and render the manuscript before committing
+its source and bibliography together. These commands do not commit or push.
+Ordinary citation insertion continues to use =C-c b= or =C-c w n c= and the
+document's declared sources.
+
+* Preservation and refusal rules
+
+The existing citation key remains unchanged, including punctuation such as
+=legacy:key=. A Zotero refresh can use a changed native export key only when
+the saved item key and exported key agree; the project still retains its
+established key. Conflicting item associations, duplicate keys and an
+existing different project key for the same reference require reconciliation.
+There is no automatic key migration.
+
+Refresh replaces fields supplied by the selected source after review. Fields
+present only in the project entry, such as a manual =annotation=, are retained.
+The selected entry is reformatted; comments and other records outside it
+remain intact. This is not a three-way merge of hand-edited values: if both
+Zotero and the project supply a field, inspect its proposed replacement.
+
+=file=, =pdf= and =local-url= fields are omitted from the selected snapshot
+and newly added dependency entries. DOI and web URL metadata remain. This
+does not modify the source export, attachment files or existing note links.
+It does not sanitize unrelated pre-existing entries or package attachments.
+
+The command follows =crossref= and BibLaTeX =xdata= dependencies, adding
+missing supporting records from the local source bibliographies. Existing
+project dependency records are retained. Missing or cyclic dependencies stop
+preparation. Source string macros and concatenations must be expanded to
+literals before copying; standard month names and numeric literals work.
+Existing unrelated =@string= definitions remain untouched.
+
+A review captures its document/configuration, source and project bibliography
+fingerprints, plus Zotero associations for a refresh. Changed inputs, unsaved
+buffer edits and another Emacs file lock invalidate application. Prepare a
+new review after resolving the conflict. Replacement is atomic and a failed
+rename preserves the target. Emacs locks are advisory; coordinate edits with
+other applications rather than treating this as a concurrent sync service.
+
+* Disposable QA
+
+Run the existing core acceptance command; it installs no dependencies:
+
+#+begin_src sh
+python3 test/run-quarto-checks.py --suite core --keep
+#+end_src
+
+The focused tests are =test/awc-bibliography-test.el= and
+=test/awc-bibliography-quarto-integration.el=. The latter uses a fixture
+Zotero response, real Citar selection/insertion and actual Quarto resolution
+and HTML/PDF rendering. It copies a manuscript to a different path, clears
+global Citar sources and renders from an unrelated working directory with
+Zotero unavailable. It checks preserved keys, corrected metadata and no
+machine-specific attachment paths. No live bibliography, vault, research
+project or application state is a fixture.
+
+The tests also cover review cancellation/idempotence, group libraries,
+Unicode, manual fields, CRLF/comments/string declarations, dependency
+closure/cycles/missing parents, duplicate/conflicting keys, changed inputs,
+missing/unsaved document metadata, unavailable/mismatched Zotero exports,
+generated/symlink/missing targets and failed atomic replacement.
+
+For native graphical menu/review acceptance, using only disposable state:
+
+#+begin_src sh
+python3 test/run-bibliography-gui-check.py
+#+end_src
+
+This starts a separate normal Wayland Emacs with private configuration and
+fixture references, checks menu dispatch and keyboard application, exports
+the visible diff, then checks helper/socket cleanup. It exposed the pinned
+Transient's GUI feature-test error on the selected Emacs 31 build; the
+workflow module adds a runtime guard for the absent text-conversion setting.
+Inspect the retained =review.png= along with =gui-result.txt= and =result.json=.
+
+This stage does not transfer the global association database or resolve PDFs
+on another device. P1b owns portable identities and device-local attachments;
+physical second-device acceptance and vault synchronization remain unrun.
+
+* Rollback
+
+Save work and revert this focused configuration checkpoint, then restart
+Emacs. Retain notes, associations, project snapshots and recovery copies.
+To undo an applied snapshot, review the recorded preimage against subsequent
+manual edits before restoring it. No Zotero rollback or attachment deletion
+is required.

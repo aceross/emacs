@@ -31,6 +31,8 @@ references and literature-notes menu.
 | o | Open the current vault note in Obsidian |
 | c | Insert a citation from the current document's bibliography |
 | e | Visit the current bibliography entry |
+| b | Review adding/updating a reference from the local Citar snapshot |
+| r | Review refreshing a project reference from its associated Zotero item |
 
 From a literature note, =n=, =p= and =Z= use its =citekey= property. Otherwise,
 they offer a reference selector. Multiple local PDFs or matching Markdown
@@ -85,14 +87,15 @@ Importing a paper adds it to the global reference selector. It does not edit
 a project's bibliography or YAML. Quarto continues to offer only the sources
 declared by that document and its project metadata.
 
-To add the paper to a project-owned BibTeX file, visit that file, use
-=M-x citar-insert-bibtex= to insert the selected entry, check that its key is
-not already present, and save. Declare that file in the project's/document's
-=bibliography= setting. This keeps manuscript dependencies explicit. Do not
-manually edit a file maintained by Zotero automatic export.
+To add the paper to a project-owned BibTeX file, create that file and declare
+it in the project's/document's =bibliography= setting. From the saved Quarto
+document use =C-c w n b=, inspect the prepared diff, then =C-c C-c= to apply.
+=C-c w n r= prepares fresh Zotero metadata for an associated project key.
+See [[file:project-bibliography-snapshots.org][the snapshot guide]] for preservation, ownership and conflict rules.
+Do not target a file maintained by Zotero automatic export.
 
-The demonstration uses a single-entry snapshot. Changes to Zotero metadata
-do not automatically update that snapshot or an existing literature note.
+The demonstration uses a single-entry snapshot. Zotero metadata changes need
+an explicit reviewed refresh; existing literature notes are never rewritten.
 
 * Preservation and recovery
 

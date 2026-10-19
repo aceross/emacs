@@ -2,6 +2,14 @@
 (require 'awc-project)
 (require 'transient)
 
+;; The pinned Transient compiles this availability test with static-if.
+;; A prebuilt copy can assume a variable absent from the running PGTK build.
+(defun awc-workflow--text-conversion-available-p (&rest _)
+  (boundp 'overriding-text-conversion-style))
+(when (fboundp 'transient--suspend-text-conversion-style)
+  (advice-add 'transient--suspend-text-conversion-style :before-while
+              #'awc-workflow--text-conversion-available-p))
+
 ;; Pyright does not autoload this command, but Transient validates every
 ;; suffix when opening the menu, even before a Python LSP session exists.
 (autoload 'lsp-pyright-organize-imports "lsp-pyright" nil t)
@@ -11,6 +19,8 @@
 (autoload 'awc-research-open-zotero "awc-research" nil t)
 (autoload 'awc-research-open-pdf "awc-research" nil t)
 (autoload 'awc-research-open-in-obsidian "awc-research" nil t)
+(autoload 'awc-bibliography-prepare "awc-bibliography" nil t)
+(autoload 'awc-bibliography-refresh "awc-bibliography" nil t)
 (autoload 'gptel "gptel" nil t)
 (autoload 'writegood-grade-level "writegood-mode" nil t)
 (autoload 'writegood-reading-ease "writegood-mode" nil t)
@@ -33,6 +43,9 @@
     ("z" "Find/import one Zotero item" awc-research-import-zotero)
     ("c" "Insert citation (document bibliography)" citar-insert-citation)
     ("e" "Bibliography entry" citar-open-entry)]
+   ["Project bibliography"
+    ("b" "Review add/update from local snapshot" awc-bibliography-prepare)
+    ("r" "Review refresh from Zotero" awc-bibliography-refresh)]
    ["Read / write"
     ("n" "Obsidian literature note" awc-research-open-note)
     ("N" "Markdown / legacy Org notes" citar-open-notes)
