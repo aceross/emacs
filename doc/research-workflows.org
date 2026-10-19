@@ -322,6 +322,27 @@ restoring files does not undo hooks already installed in a live session.
 Neither rollback nor adoption requires rebuilding Emacs or changing the
 =emacs= launcher. Keep Snap for rollback as before.
 
+** package.el warning when opening PDFs
+
+Straight owns package activation; =early-init.el= already sets
+=package-enable-at-startup= and =package-quickstart= to nil. PDF Tools still
+requires the built-in =package= library. The installed Straight version warns
+when that library loads and the old =elpa/= directory exists, without checking
+whether any of its packages were activated.
+
+On 16 October 2026, isolated full configuration loading followed by PDF Tools
+reproduced the warning. No package.el activation or installation ran, and no
+=elpa/= files appeared in =load-path= or =load-history=. The unused directory
+was moved intact to =var/archives/elpa-2026-10-16/=, including the old
+=exec-path-from-shell= and =transient-cycles= installations. This is a local
+archive ignored by Git. Repeating the same startup check produced no warning;
+PDF Tools and the active shell-path package loaded from Straight's builds.
+
+The archive is recoverable; restore it to =elpa/= only after checking that the
+destination is absent. That also restores the condition behind the warning.
+On another device, check actual activation and loaded paths before archiving
+its legacy packages. No broad warning suppression is configured.
+
 * Validation
 
 The focused suite now includes the original fourteen cases, environment and
