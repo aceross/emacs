@@ -29,10 +29,33 @@
 (autoload 'writegood-grade-level "writegood-mode" nil t)
 (autoload 'writegood-reading-ease "writegood-mode" nil t)
 (autoload 'writegood-mode "writegood-mode" nil t)
+(autoload 'awc-writing-check "awc-writing" nil t)
+(autoload 'awc-writing-show-results "awc-writing" nil t)
+(autoload 'awc-writing-open-config "awc-writing" nil t)
+(autoload 'awc-writing-cancel "awc-writing" nil t)
+(autoload 'awc-paper-status "awc-paper" nil t)
+(autoload 'awc-paper-check "awc-paper" nil t)
+(autoload 'awc-paper-verify "awc-paper" nil t)
+(autoload 'awc-paper-freeze "awc-paper" nil t)
+(autoload 'awc-paper-cancel "awc-paper" nil t)
+
+(transient-define-prefix awc/manuscript ()
+  "Review manuscript validation and freeze explicit checkpoints."
+  [["Manuscript"
+    ("s" "Status / source hashes" awc-paper-status)
+    ("c" "Review and run checks" awc-paper-check)
+    ("m" "Record manual verification" awc-paper-verify)
+    ("f" "Review and freeze checkpoint" awc-paper-freeze)
+    ("k" "Cancel checks" awc-paper-cancel)]])
 
 (transient-define-prefix awc/writing ()
   "Writing checks and contextual Org templates."
-  [["Writing"
+  [["Project prose QA (Vale)"
+    ("c" "Check buffer" awc-writing-check)
+    ("l" "Last report / findings" awc-writing-show-results)
+    ("v" "Review project rules" awc-writing-open-config)
+    ("k" "Cancel check" awc-writing-cancel)]
+   ["Writing"
     ("g" "Grade level" writegood-grade-level)
     ("e" "Reading ease" writegood-reading-ease)
     ("w" "Toggle Writegood" writegood-mode)]
@@ -85,6 +108,7 @@
     ("I" "R objects" awc/r-env-list)]
    ["Documents / IDE"
     ("W" "Writing / Org templates" awc/writing)
+    ("M" "Manuscript / submission checkpoint" awc/manuscript)
     ("a" "Assistant (gptel)" gptel)
     ("n" "References / literature notes" awc/research)
     ("B" "Quarto render" quarto-build-document)

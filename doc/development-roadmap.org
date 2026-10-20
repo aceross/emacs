@@ -1,5 +1,5 @@
 #+TITLE: Emacs development roadmap
-#+DATE: 2026-10-19
+#+DATE: 2026-10-20
 #+TODO: PLANNED IN_PROGRESS BLOCKED | IMPLEMENTED VALIDATED DEFERRED
 #+OPTIONS: toc:2
 
@@ -50,7 +50,24 @@ Citar sources. P1b now adds [[file:portable-associations-and-pdfs.org][portable 
 validated across two independent disposable profiles on this Linux host.
 Physical second-device use and synchronization remain unvalidated.
 
-* Current prioritized plan — 19 October 2026
+P2 now adds [[file:academic-writing-qa.org][explicit project academic writing QA]] with Vale and native
+compilation navigation. The synthetic corpus, configured modes and private
+graphical acceptance pass with the three acronym-order misses recorded below.
+
+P3 now adds [[file:manuscript-checkpoints.org][project-owned manuscript checks and reviewed checkpoints]] through
+one standalone runner and a thin Emacs report. Its bounded acceptance and
+remaining coverage limits are recorded in the P3 checkpoint below.
+
+The P2/P3 review first consolidated manuscript review handling. Two subsequent
+bounded batches add runner-owned expanded command plans and consistent writing
+report actions. Their findings, acceptance and limits are recorded in the
+checkpoints below. P4 and GUI-harness extraction remain deferred for this pass.
+Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] publishes the combined work. Its follow-up review found passive
+Git execution, path-alias overlap and mode-change cancellation gaps; the
+20 October repair checkpoint below records the fixes and fresh acceptance.
+See [[file:next-session-handoff.org][the current handoff prompt]].
+
+* Current prioritized plan — 20 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
 analyze → write → verify → revise → validate → submit → archive. Reliability,
@@ -72,8 +89,8 @@ the particular unrun check, not treated as a passing result.
 | P1 Portable reference/notes workflow | VALIDATED locally in two profiles | P0, stable citation identities | Offline project render and identity/note/PDF reuse pass; physical second-device acceptance remains open |
 | P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
 | P1b Portable associations and device-local attachments | VALIDATED locally in two profiles | P1a | Path-free transfer, same key/renamed note, different local PDFs and offline render pass; physical second device unrun |
-| P2 Academic writing QA | PLANNED | P0, project settings | Useful located diagnostics and measured false positives on an academic corpus |
-| P3 Manuscript lifecycle/submission | PLANNED | P1, P2, existing Quarto checks | Reviewable manifest with revision-bound validation; same checks outside Emacs |
+| P2 Academic writing QA | VALIDATED locally, bounded corpus | P0, explicit Vale/project rules | 28 useful findings, zero false positives, 3 known acronym misses; exact source ranges and private GUI pass |
+| P3 Manuscript lifecycle/submission | VALIDATED locally, bounded fixture | P1, P2, existing Quarto checks | Real HTML/PDF/citations, same CLI/Emacs records, stale invalidation and reviewed immutable manifests pass |
 | P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
 | P5 Reviewer/collaborator feedback | PLANNED | P3, P4 source/revision identity | Import, track, resolve and export a representative review without information loss |
 | P6 Bounded LLM assistance | PLANNED | P1, P4, explicit material/backend authorization | Selected-source comparison, separate critique and reviewed diff; fixed evaluation set |
@@ -123,9 +140,9 @@ preparing its PR.
   add/refresh and copied-project rendering without Zotero/global references.
 - *P1b now implemented and validated locally:* reviewed path-free identity
   transfer, device-local PDF resolution and independent-profile note/key reuse.
-- *Not implemented:* full-vault navigation,
-  writing QA, submission manifests,
-  evidence decisions, review import and bounded assistant sessions.
+- *Not implemented:* full-vault navigation, evidence decisions, review import
+  and bounded assistant sessions. P2 writing QA and P3 manuscript manifests
+  are now implemented with the bounded acceptance recorded below.
 - *Candidates without demonstrated value:* embeddings, broad note migration,
   debugger frameworks, editor/LSP replacement, file trees and decorative UI.
   Keep DEFERRED until a concrete workflow and acceptance test justify them.
@@ -241,36 +258,54 @@ preparing its PR.
 ** P2 — academic prose and terminology QA
 
 - Objective/justification: reduce repetitive editorial checks while preserving
-  substantive human judgment. PLANNED; dependent on P0 project settings.
-- Modules/architecture: evaluate Vale or an established alternative first;
-  introduce =awc-writing.el= only for a bounded adapter. Reuse Flycheck or
-  compilation diagnostics and project-owned dictionaries/rules.
-- Tasks: UK English and terminology/acronym/placeholder checks; distinguish
-  objective errors from stylistic candidates. Exclude code/YAML/citation syntax.
-- Risks/alternatives: avoid automatic rewriting and crude phrase/length bans;
-  retain manual tools if false positives outweigh utility.
-- Acceptance/results: documented positive/negative manuscript corpus, useful
-  source locations and dismissal/overrides, measured false positives and time
-  on a substantial document; missing tool must not break editing. NOT RUN.
-- Rollback: remove adapter hooks/rules without editing manuscript contents.
+  substantive human judgment. VALIDATED locally on the bounded corpus;
+  live editorial acceptance remains unrun.
+- Modules/architecture: =awc-writing.el= invokes Vale 3.24.0 explicitly from
+  =C-c w W c=; native compilation reports navigate an unsaved UTF-8 snapshot.
+  Nearest project configuration owns rules/UK dictionaries/intentional
+  exceptions. No global hook, package upgrade, prose LSP or source rewrite.
+- Rationale: Writegood's 15 candidates all occur in accepted fixture prose;
+  Aspell supplies spelling but no terminology/acronym policy. Vale provides
+  syntax-aware custom rules and source spans without LTeX's Java dependency.
+  Existing Writegood/Flyspell remain available. Optional LTeX is unavailable
+  locally and its earlier crash concern is not relabelled as retested.
+- Acceptance/results: 3 files / 126 lines / 2,327 whitespace-delimited words;
+  28 useful findings, zero extras/false positives, 3 measured acronym-order
+  misses. Every returned source tuple and highlight is checked. Substantial
+  14,505-word synthetic manuscript reports its one planted placeholder in
+  0.185 seconds. Configured modes, missing dependencies, cancellation/stale
+  output and private Wayland navigation pass; see checkpoint and
+  [[file:academic-writing-qa.org][the usage, corpus, failure boundaries and rollback guide]].
+- Limits: not scholarly verification or complete first-use acronym checking;
+  empty reports explicitly say rules may be absent/disabled. LaTeX, remote
+  files, custom multiline spans and long/live/other-platform use are unrun.
+- Rollback: revert the focused adapter/menu checkpoint and restart, preserving
+  project-owned rules and source exceptions. No manuscript content is rewritten.
 
 ** P3 — manuscript lifecycle and submission
 
 - Objective/justification: bring build, repository and submission status into
-  one inspectable project view; reduce repeated manual coordination. PLANNED.
-- Modules/dependencies/architecture: bounded =awc-paper.el= after P1/P2; reuse
-  Quarto checks and project scripts that run outside Emacs. Prefer existing
-  project configuration to a new complex manifest format.
-- Tasks: manuscript/supplement, Git revision, commands/builds, word count,
-  configured journal policy with source/date, citation/output issues and
-  outstanding review. Explicit freeze records outputs, hashes, tools, commit
-  and skipped/failed checks; no automatic commit, push or publication.
-- Risks/alternatives: do not fabricate journal rules or conflate tests with
-  scholarly/editorial correctness. Changed sources invalidate old results.
-- Acceptance/results: one small project builds, validates and emits a reviewed
-  manifest through Emacs and external scripts. States: passed, failed, not run,
-  not applicable, manually verified. Revision invalidation tested. NOT RUN.
-- Rollback: remove view/commands; preserve source, outputs and prior manifests.
+  one inspectable project view; reduce repeated manual coordination.
+  VALIDATED locally on the bounded synthetic manuscript fixture.
+- Modules/dependencies/architecture: =tools/paper/awc-paper.py= is the canonical
+  standard-library/POSIX runner; =awc-paper.el= renders its JSON under
+  =C-c w M=. A small project-owned =.awc-paper.json= names input coverage,
+  argv/success contracts, tool probes and manual requirements. Native Quarto
+  configuration and project scripts retain build/environment ownership.
+- Behavior: content/Git/executable-bound checks, output/log hashes, a defined
+  source-prose count and attributed manual reviews. Explicit freeze creates
+  a new immutable manifest including failures and unresolved work. Unsaved
+  buffers and review-token changes are refused before mutating actions.
+- Limits: declared dependencies/contracts only, not exhaustive environment or
+  scholarly verification. Journal rules must be explicitly sourced/dated;
+  manual reviewer identity is recorded, not authenticated. No automatic
+  source saves, commit, push, publication or dependency installation.
+- Acceptance/results: real manuscript/supplement HTML/PDF and citation checks,
+  CLI/Emacs parity, revision invalidation and manual/frozen records are
+  exercised by the disposable acceptance runner. See checkpoint and
+  [[file:manuscript-checkpoints.org][the usage, contracts, provenance and QA guide]].
+- Rollback: revert the focused view/menu/runner checkpoint, preserving project
+  source, outputs, configuration, logs and prior manifests; restart Emacs.
 
 ** P4 — evidence search and source-to-claim verification
 
@@ -914,12 +949,519 @@ The post-merge safety check passes 27/27 and the package audit reports all
 =/tmp/awc-merged-pins.log=. This handoff adds documentation only; it does
 not reopen completed milestones or claim a new graphical/external run.
 
-Continue with [[file:next-session-handoff.org][the current P2 handoff prompt]]: outline approach/rationale/QA first,
+The handoff at this merge requested P2: outline approach/rationale/QA first,
 evaluate prose diagnostics on disposable academic fixtures, report useful
 located findings and false positives, then implement the smallest justified
 adapter. The old [[file:emacs-refresh-handoff.org][12 October refresh brief]] remains historical context.
 Physical second-device/sync checks stay open as deployment acceptance, and
 P3/P4/LLM expansion remains outside the next milestone.
+
+* P2 academic writing QA checkpoint — 19 October 2026
+
+- Baseline: clean =master= at =211e1ac180d76e71211cd2710be2fd4850de7560=,
+  tracking =emacs/master=. This includes merged PR #8's documentation
+  handoff after PRs #1–#7. Work is on =codex/p2-academic-writing-qa=.
+- Plan/rationale/QA first: evaluate actual existing spelling/Writegood/LTeX
+  state, then choose a small explicit project-policy adapter. Use synthetic
+  Markdown/Quarto/Org sources, measured findings/noise and exact Unicode
+  ranges, including code/YAML/citation/maths exclusions. Validate failure and
+  process ownership, configured menus, private normal GUI and core/safety.
+- Dependencies: Vale =3.24.0= (official release dated 1 October 2026), verified
+  Linux x86-64 archive SHA-256
+  =867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214=,
+  downloaded/extracted only under =/tmp/awc-p2-evaluation/=. UK Hunspell
+  dictionary files are copied from installed =hunspell-en-gb= into disposable
+  project rule directories. No permanent Vale installation, new Emacs package,
+  source-pin update or live Python/R dependency change is made.
+- Implementation: explicit async =awc-writing-check= and last-report,
+  project-rule review and cancel commands under =C-c w W c/l/v/k=.
+  =--config= / =--path= preserve nearest-ancestor and path-specific policy;
+  =--no-global= and isolated Vale environment variables exclude global drift.
+  UTF-8 stdin contains the entire unsaved base buffer. Native compilation
+  navigation resolves to that buffer and validates character columns, with
+  stale edit/rename/close guards. Each document owns its process, output,
+  timeout and report. The example =etc/writing/= rules are reviewed/adopted
+  explicitly and carry spelling/terminology/placeholders plus editorial
+  acronym/wordiness suggestions. There is no automatic rewriting or install.
+- Evaluation: 3 files / 126 source lines / 2,327 whitespace-delimited source
+  words; 31 labelled candidates. Exact tuple matching counts 28 useful findings
+  (22 objective errors, 6 suggestions), zero false positives and 3 missed
+  acronym-before-later-expansion cases. All 28 returned matches slice the
+  original source at the reported line and inclusive character span.
+  Negative cases cover UK words, prior acronym definitions, DNA/domain-word
+  exceptions, inline rule suppression, frontmatter, narrative/bracket/Org
+  citations, URLs, maths, inline code, lowercase/mixed-case Org blocks,
+  Quarto cells/attributes and repeated terms after excluded blocks.
+- Runtime: final retained CLI run =0.162s= for the corpus; =0.185s= for a
+  separate 14,505-word / 108,041-byte synthetic manuscript with one planted
+  placeholder. Wall timings include fresh Vale process startup, on the warm
+  host/filesystem. These are controlled fixtures, not live scholarly accuracy
+  estimates or cold-machine performance measurements.
+- Alternatives: installed Writegood regexes yield 15 editorial candidates
+  (9 weasel, 6 passive) on deliberately acceptable fixture prose; all remain
+  review-only. Aspell 0.60.8.2's plain-prose probe flags =recieved=, =TODO=
+  and =XYZ= but supplies no terminology/expansion policy. LTeX has no executable
+  on PATH and its managed directory is empty; no attempt is made to revive it
+  or claim its recorded crash fixed. Prose startup still starts no LSP/Vale.
+- QA PASSED: =test/run-writing-checks.py --vale /tmp/awc-p2-evaluation/vale
+  --gui --keep=; 13/13 focused ERT; real configured mode/menu dispatch;
+  =M-g n= / =M-g p= / =RET= and 28 exact source ranges; project path overrides,
+  dictionaries/inline exceptions, unsaved input, missing tool/config/style/
+  dictionary, malformed JSON/ranges, startup failure, timeout, cancellation,
+  two independent sources and stale/closed source handling. No leaked owned
+  helper buffers/processes/timers were observed.
+- GUI PASSED: private normal Emacs 31.1 PGTK/Wayland session, new config,
+  preferences, vault/database and server under the disposable root. All three
+  modes dispatch through the actual menu and navigate 28 exact highlighted
+  source ranges. Zero Lisp warnings; source window selection, helper cleanup
+  and dedicated socket removal pass. Native PNG exports were decoded and
+  visually inspected for source/report readability and highlight placement.
+  Earlier SVG rendering and the initial nonbinary PNG capture were unusable;
+  final binary PNG exports have valid chunk CRCs and decompression.
+- Regressions PASSED: full core runner, 175/175 ERT plus configured
+  safety/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stages; 27/27 standalone safety cases; 134 clean pinned package sources;
+  warning-free byte compilation into =/tmp/=; =git diff --check=.
+  The first core attempt stopped at a sandbox-blocked loopback socket;
+  the complete permitted rerun passed without weakening the fixture server.
+- Evidence roots: final writing run =/tmp/emacs-writing-qa-wfqzruuq/=,
+  with =evaluation.json=, =expected.json=, raw =corpus.json=/=long.json=,
+  =unit.log=, =integration.log=, =writegood.json=, =gui/result.json=,
+  =gui/md.png=, =gui/qmd.png= and =gui/org.png=. The earlier Aspell probe is
+  =/tmp/emacs-writing-qa-r180d8x8/aspell.json=. Core rerun:
+  =/tmp/quarto-checks-v_1fowd0/logs/=. Safety/package logs:
+  =/tmp/awc-p2-evaluation/safety.log= and =packages.log=. Temporary roots may
+  expire; the committed runner/corpus generator and this record are durable.
+- NOT RUN/DEFERRED: real manuscript editorial acceptance, full external
+  Jupyter/renv rerun, long-session soak, other operating systems, physical
+  second-device deployment, LaTeX/AUCTeX/SyncTeX, arbitrary multiline rules,
+  exotic citation keys and exhaustive markup/parser coverage. Empty reports
+  cannot prove that rules were enabled. Rule changes require rechecking;
+  reports are not revision-bound manuscript manifests.
+- Rollback: revert this focused P2 configuration checkpoint and restart;
+  preserve preferences/recovery data, adopted project rules and intentional
+  source exceptions. See [[file:academic-writing-qa.org][the focused usage/QA guide]].
+- Next bounded task: P3 manuscript lifecycle/submission, starting with a
+  reviewable manifest tied to a source revision and validation commands that
+  also run outside Emacs. P3/P4/LLM implementation is not started here; future
+  manuscript commands must never commit, push or publish research automatically.
+  The earlier merge request does not authorize merging P2.
+
+* P3 manuscript lifecycle/checkpoint validation — 19 October 2026
+
+- Baseline/scope: clean P2 =2b6f48abfe3fbe8f0551c314396ff7099b88d2da=;
+  focused branch =codex/p3-manuscript-checkpoints= retains that unmerged local
+  dependency. The user approved the outlined P3 implementation and QA.
+  P4, feedback/LLM workflows, live research and package upgrades remain outside
+  this checkpoint. P2/P3 have not been pushed or merged by this work.
+- Approach/rationale/QA first: one portable project-owned runner, rather than
+  separate CLI/Emacs policy implementations; native Quarto configuration and
+  scripts retain build ownership. Record exactly which inputs, commands,
+  tools, outputs and manual decisions were checked. Exercise real builds,
+  invalidation, missing/failing tools, cancellation, atomic writes, keyboard
+  navigation and a private normal GUI with synthetic disposable state.
+- Architecture: =tools/paper/awc-paper.py= is a Python-standard-library/POSIX
+  runner with =status/check/verify/freeze= JSON actions. The small version-1
+  =.awc-paper.json= names input globs, command contracts, version probes and
+  manual requirements; =etc/paper/= is an example to adapt deliberately.
+  =awc-paper.el= displays the same records under =C-c w M s/c/m/f/k=.
+  Status executes no project code. Check requires =--execute= or a displayed
+  Emacs confirmation; Emacs also binds the reviewed token to the action.
+- Provenance/ownership: SHA-256 inputs/config/runner/resolved executables,
+  Git HEAD plus dirty/untracked declared inputs, complete command argv
+  (including expanded per-source Pandoc commands), explicit env configuration,
+  tool versions, output/log hashes and check states. Source/config/bibliography/
+  rules/script/Git/executable/glob changes invalidate prior results; output or
+  log tampering does too. Edits during checks cannot yield current results.
+  Unsaved project buffers block mutating Emacs actions and make disk status
+  visibly stale. No source is silently saved, and no research is committed,
+  pushed, published, uploaded or migrated by the manuscript workflow.
+- Check/review semantics: =fresh-outputs= refuses missing/empty/unchanged old
+  outputs despite zero exit. Explicit =exit-code= contracts and configured
+  failure-diagnostic patterns retain project-owned validation policy. Empty,
+  skipped, unavailable, failed, cancelled, stale and not-run checks cannot
+  imply readiness. Manual verification stores attributed notes tied to input
+  and artifact content. A new immutable freeze records both success and
+  unresolved states; prior manifests survive failures and interrupted writes.
+  Project locks/process groups isolate concurrent projects and owned cleanup.
+- Dependencies: installed Emacs 31.1 PGTK, Python 3.14.4, Quarto 1.4.530,
+  bundled Pandoc 3.1.11 and pdfTeX 1.40.28 (TeX Live 2025/Debian) for the
+  actual fixture renders. No dependency installation, source-pin change,
+  interpreter switch or live Python/R library modification is made. The
+  runner needs Python 3.11+ and POSIX facilities; Linux is the tested platform.
+- Real acceptance PASSED: manuscript HTML/PDF, supplement HTML, actual
+  rendered bibliography/citation identity and separate output-validator
+  script. A real unresolved citation makes the configured warning/output
+  contracts fail even when a renderer exits successfully. The defined source
+  AST word count is 13 manuscript + 7 supplement = 20 words, excluding
+  metadata/code/maths/citations. A moved copy on this host preserves the same
+  relative artifact provenance. Rule/reference/native-config/script edits
+  invalidate both checks and manual reviews; failed and successful snapshots
+  freeze honestly. CLI and configured Emacs review tokens/results agree.
+- Focused QA PASSED: 24/24 Python runner tests (14.086s in the final focused
+  run), covering malformed configuration, no implicit execution, Git/dirty/
+  untracked inputs, missing/glob changes, path boundaries/symlinks, required
+  version failure, no-op builds, diagnostic failures, immutable checkpoints,
+  atomic replace failure, reviewed-token rejection, word-count/policy rules,
+  missing tools, timeout/cancellation with helpers, interrupted-owner records,
+  source edits during execution, same-project locking and independent projects.
+  All 9 focused Emacs ERT tests pass, including declined execution, unsaved
+  buffers, exact token forwarding, backend failure/early cancellation cleanup
+  and first-line compilation navigation without changing log bytes.
+- Configured Emacs PASSED: real =C-c w M= dispatch, CLI/status parity, refused
+  unsaved check/freeze, explicit run/attributed review/freeze, and actual
+  =TAB RET= → diagnostic log → =M-g n= source navigation. The source location
+  is checked against its known fixture line. Existing Org/writing/research
+  menu behavior remains exercised by configured safety startup.
+- GUI PASSED: fresh private normal PGTK/Wayland configuration, state, vault,
+  preferences/database and an actual dedicated server. Seven queued keyboard
+  answers traverse the native confirmation, requirement, reviewer, note and
+  label prompts. The exact =GUI reviewed checkpoint= label and review note
+  are asserted from the saved record. Ready/stale report states, checkpoint
+  opening and active-run cancellation pass. Zero Lisp warnings; native PNG
+  CRC/decompression checks and visual inspection pass; owned helpers and the
+  dedicated server socket are absent after exit. Tool-version summaries keep
+  manual requirements visible; full probe output remains in the manifest.
+- Regressions PASSED: final full core =184/184= ERT plus every configured
+  startup/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stage; standalone safety =27/27=; =134= clean pinned package sources;
+  warning-free byte compilation of =awc-paper.el= into =/tmp/=;
+  =git diff --check=. No all-day or full external/runtime rerun is implied.
+- Failures investigated/repaired: private symlinked configuration initially
+  resolved the runner beside the symlink; resolving the physical module path
+  fixes that. Backend error hash tables now use string equality. Reports gain
+  standard button keys and a compilation log header so the first diagnostic
+  is reachable. Early cancellation explains an empty response. GUI harness
+  input now respects the configuration's single-key confirmations, queues
+  events without recursive macros, asserts saved labels/notes and clears old
+  fixture PID markers. One intermediate core run refused an otherwise writable
+  P1 bibliography target; the unchanged portable stage passed in fresh
+  profiles, and the final full core run passed. This transient refusal was
+  not treated as a reason to weaken the existing bibliography safeguard.
+- Evidence: full manuscript/CLI/configured acceptance bundle
+  =/tmp/emacs-paper-qa-k0i05xqn/= (24-test log, =cli-check.json=,
+  =broken-citation.json=, =expected-status.json=, =emacs.log= and synthetic
+  project/manifests). Final corrected graphical replay:
+  =/tmp/emacs-paper-qa-k0i05xqn/gui-replay-3p7pnz2i/= with
+  =result.json=, =status.png=, =stale.png= and =startup.log=.
+  Final Python log =/tmp/awc-p3-final-unit.log=; final full core
+  =/tmp/quarto-checks-noh0zwi6/logs/=; safety/pins
+  =/tmp/awc-p3-safety.log= and =/tmp/awc-p3-packages.log=.
+  The earlier 183-case run's transient portable failure is retained under
+  =/tmp/quarto-checks-y3o44qyl/=; unchanged standalone replay passed under
+  =/tmp/awc-portable-research-fwa4mekt/=. Temporary roots may expire; the
+  committed tests/generator and this record are the durable evidence.
+- Limits / NOT RUN: live manuscripts or actual journal submission policies;
+  authenticated/signed reviewer identity; exhaustive include/script/environment
+  dependency discovery; transitive libraries/fonts/services behind unchanged
+  executable launchers; journal-specific word-count conventions; Windows/macOS;
+  full Jupyter/renv regression; all-day GUI stability; physical second-device
+  deployment. User-declared input coverage and project validators remain
+  explicit responsibilities. Source-word count does not expand Quarto
+  includes/shortcodes. No claim of evidential/scholarly verification is made.
+- Rollback/next task: revert the focused P3 adapter/menu/runner checkpoint and
+  restart, preserving project configuration, sources, outputs, logs and all
+  prior manifests. See [[file:manuscript-checkpoints.org][the usage, contracts and QA guide]]. The next task is a
+  review and bounded streamlining pass over P2/P3, following the
+  [[file:next-session-handoff.org][new-session handoff]]. P4 evidence/source-to-claim verification remains
+  planned and is not part of that pass.
+
+* P2/P3 review and bounded streamlining — 19 October 2026
+
+- Actual baseline: =codex/p3-manuscript-checkpoints= at
+  =18c4493022bb92c0c8389ed98c130f9acf07faf0=, with P2 =2b6f48a= as its
+  parent. The only initial edits were this roadmap and the updated handoff;
+  both are retained and extended. Read-only remote verification reports
+  =emacs/master= at =211e1ac= and neither P2/P3 branch published. Neither
+  local branch has an upstream. After validation the user authorized committing
+  the eight-file batch, including the preserved documentation edits. Commit
+  subject: =Simplify manuscript review and preserve status on local exits=;
+  parent =18c4493=. The working tree is clean after the checkpoint. No push,
+  merge or branch switch was performed; P4 remains deferred for this pass.
+- Review: read the README, handoff, roadmap and focused P2/P3 guides; inspect
+  both implementation commits and their combined change from =211e1ac=.
+  Trace the project examples, source/report/menu interactions, runner states,
+  test setup/cleanup and documentation. P0/P1 are completed foundations;
+  P2/P3 have bounded local acceptance, not live scholarly/journal acceptance.
+- Priorities outlined before editing:
+  1. P3 repeats refresh → prompt → unsaved guard → exact-token dispatch in
+     three commands. Its response error handler also misclassifies a local
+     manual-review refusal as an unavailable backend, erasing useful status.
+     Consolidate this review sequence and retain the report on local exits.
+  2. The P3 plan displays a word-count launcher rather than the fully expanded
+     per-source commands. A later runner-owned plan change should address
+     that without adding command expansion to Emacs. Deferred from this batch.
+  3. P2 report recheck works, but menu actions such as rule review still expect
+     a source buffer. A focused source/report-context pass is worthwhile later.
+  4. GUI runners repeat private setup, and P3 imports P2's runner for PNG
+     validation. Defer a shared-harness extraction until its ownership and
+     cleanup benefit justify touching multiple workflows.
+- Chosen batch/rationale: =awc-paper--review= owns the common saved-buffer
+  guards, fresh status, prompt dispatch and exact reviewed token. The three
+  commands now supply only their prompts/argv. Local =user-error=/=C-g= exits
+  retain the refreshed report and explain the refusal/cancellation; rerendering
+  also shows unsaved edits made during prompts. The real no-manual-requirement
+  regression failed before the fix and passes afterward. This removes repeated
+  safety coordination and a concrete recovery detour; there is no line-count
+  target, schema change or new dependency.
+- Preserved contracts: deliberate execution/freeze, both saved-buffer guards,
+  current status before every review, exact token rejection, applicable manual
+  choices and attributed notes. CLI provenance/staleness, honest unresolved
+  states, immutable prior checkpoints, process response/cleanup, menus, package
+  pins and P0/P1 implementations are unchanged. No source saves or project
+  command runs are introduced on file/menu open.
+- Focused QA PASSED: =13/13= P3 ERT plus =13/13= P2 ERT (combined =26/26=),
+  covering real no-applicable/quit/unsaved refusals without state creation,
+  all three actions refusing edits during prompts, exact token/argv forwarding,
+  backend/early-cancel cleanup and first-line native diagnostic navigation.
+  Warning-free byte compilation writes only into =/tmp/=. Existing =24/24=
+  Python runner tests also pass; no runner implementation was changed.
+- P2 real acceptance PASSED: installed disposable Vale =3.24.0=, labelled
+  corpus, configured Markdown/Quarto/Org dispatch and exact native navigation,
+  unsaved snapshots, project overrides and missing-rule/dictionary boundaries.
+  Result remains =28= useful findings, =0= extras, =3= known acronym misses.
+  P2 GUI was not rerun because its interactions/implementation are unchanged.
+- Final P3 acceptance PASSED: real HTML/PDF/supplement/citations and =20=
+  source-prose words, stale input/review checks, honest failed/ready immutable
+  manifests and CLI/configured Emacs parity. The private normal Wayland run
+  answers =10= native prompts, declines execution, aborts a checkpoint label
+  with =C-g= while retaining status, then completes run/review/freeze and
+  active-run cancellation. Exact reviewer/note/label assertions pass; zero
+  Lisp warnings, no surviving owned helpers or private socket. All three
+  native PNGs pass binary validation and were visually inspected.
+- Regressions PASSED: final full core =188/188= ERT and every configured
+  startup/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stage; standalone safety =27/27=; all =134= pinned package sources clean;
+  =git diff --check=. The restricted first core run failed only at its
+  localhost fixture socket; the permitted complete reruns passed. The first
+  compilation invocation bound compiler options before loading =bytecomp=;
+  the corrected invocation requires it first and passes without warnings.
+- Evidence: final P3 =/tmp/emacs-paper-qa-xr439qs_/= (=unit.log=,
+  =cli-check.json=, =broken-citation.json=, =expected-status.json=, =emacs.log=,
+  =result.json=, synthetic project/manifests and =gui/result.json=,
+  =status.png=, =stale.png=, =review-cancelled.png=). Final core
+  =/tmp/quarto-checks-93z04e4v/logs/=; focused,
+  compile, safety and pin logs =/tmp/awc-p23-streamline-review/=; P2 corpus
+  and configured acceptance =/tmp/emacs-writing-qa-mhlrc_51/=. The unchanged
+  initial documentation is retained in the review log directory. Temporary
+  roots may expire; the tests and this checkpoint remain durable evidence.
+- Limits / NOT RUN: live manuscripts, actual submission policies, all-day
+  soak, full external Jupyter/renv rerun, other operating systems and physical
+  second-device/synchronization acceptance. Existing P2 acronym/markup limits
+  and P3 declared-coverage/transitive-toolchain/word-count limits still apply.
+  P4 evidence verification, P5/P6 and package/environment upgrades remain
+  outside this pass; P4 stays PLANNED pending a separate instruction.
+- Rollback: restore only =site-elisp/awc-paper.el= and
+  the three changed P3 test/harness files from =18c4493=, then save buffers
+  and restart. Update documentation to record the rollback while retaining
+  validation history and the preserved user edits; do not revert the four
+  documentation files wholesale. Preserve project sources,
+  configuration, outputs, logs, all checkpoints and private state. No package
+  or live environment rollback is needed. Review the remaining findings
+  before choosing another bounded pass; do not start P4 automatically.
+
+* P3 command-plan and P2 report-action follow-ups — 19 October 2026
+
+- Baseline/scope: clean =codex/p3-manuscript-checkpoints= at =5da909d=.
+  The user approved the outlined P3 execution-plan and separate P2 usability
+  batches. No package changes, live manuscript/library use, shared GUI-harness
+  extraction or P4 work is included. After validation the user authorized
+  the 15-file local commit, including tests, guides, roadmap and handoff.
+  Commit subject: =Expose manuscript command plans and unify writing report
+  actions=; parent =5da909d=. The working tree is clean after this checkpoint.
+  No push, merge or branch switch was performed; P4 remains deferred.
+- Batch 1, P3: the raw configuration previously showed only the Pandoc
+  launcher. =execution_plan= now derives exact ordered =commands= arrays in
+  the canonical Python runner, used by status and execution. It expands every
+  word-count source once per plan, retains argv boundaries, and gives skipped
+  checks an empty list plus their existing reason. Ordinary checks use the
+  same representation. Emacs renders these arrays directly; the exact plan
+  participates in the review token. Project configuration remains version 1
+  with no new input options. Results record attempted command arrays; a
+  first-source failure retains the full plan without claiming later commands
+  ran. A focused regression covers this partial-run provenance boundary.
+- Batch 1 contracts/compatibility: status executes no project code; reviewed
+  execution and fresh/saved-buffer/token guards remain in place. Check
+  contracts, word-count semantics, provenance/staleness, locks, cancellation
+  and immutable manifests are preserved. The updated runner hash makes prior
+  checks and manual reviews stale; deliberately rerun and review them. Prior
+  frozen JSON files are not migrated or rewritten. See
+  [[file:manuscript-checkpoints.org][the updated plan, provenance and usage guide]].
+- Batch 2, P2: the existing source resolver now handles a document, indirect
+  chunk or QA report. Check, last-report and nearest-rule review therefore
+  work from either source or report. Recheck remains a compatibility alias
+  for the same check command. Rule review resolves the path in the source
+  context, then visits it normally; this also fixes current-buffer restoration
+  interfering with direct invocation. Closed-source actions explain the
+  failure; cancellation/cleanup remains safe after source closure. No rules,
+  dictionaries, execution hooks, menu keys or source content are changed.
+- Focused QA PASSED: =25/25= Python runner tests, =14/14= P3 ERT and =15/15=
+  P2 ERT. New negative tests failed before implementation. The runner fixture
+  records actual argv for two sources with spaces/Unicode, confirms passive
+  status, verifies plan/execution order and boundaries, rejects a changed
+  file-order token, preserves explicit skip state and distinguishes attempted
+  commands from the full plan after a first-source failure. The Emacs plan test
+  proves it displays runner commands without reconstructing the launcher.
+  P2 covers report reuse, unsaved sources, nearest nested rules, config-window
+  selection and closed-source refusal without helpers; prior indirect/source
+  isolation, stale navigation and cleanup checks continue to pass.
+- P2 real acceptance PASSED: unchanged corpus result =28= useful, =0= extras
+  and =3= known acronym misses, plus configured three-mode menu/navigation and
+  rule/dictionary failure checks. A private normal Wayland run uses report
+  menu =l/v/c/k= and report =g= in Markdown, Quarto and Org. Each adds an
+  unsaved placeholder, cancels/rechecks the same source/report and proves
+  disk bytes are unchanged. It checks =31= exact ranges (28 original plus
+  three unsaved findings), three report-action sequences, zero Lisp warnings
+  and owned-helper/socket cleanup. All three native PNGs were binary-validated
+  and visually inspected. Evidence: =/tmp/emacs-writing-qa-djfj3gjg/=.
+- P3 real stages PASSED with the final implementation: =25/25= runner cases,
+  real HTML/PDF/supplement/citations and the =20=-word count, immutable failed/
+  ready manifests, moved-project checks, stale input/manual-review checks and
+  configured Emacs/CLI plan/token parity at =/tmp/emacs-paper-qa-fernc56e/=
+  (=unit.log=, =cli-check.json=, =broken-citation.json=, =expected-status.json=,
+  =emacs.log= and project records). Its whole invocation failed only at the
+  graphical-input stage; final graphical acceptance is a separate fresh-project
+  replay of the same checked-in GUI fixture, with the launcher retained at
+  =/tmp/awc-writing-followups/replay-paper-gui.py=.
+- GUI fixture failures/repair: intermittent requirement-input stalls are
+  retained at =/tmp/emacs-paper-qa-79q8rrwh/=,
+  =/tmp/emacs-paper-qa-fernc56e/= and
+  =/tmp/emacs-paper-gui-followup-990uk9pz/=. The last trace proves the valid
+  =submission-policy= input was present but ordinary =RET= had not accepted it.
+  The fixture now reads/fills the actual minibuffer, uses the pinned Vertico
+  =M-RET= accept-input binding when available, and ordinary =RET= for plain
+  text prompts. Native matching/validation, confirmation/quit events and exact
+  saved reviewer/note/label assertions remain active. Prompt/answer/pending-input
+  traces make failures inspectable. The plan capture positions its window at
+  the complete command section. An intermediate acceptance at
+  =/tmp/emacs-paper-qa-3fmidj0_/= correctly became stale when the final
+  partial-run correction changed the runner mid-check; final verification
+  holds the implementation fixed. These are harness/input issues and an
+  expected stale safeguard, not ignored passing results.
+- Final P3 GUI PASSED at =/tmp/emacs-paper-gui-followup-p5ep4ay2/=: all ten
+  native prompt submissions, exact saved review/label, complete expanded plan,
+  ready/stale/cancelled states and owned-helper/socket cleanup, with zero Lisp
+  warnings. All four native PNGs pass binary validation and visual inspection.
+  A second fresh-project replay at =/tmp/emacs-paper-gui-followup-d4mcjldk/=
+  also PASSED all ten submissions, saved-field assertions, PNG validation and
+  helper/socket cleanup with no warnings. No production code changed between
+  these two final graphical passes.
+- Shared regressions PASSED: full core =191/191= ERT and all configured
+  startup/preferences/ESS/prose/YAML/research/literature/bibliography/portable
+  stages, =27/27= safety, =134= clean package sources, warning-free adapter
+  byte compilation into =/tmp/= and diff checks. Evidence:
+  =/tmp/quarto-checks-etg8j5v5/logs/= (final fixed implementation) and
+  =/tmp/awc-writing-followups/=
+  (=p3-before.log=, =p2-before.log=, focused, compile, safety and pin logs).
+- Limits/remaining work: no live editorial/journal acceptance, all-day soak,
+  full external Jupyter/renv rerun, physical second-device/synchronization or
+  other-platform validation. Existing P2 acronym/markup and P3 declared-input,
+  transitive-environment and source-count limitations remain. Harness sharing
+  is deferred until a concrete ownership/maintenance benefit justifies it.
+  P4 requires a separate instruction and remains outside this pass.
+- Rollback: restore the runner, P3 adapter/acceptance files or P2 adapter/
+  acceptance files independently from =5da909d=, then save buffers and restart.
+  Preserve adopted rules, source edits, configuration, outputs, runtime records,
+  every prior checkpoint and private state. Record any rollback in the guides
+  without erasing validation history. No package/environment rollback is needed.
+
+* P2/P3 draft PR review repairs — 20 October 2026
+
+- Scope/Git: the four prior local commits through =608d83c= were pushed to
+  =emacs/codex/p3-manuscript-checkpoints= and published as draft
+  [[https://github.com/aceross/emacs/pull/9][PR #9]], targeting =master=. Both initial hosted safety jobs passed.
+  Review then reproduced three gaps using disposable projects. The user
+  authorized all three fixes, regression tests, fresh validation, documentation,
+  commit and push to this same draft. The repair commit has parent =608d83c=
+  and subject =Fix passive manuscript provenance and writing checker cleanup=.
+  P4, shared harness extraction, package changes and merging remain outside
+  this pass; auto-merge remains disabled. This 12-file repair checkpoint
+  includes the runner/adapter, regression and acceptance fixtures, lightweight
+  CI and four documentation files. New hosted jobs are pending at the time
+  of this committed record; inspect PR #9's latest head after its push.
+- Passive Git: ordinary =git status= could execute configured fsmonitor and
+  clean/process filters before confirmation, and could refresh the index.
+  P3 now reads HEAD/index entries through read-only plumbing with fsmonitor,
+  hooks, optional writes and lazy fetch disabled. Raw blob/executable-bit
+  comparisons retain staged, unstaged, untracked and unresolved-conflict
+  markers without invoking worktree conversion. Git must support
+  =--no-lazy-fetch=; unsupported Git or missing objects report provenance
+  unavailable. Independent SHA-256 input hashing remains unchanged. Raw
+  markers deliberately ignore clean/newline conversion and cached clean
+  flags, so they can differ from ordinary Git status.
+- Path overlap: normalized project-relative output and word-count file names
+  are used consistently for membership, plans and artifact checks. A declared
+  output such as =./paper.qmd= cannot evade overlap with input =paper.qmd= or
+  the automatically hashed configuration. Valid nonoverlapping aliases still
+  work. Source files, configuration and runtime records are untouched when
+  overlap is rejected; schema version and project argv stay unchanged.
+- Owned cleanup: P2 cancels a running checker before changing the source's
+  major mode clears local ownership. Both ordinary cancellation and the
+  timeout use one process-specific helper; the timeout no longer depends on
+  a surviving source-local reference or risks targeting a replacement job.
+  Existing report/source close, stale navigation and project isolation remain.
+- Focused QA: =31/31= Python and =31/31= Emacs (=14= P3, =17= P2) pass.
+  Before implementation the new tests reproduced unreviewed execution,
+  aliased overlap and lost cleanup. Further negative coverage proves missing
+  promised Git objects would launch a transport helper without the new fetch
+  guard. Positive controls prove the synthetic fsmonitor, clean, process and
+  local transport helpers really execute through the corresponding ordinary
+  Git paths. No network service is involved in those fixtures. Tests cover
+  unchanged index bytes, SHA-1/SHA-256, staged/unstaged/untracked/conflicted
+  inputs, nested roots/literal names and assume-unchanged flags, refusal
+  before execution, canonical valid aliases, mode reset and lost-reference
+  deadlines. Evidence: =/tmp/awc-pr9-fixes/= (before/final Python and ERT logs).
+- Shared QA: =193/193= core ERT and every core integration stage pass at
+  =/tmp/quarto-checks-_l3gj10j/logs/=. An initial sandbox-only core run at
+  =/tmp/quarto-checks-t8qcd94s/= failed solely when its local HTTP fixture
+  could not bind; the permitted rerun passed. Safety =27/27=, all =134=
+  package sources clean and adapter byte compilation warning-free
+  (=safety.log=, =pins.log= and =compile-final.log= under the evidence root).
+  Hosted CI is extended to run the independent Python and P2/P3 ERT suites
+  with distribution Emacs/Git/Python, without installing editor packages or
+  performing heavy Quarto/GUI acceptance there.
+- Real P3 acceptance passes at =/tmp/emacs-paper-qa-3po8ndil/=: fresh private
+  Git repository, HTML/PDF/citations/supplement, defined 20-word count,
+  failed/ready immutable checkpoints, moved copy, stale inputs/manual review,
+  full plan and CLI/configured-Emacs token parity. This pass executes no live
+  manuscript/library code and installs no project dependencies.
+- Complete P3 acceptance including Wayland PASSED separately at
+  =/tmp/emacs-paper-qa-zom16m08/=: all real/configured stages, ten native
+  prompt submissions, exact saved reviewer/note/label, reviewed expanded plan,
+  ready/stale/cancelled states and owned-helper/socket cleanup. All four
+  native PNGs pass binary validation and visual inspection, with no warnings.
+- Final P2 acceptance PASSED at =/tmp/emacs-writing-qa-l911f3jx/=: unchanged
+  real corpus (28 useful, zero extras, three known misses), configured modes,
+  native report actions, 31 exact ranges and three mode-reset cancellations.
+  The full unsaved source text, modified flag and disk bytes survive; timers,
+  helpers and socket checks are clean, with no Lisp warnings. All six native
+  PNGs pass binary validation and visual inspection. Vale 3.24.0 was downloaded
+  only under =/tmp/awc-pr9-fixes/vale/=; its release checksum is
+  =867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214=.
+- P2 fixture failures are retained at =/tmp/emacs-writing-qa-3buia6wd/=
+  (outer timeout), =/tmp/emacs-writing-qa-b7924cn8/= and
+  =/tmp/emacs-writing-qa-y4be7vvn/= (watchdog/stack). Normal-mode cleanup
+  prompts about a modified Polymode indirect view. The diagnostic at
+  =/tmp/emacs-writing-qa-mo1e3s9h/= answered discard and observed the shared
+  modified flag clear; this is Polymode's existing discard behavior, not a
+  writing-process cleanup failure or a passing preservation result. The final
+  fixture answers two native prompts by declining discard, checks the base
+  source and disk bytes, and leaves confirmation semantics intact. A phase/
+  prompt/stack/frame watchdog makes future failures inspectable. No prompts
+  or matching/validation functions are stubbed. No Polymode/package code is
+  changed. These earlier attempts are not counted as graphical passes.
+- Limits: Linux Git 2.53.0/Emacs 31.1/Python 3.14.4 acceptance; no live
+  editorial/journal validation, all-day soak, full external Jupyter/renv
+  rerun, physical second device/sync or other-platform claim. Existing Vale
+  acronym/markup and P3 declared-input, transitive-environment and source-count
+  limits remain. Updating the runner deliberately invalidates old checks and
+  manual reviews; no prior frozen manifest is changed.
+- Rollback: use a new reviewed inverse commit on the published branch, or
+  selectively restore these implementation/acceptance files from =608d83c=
+  in a separate recovery checkout. Preserve source edits, adopted rules,
+  configuration, runtime records, outputs, all frozen manifests and private
+  state. Save buffers/restart after switching code, then explicitly rerun
+  affected checks/reviews. No package or live environment rollback is needed.
 
 * Planning baseline (earlier assessment, reconciled)
 

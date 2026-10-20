@@ -25,4 +25,6 @@
 (require 'awc-research-test)
 (require 'awc-research-portable-test)
 (require 'awc-bibliography-test)
+(require 'awc-writing-test)
+(require 'awc-paper-test)
 (ert-run-tests-batch-and-exit)

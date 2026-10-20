@@ -1,163 +1,255 @@
-#+TITLE: Next-session prompt: P2 academic writing QA
-#+DATE: 2026-10-19
+#+TITLE: Next-session handoff: P2/P3 draft PR review fixes
+#+DATE: 2026-10-20
 
-Copy the prompt below into a new session working in =/home/awc/.emacs.d=.
-The development roadmap and specialized guides are the durable evidence;
-temporary QA directories may no longer exist in a later session.
+* Current handoff
 
-* Prompt
+Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] combines P2/P3 and the writing-workflow simplifications against
+=master=. The user authorized fixing all three review findings, adding
+regressions, validating, updating these records, committing and pushing to
+that draft. Keep P4 and shared GUI-harness extraction deferred. Do not merge
+or enable auto-merge.
 
-Continue developing my Emacs research and development environment in
-=/home/awc/.emacs.d=, repository =aceross/emacs=. Implement the next bounded
-milestone, P2 academic writing QA. First outline the approach, rationale and
-QA plan, using disposable environments, then carry the agreed scope through
-implementation and validation. Preserve the working configuration rather
-than replacing it with a distribution or a new editor/framework stack.
+- Git baseline: clean =codex/p3-manuscript-checkpoints= at =608d83c=,
+  tracking =emacs/codex/p3-manuscript-checkpoints= at that same commit.
+  The four prior P2/P3 commits are published in PR #9. The PR's two safety
+  checks passed before these repairs; those results cover the prior head.
+  The repair commit's subject is =Fix passive manuscript provenance and
+  writing checker cleanup=, with parent =608d83c=. It includes 12 files:
+  implementation, focused/acceptance fixtures, CI and four guides/records.
+  Publication pushes this same branch to PR #9; verify the actual HEAD and
+  CI on GitHub. New hosted results are necessarily pending in this committed
+  record; the earlier green jobs do not cover these repairs. No merge is
+  authorized and auto-merge remains disabled.
+- Fixes: P3 reads Git HEAD/index objects without worktree refresh, hooks,
+  filters, lazy fetch or index writes; raw file bytes/executable bits supply
+  dirty markers. Unsupported =--no-lazy-fetch= or missing objects report Git
+  provenance unavailable. Output/word-count paths are normalized, preventing
+  =./paper.qmd= from bypassing overlap checks. P2 cancels before a mode change
+  clears ownership; timeouts target the captured process directly.
+- Preserved: reviewed commands/tokens, unsaved-buffer guards, independent
+  SHA-256 provenance/staleness, honest incomplete states, immutable prior
+  checkpoints and owned cleanup. P0/P1, package pins and environments are
+  unchanged. The runner hash intentionally makes prior checks/reviews stale;
+  rerun/review explicitly, retaining every old frozen manifest.
+- Fresh QA: 31 Python cases; 14 P3 plus 17 P2 focused ERT; 193 core ERT and
+  every integration stage; 27 safety; 134 clean source pins; warning-free
+  adapter byte compilation. Real Git-backed P3 acceptance passes. Final
+  full P3 CLI/configured/graphical acceptance passes all ten prompt answers.
+  P2 real/configured/graphical acceptance passes 31 diagnostic ranges and
+  three mode resets, preserving unsaved text, modified flags and disk bytes
+  through two native Polymode prompts. All ten P2/P3 native captures were
+  validated/visually inspected; no Lisp warnings or owned helper/socket leaks.
+  CI now runs the dependency-free P2/P3 suites alongside safety.
+  See the 20 October repair checkpoint in [[file:development-roadmap.org][the roadmap]] for evidence,
+  failures, coverage limits and rollback.
+- Next: review the updated draft and latest hosted jobs after this authorized
+  commit/push. No further product milestone is implied; keep P4 deferred.
 
-** Establish the merged baseline
+* Previous command-plan/report-action handoff (historical)
 
-PRs #1–#7 (P0a through P1b) were merged into =master= with merge commits on
-19 October 2026. The code integration baseline is =45cbf784e7609d11015c35d01c1f648f034a551c=; a handoff
-documentation checkpoint follows it. Git remote is named =emacs=; the
-default branch is =master=, not =main=. Verify current HEAD, status, upstream
-and recent history before editing. Start a focused =codex/p2-...= branch
-from current =master=; the earlier stacked feature branches are historical.
+Two approved follow-up batches make the P3 command plan explicit and P2
+report actions consistent. P4 and shared-harness extraction remain deferred.
+The current record supersedes the previous committed checkpoint and original
+review brief retained below. Disposable QA directories may expire; the guides,
+tests and roadmap are durable evidence.
 
-The two edits previously preserved outside milestone commits are now
-included in =b989539f48fcc0721fff0f3cb28d661f62fb772e=: the Straight activation
-comment in =early-init.el= and the package.el/PDF archive documentation in
-=doc/research-workflows.org=. Do not recreate them as pending work. Preserve
-any genuinely new user edits found at session start.
+** Historical handoff details
 
-Read first:
+Read the [[file:development-roadmap.org][P3 command-plan and P2 report-action follow-up checkpoint]],
+[[file:manuscript-checkpoints.org][manuscript guide]] and [[file:academic-writing-qa.org][writing QA guide]].
 
-- =README.org= and =doc/development-roadmap.org=, especially the current
-  P0–P7 gates and P1b/merge checkpoints. Older planning sections are historical.
-- =site-elisp/init-workflow.el=, =site-elisp/init-text.el= and relevant prose
-  hooks/LSP configuration; inspect actual existing writing diagnostics.
-- =doc/preferences-and-bindings.org= and
-  =doc/startup-and-session-reliability.org= for interaction and lifecycle rules.
-- =test/prose-startup-check.el=, =test/safety-startup-check.el=,
-  =test/run-tests.el= and =test/run-quarto-checks.py=.
-- =doc/project-bibliography-snapshots.org= and
-  =doc/portable-associations-and-pdfs.org= when touching citations/notes.
+- Git: branch =codex/p3-manuscript-checkpoints=. This local checkpoint has
+  parent =5da909d= and subject =Expose manuscript command plans and unify
+  writing report actions=. The user authorized committing all 15 files after
+  validation: four documentation files and eleven implementation/acceptance
+  files. The working tree is clean after the commit. No branch switch, push
+  or merge was performed. Remote state was not refreshed during these
+  follow-ups; the earlier verification below is historical.
+- P3: one canonical runner-owned plan supplies exact ordered =commands= for
+  review and execution, including each Pandoc source; Emacs displays it
+  directly. Skipped checks retain a reason and no commands. The plan is bound
+  into the review token; the configuration schema stays version 1. Attempted
+  commands remain distinct from the full plan in partial/failed run records.
+- P2: check, last-report and nearest-rule review work from a QA report as well
+  as a source/indirect chunk. Recheck aliases the same command. Rule review
+  selects the configuration normally and starts no check. Closed sources
+  produce a clear refusal; cancel/cleanup stays safe after source closure.
+- Preserved: explicit execution and unsaved-buffer guards, tokens, provenance/
+  staleness, immutable checkpoints, native diagnostic navigation and owned
+  cleanup. Updating the runner intentionally invalidates prior checks/reviews
+  through its recorded hash; rerun/review explicitly. Old frozen manifests
+  remain unchanged. P0/P1, package pins and project environments are unchanged.
+- QA: 25 Python, 14 P3 ERT and 15 P2 ERT tests; real P3 HTML/PDF/citation/
+  supplement and 20-word acceptance; real P2 corpus/configured modes; private
+  Wayland acceptance for both workflows. P2 retains 28 useful corpus findings,
+  zero extras and three known misses; GUI checks 31 ranges including three
+  unsaved findings. Core passes 191 ERT plus all integration stages, safety
+  27 and package audit 134 clean pins. Adapter byte compilation is warning-free.
+  The roadmap records exact evidence, repaired GUI-harness failure, limits
+  and rollback. Two consecutive fresh P3 graphical replays pass after adopting
+  the pinned completion UI's native accept-input binding.
+- Next: this local checkpoint is complete; publication requires a separate
+  instruction. Do not push or merge yet. Keep harness extraction and P4
+  deferred; live editorial, full external, all-day and second-device limits
+  remain open.
 
-=doc/emacs-refresh-handoff.org= is the older 12 October assessment. Many of
-its proposed fixes are already complete. Do not restart that task list.
+* Previous committed review checkpoint (historical)
 
-** Completed work to preserve
+The authorized review/simplification batch is complete. Read the
+[[file:development-roadmap.org][P2/P3 review and bounded streamlining checkpoint]] and
+[[file:manuscript-checkpoints.org][updated manuscript guide]] before choosing further work.
+P4 remains PLANNED and requires a separate instruction.
 
-- P0a: native confirmation/trust defaults, backups/auto-save/locks, recovery
-  and external-edit protection. Do not weaken these for convenience.
-- P0b: 134 package source pins, checked Straight bootstrap/restoration and
-  rollback. No package/framework upgrade is needed for P2 by default.
-- P0c1/P0c2: persisted private preferences, accessible workflow menus,
-  measured startup and bounded two-project process/timer/socket cleanup.
-- P0c3: disposable Jupyter/renv external acceptance and a 15-minute active
-  graphical session passed. This does not establish all-day stability.
-- P1a: reviewed project bibliography add/refresh, preserved manuscript keys
-  and manual fields, dependency closure and copied offline HTML/PDF render.
-- P1b: reviewed path-free identity transfer and a separate device PDF cache.
-  Independent profiles preserve the canonical key and renamed note despite a
-  changed native Zotero key; the receiver resolves its own PDFs. New notes
-  use Zotero links; existing notes and legacy mixed records remain intact.
+- Git: branch =codex/p3-manuscript-checkpoints=. The simplification checkpoint
+  has parent =18c4493022bb92c0c8389ed98c130f9acf07faf0= (P3), whose parent
+  is P2 =2b6f48a=. Its commit subject is =Simplify manuscript review and
+  preserve status on local exits= (=5da909d=).
+  Neither branch has an upstream; read-only remote verification found
+  =master= at =211e1ac= and neither P2/P3 branch published. The user authorized
+  the local commit after validation; no push, merge or branch switch was
+  performed. The working tree is clean after this eight-file checkpoint:
+  four documentation files (both guides,
+  roadmap and this handoff), =site-elisp/awc-paper.el= and three P3 test/runner
+  files. The two original roadmap/handoff edits are retained and extended.
+- Change: one =awc-paper--review= path refreshes status, prompts, checks
+  unsaved buffers again and forwards the exact token. Inapplicable manual
+  review, declined execution, =C-g= and edits during prompts retain useful
+  status and make no mutating request. Process response/cleanup and the
+  canonical CLI, schemas, menus, P0/P1 foundations and pins are unchanged.
+- QA: =13/13= P3 ERT, =13/13= P2 ERT, =24/24= Python runner tests;
+  real P3 HTML/PDF/citation/manual/freeze/stale acceptance; private normal
+  Wayland replay with ten prompt answers, exact saved review/label, zero
+  warnings and helper/socket cleanup; =188/188= core ERT and all core stages;
+  =27/27= safety; =134= clean pins; warning-free byte compilation and diff
+  checks. P2 real corpus/configured integration still yields 28 useful
+  findings, zero extras and three known misses. Final P3 native PNGs were
+  visually inspected. Exact evidence and earlier failed attempts are in
+  the roadmap, along with limits and selective rollback instructions.
+- Worthwhile follow-ups: runner-owned expanded word-count review plans,
+  P2 source/report command context and justified GUI-harness sharing. None
+  requires starting P4. Keep live manuscripts, personal libraries and the
+  ordinary running session out of acceptance. External/all-day/second-device
+  claims and existing P2/P3 coverage limits remain unchanged.
 
-The P1b adapter is =site-elisp/awc-research-portable.el=. Under =C-c w n=,
-=E/I= review export/import, =f= resolves local PDFs, =P= explicitly links a
-local file and =p= opens cached PDFs offline. Identities live in
-=var/research/zotero-associations.json=, device paths in
-=zotero-files-local.json=, and =zotero-links.json= remains read-only legacy
-input. Do not sync or blindly merge the entire runtime directory. Other
-Citar file providers retain their existing behavior.
+* Original review brief (completed; retained for scope and rationale)
 
-P1 is validated locally in two profiles on one Linux host. A physical second
-computer, actual cross-device Zotero/vault file synchronization and other
-platforms remain unvalidated. No sync service has been configured. These
-deployment checks do not justify reopening completed P1 implementation.
+Continue in =/home/awc/.emacs.d=, repository =aceross/emacs=. Review what is
+implemented, then look to streamline the recent P2 academic writing QA and
+P3 manuscript checkpoint additions first. Outline the approach, rationale
+and QA before editing. Implement one justified, bounded simplification batch
+and validate in disposable environments. Do not start P4 in this session.
 
-** P2 scope and rationale
+** Establish the actual baseline
 
-Deliver useful, located academic prose diagnostics with measured false
-positives, respecting project-owned rules and UK English. Evaluate Vale or
-an established alternative against the existing tools before choosing a
-bounded adapter. Writegood is already exposed through =C-c w W=. Optional
-LTeX has a recorded startup/crash concern; verify its current state before
-making it a dependency and do not enable prose language servers globally.
+Read =README.org=, =doc/development-roadmap.org=,
+=doc/academic-writing-qa.org= and =doc/manuscript-checkpoints.org=.
+Verify branch, HEAD, working tree, upstream and recent history; preserve
+new user edits. At handoff, HEAD is =18c4493022bb92c0c8389ed98c130f9acf07faf0=
+on =codex/p3-manuscript-checkpoints= and the working tree was clean before
+this handoff/roadmap update. The implementation commits are:
 
-Use a small synthetic academic corpus covering Quarto, Markdown, Org and
-any additional format the chosen integration actually supports. Include
-positive and negative examples of terminology/spelling, acronym policy,
-placeholders and stylistic candidates. Exclude code/chunks, YAML, citation
-syntax, mathematics, URLs and identifiers where appropriate. Distinguish
-objective errors from suggestions requiring editorial judgment.
+- P2: =2b6f48abfe3fbe8f0551c314396ff7099b88d2da=, explicit project Vale QA.
+- P3: =18c4493022bb92c0c8389ed98c130f9acf07faf0=, reviewed manuscript checks
+  and immutable checkpoints, retaining the P2 dependency.
 
-Measure useful findings, false positives and source-location correctness;
-record the corpus size, counting method and observed runtime. Do not claim
-the tool verifies scholarly accuracy. Support project dictionaries/rules
-and intentional exceptions. A missing executable or rule set must leave
-ordinary editing usable with a clear diagnosis. Use existing Flycheck or
-compilation navigation where suitable and extend the existing writing menu.
-Avoid automatic rewriting and broad new global hooks.
+Both are local at handoff. The merged baseline is =211e1ac= on =master=;
+remote =emacs= tracks =aceross/emacs=. Inspect the actual state rather than
+assuming anything has since been pushed or merged. Review each commit and
+the combined diff from that baseline. Keep any implementation changes
+focused; do not push or merge without a corresponding user request.
 
-Do not start P3 manuscript manifests, P4 evidence search, full-vault migration,
-embeddings or LLM research sessions in this milestone. Adding =obsidian.el=
-remains deferred because existing property-based completion already proves
-renamed-note reuse. Keep Org for agenda, executable documents and repository
-documentation; Obsidian remains the primary literature-notes system.
+** Review what is complete
 
-** QA and operating constraints
+P0 covers safe execution/recovery, pinned packages, private preferences and
+bounded startup/session/external/graphical checks. P1a/b covers reviewed
+bibliography snapshots, portable identities and device-local PDFs in two
+independent local profiles. Preserve these foundations and all 134 source
+pins. Physical second-device/synchronization acceptance remains unrun.
 
-All fixtures, temporary dictionaries, dependency installations and GUI state
-must be disposable under =/tmp=. Use synthetic texts, bibliographies, vaults
-and PDFs; do not use live research as committed fixtures or modify live
-project Python/R libraries to satisfy tests. New external tools or releases
-should be verified against current official documentation. Preserve the
-existing package source snapshot and explain any genuinely required change.
+P2 adds =site-elisp/awc-writing.el=, project Vale examples in =etc/writing/=
+and =C-c w W c/l/v/k= (check/report/config/cancel). It checks unsaved
+Markdown, Quarto and Org prose explicitly, with native compilation navigation
+and stale-result handling. The labelled corpus produced 28 useful findings,
+zero false positives and three known acronym-order misses. No findings
+does not establish that rules were enabled. Vale was installed only under
+=/tmp/=; verify availability before reusing it. LTeX remains disabled by
+default and its earlier crash is not claimed fixed.
 
-Use the installed =/home/awc/.local/bin/emacs-xwidgets= (Emacs 31.1 PGTK)
-for configured/graphical acceptance. Its matching client is
-=/home/awc/.local/opt/emacs-31.1-xwidgets/bin/emacsclient=. Default =emacs=
-may still be Snap. Do not rebuild Emacs, switch launchers, reload or kill the
-user's ordinary running session. GUI checks need a private configuration,
-server, state directory and exact helper cleanup. Preserve first-line
-lexical-binding directives; do not convert existing dynamic modules blindly.
+P3 adds the canonical Python standard-library/POSIX CLI
+=tools/paper/awc-paper.py=, the Emacs adapter =site-elisp/awc-paper.el=,
+project example =etc/paper/.awc-paper.json= and =C-c w M s/c/m/f/k=
+(status/check/manual review/freeze/cancel). Status executes no project code.
+Checks require reviewed commands; unsaved project buffers block mutations.
+Declared inputs, configuration, Git state, executables, outputs and logs
+participate in provenance/staleness checks. Manual reviews bind a reviewer
+and concrete note to the input/output context. Explicit freeze creates a
+new manifest, recording incomplete or failed states honestly.
 
-Saved baseline commands:
+READY means the declared checks and reviews are satisfied. Coverage is
+explicit, tool hashes do not capture transitive environments, and source
+word counts use the documented Pandoc AST rule without include/shortcode
+expansion. The workflow does not establish scholarly or journal correctness.
+It does not automatically save source, commit, push, publish or install.
 
-#+begin_src sh
-python3 test/run-quarto-checks.py --suite core --keep
-emacs-xwidgets -Q --batch -l test/run-safety-tests.el
-emacs-xwidgets -Q --batch -L site-elisp -l awc-packages --eval '(let ((user-emacs-directory default-directory)) (awc-packages-audit))'
-#+end_src
+** Streamline before extending
 
-P1b acceptance recorded 162/162 core ERT cases plus startup/integration
-stages, 35/35 final focused research cases, 27/27 safety cases and 134 clean
-package sources. Native graphical identity review and actual offline PDF
-Tools display passed with zero Lisp warnings. These are prior results,
-not a claim that P2 has passed. Hosted CI runs the lightweight built-in
-safety/preference/package-snapshot checks, not the full installed-package,
-external-tool or graphical acceptance.
+First trace an ordinary disposable manuscript through P2 and P3. Inspect
+the implementation, project configuration, menus, reports, tests and guides.
+Identify concrete repetition, unnecessary options, confusing prompts or
+states, and responsibilities duplicated between the CLI, Emacs and project
+scripts. Review test-harness setup/cleanup and documentation duplication too.
 
-The core suite uses a disposable loopback API server; a restricted sandbox
-may require network/process approval. Follow the environment's escalation
-mechanism instead of weakening tests. Install any missing test dependencies
-only into the disposable environment. Inspect the current working tree
-before broadening or repeating completed checks.
+Present a short prioritized set of findings: what can become simpler, why
+it helps the actual workflow, what behavior must survive and how to verify
+it. Then implement one coherent batch. Prefer deleting redundancy or using
+existing facilities when the evidence supports it. Avoid speculative
+frameworks, additional schemas, dependency changes or a broad rewrite.
+An already appropriately small component can remain unchanged; there is no
+line-count reduction target.
 
-Add meaningful P2 tests for located diagnostics, exclusions, project-local
-rules/exceptions and missing-tool behavior. Re-run affected configured modes
-and core/safety checks. Exercise actual keyboard navigation to findings and
-inspect diagnostic source ranges. If the feature has a graphical flow, use
-a private normal GUI session. Record passed, failed, not run and deferred
-checks separately; do not expand a passing milestone speculatively.
+Preserve explicit opt-in checks, project-owned rules/builds, the canonical
+CLI, native diagnostic navigation, exact review-token checks, unsaved-buffer
+protection, honest stale/missing/failed states, manual-review context,
+immutable prior manifests and owned-process cancellation. Keep independent
+projects isolated and file-open behavior passive. Do not reopen P0/P1 or
+start evidence indexing, LLM integration or P4 features to justify cleanup.
+
+** QA proportional to the change
+
+Use synthetic projects and private state under =/tmp/=. Do not modify live
+manuscripts, libraries, vaults, Python/R environments or the ordinary running
+Emacs session. Before changing behavior, identify the existing checks that
+cover it and add only meaningful coverage for an exposed gap.
+
+The final P3 baseline passed 24 Python runner tests, 9 P3 ERT tests, the full
+184-case core suite, 27 safety tests and the 134-repository pin audit. P2 has
+13 focused ERT tests and a labelled real-Vale corpus. P3's real fixture covers
+HTML/PDF, citations, manuscript/supplement source counts, CLI/Emacs agreement,
+manual/freeze/stale behavior and native graphical prompts/cancellation.
+Consult the guides/roadmap for commands, evidence and remaining limits.
+
+Run the affected focused tests and real integration stages. If changing shared
+menus, startup, lifecycle or process ownership, also run appropriate core,
+safety and pin regressions. Exercise changed user interactions in a private
+normal Wayland session. Documentation-only edits need link/diff review,
+not a full integration rerun. Broaden testing for new failures or unresolved
+concerns, and distinguish passed, failed, unrun and deferred checks.
+
+Use =/home/awc/.local/bin/emacs-xwidgets= (Emacs 31.1 PGTK) and matching
+=/home/awc/.local/opt/emacs-31.1-xwidgets/bin/emacsclient=, with private
+configuration/state/server and helper cleanup. Preserve lexical-binding
+headers. For GUI fixtures, respect the =yes-or-no-p= to =y-or-n-p= alias:
+queue a single =y= where appropriate, assert saved labels/notes, avoid
+recursive keyboard macros in minibuffer timers and clear stale PID markers
+before cancellation replays. Export PNGs with =no-conversion= and inspect
+them. Do not relabel earlier external, long-session or second-device evidence
+as rerun.
 
 ** Required checkpoint
 
-Update =doc/development-roadmap.org= with the chosen tool/adapter, rationale,
-dependencies, corpus/evaluation results, validation evidence, limitations and
-rollback. Add a focused usage/QA guide under =doc/=. Report the user-visible
-change, architecture, exact tests/results, remaining risks, branch/commit
-state and the next bounded task. Keep changes focused and reviewable. The
-current request merged the earlier stack; do not assume it authorizes
-merging future P2 work without a new request. Manuscript workflows must not
-commit, push or publish research automatically.
+Record the review findings, chosen simplification, preserved contracts,
+before/after workflow or duplication evidence where useful, actual QA,
+limitations and rollback in the roadmap. Keep usage docs synchronized and
+update this handoff with the actual branch/commit/working-tree state.
+Report any worthwhile simplifications left for later. P4 remains planned
+pending a separate instruction after this review and streamlining pass.

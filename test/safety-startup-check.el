@@ -76,6 +76,10 @@
     (execute-kbd-macro (kbd "W"))
     (should (eq (key-binding (kbd "g")) #'writegood-grade-level))
     (should (eq (key-binding (kbd "e")) #'writegood-reading-ease))
+    (should (eq (key-binding (kbd "c")) #'awc-writing-check))
+    (should (eq (key-binding (kbd "l")) #'awc-writing-show-results))
+    (should (eq (key-binding (kbd "v")) #'awc-writing-open-config))
+    (should (eq (key-binding (kbd "k")) #'awc-writing-cancel))
     ;; This pinned Transient keeps inactive suffixes in its raw keymap and
     ;; rejects them through its predicate map.  Check state AND real dispatch.
     (should (eq (not (oref (transient-suffix-object 'org-skeleton-R-src) inactive))
@@ -103,6 +107,12 @@
                        ("f" . awc-research-resolve-pdfs)
                        ("P" . awc-research-link-local-pdf)))
       (should (eq (key-binding (kbd (car binding))) (cdr binding))))
+    (execute-kbd-macro (kbd "C-q"))
+    (execute-kbd-macro (kbd "C-c w M"))
+    (should (eq (key-binding (kbd "s")) #'awc-paper-status))
+    (should (eq (key-binding (kbd "c")) #'awc-paper-check))
+    (should (eq (key-binding (kbd "m")) #'awc-paper-verify))
+    (should (eq (key-binding (kbd "f")) #'awc-paper-freeze))
     (execute-kbd-macro (kbd "C-q"))
     (princ (format "%s: C-c g=%S; C-c p=%S; M-p=%S; C-q=%S\n"
                    mode (key-binding (kbd "C-c g")) (key-binding (kbd "C-c p"))

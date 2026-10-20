@@ -19,10 +19,15 @@ jobs:
       - name: Install distribution Emacs
         run: |
           sudo apt-get update
-          sudo apt-get install --no-install-recommends -y emacs-nox git
+          sudo apt-get install --no-install-recommends -y emacs-nox git python3
       - name: Exercise safety, preference restarts and pinned bootstrap with disposable fixtures
         run: |
           emacs --version
           git --version
           emacs -Q --batch -l test/run-safety-tests.el
           emacs -Q --batch -L site-elisp -l awc-packages --eval '(let ((user-emacs-directory default-directory)) (awc-packages-read-snapshot))'
+      - name: Exercise explicit writing and manuscript boundaries with disposable fixtures
+        run: |
+          python3 --version
+          PYTHONDONTWRITEBYTECODE=1 python3 test/test_paper_runner.py
+          emacs -Q --batch -L site-elisp -L test -l awc-writing-test -l awc-paper-test -f ert-run-tests-batch-and-exit

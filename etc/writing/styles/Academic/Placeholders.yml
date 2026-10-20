@@ -1,0 +1,5 @@
+extends: existence
+message: "Resolve placeholder '%s' before submission."
+level: error
+nonword: false
+tokens: ['TODO', 'FIXME', 'TBD']
