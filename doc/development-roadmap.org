@@ -62,9 +62,12 @@ The P2/P3 review first consolidated manuscript review handling. Two subsequent
 bounded batches add runner-owned expanded command plans and consistent writing
 report actions. Their findings, acceptance and limits are recorded in the
 checkpoints below. P4 and GUI-harness extraction remain deferred for this pass.
-Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] publishes the combined work. Its follow-up review found passive
-Git execution, path-alias overlap and mode-change cancellation gaps; the
-20 October repair checkpoint below records the fixes and fresh acceptance.
+[[https://github.com/aceross/emacs/pull/9][PR #9]] merged the combined work into =master= as =eb75a78= after final
+review and passing CI. Its follow-up review repaired passive Git execution,
+path-alias overlap and mode-change cancellation gaps. Local =master= was
+fast-forwarded to that merge; the 20 October repair and merge/sync checkpoints
+below record acceptance, publication and the authorized two-file documentation
+follow-up on =master=. P4 remains planned and explicitly deferred.
 See [[file:next-session-handoff.org][the current handoff prompt]].
 
 * Current prioritized plan — 20 October 2026
@@ -89,9 +92,9 @@ the particular unrun check, not treated as a passing result.
 | P1 Portable reference/notes workflow | VALIDATED locally in two profiles | P0, stable citation identities | Offline project render and identity/note/PDF reuse pass; physical second-device acceptance remains open |
 | P1a Reviewed project bibliography snapshots | VALIDATED locally | P0; existing Citar and Quarto bibliography model | Reviewed add/refresh, preserved keys/manual fields, dependency closure and copied offline HTML/PDF render pass |
 | P1b Portable associations and device-local attachments | VALIDATED locally in two profiles | P1a | Path-free transfer, same key/renamed note, different local PDFs and offline render pass; physical second device unrun |
-| P2 Academic writing QA | VALIDATED locally, bounded corpus | P0, explicit Vale/project rules | 28 useful findings, zero false positives, 3 known acronym misses; exact source ranges and private GUI pass |
-| P3 Manuscript lifecycle/submission | VALIDATED locally, bounded fixture | P1, P2, existing Quarto checks | Real HTML/PDF/citations, same CLI/Emacs records, stale invalidation and reviewed immutable manifests pass |
-| P4 Evidence search and verification | PLANNED | P1, P3 project boundaries | Small source-to-claim fixture with source-change invalidation |
+| P2 Academic writing QA | VALIDATED locally, bounded corpus; merged #9 | P0, explicit Vale/project rules | 28 useful findings, zero false positives, 3 known acronym misses; exact source ranges and private GUI pass |
+| P3 Manuscript lifecycle/submission | VALIDATED locally, bounded fixture; merged #9 | P1, P2, existing Quarto checks | Real HTML/PDF/citations, same CLI/Emacs records, stale invalidation and reviewed immutable manifests pass |
+| P4 Evidence search and verification | PLANNED; deferred | P1, P3 project boundaries | Separate instruction required before the small source-to-claim fixture with source-change invalidation |
 | P5 Reviewer/collaborator feedback | PLANNED | P3, P4 source/revision identity | Import, track, resolve and export a representative review without information loss |
 | P6 Bounded LLM assistance | PLANNED | P1, P4, explicit material/backend authorization | Selected-source comparison, separate critique and reviewed diff; fixed evaluation set |
 | P7 Analysis/project ergonomics | PLANNED | P0; actual workflow evidence | One bounded improvement at a time, preserving interpreter ownership |
@@ -1462,6 +1465,54 @@ P3/P4/LLM expansion remains outside the next milestone.
   configuration, runtime records, outputs, all frozen manifests and private
   state. Save buffers/restart after switching code, then explicitly rerun
   affected checks/reviews. No package or live environment rollback is needed.
+
+* PR #9 merge and local master synchronization — 20 October 2026
+
+- Publication: after final review found no further blockers, the user
+  authorized merging PR #9. It was marked ready and merged into =master=
+  at =2026-10-20 12:32:46 UTC=, using merge commit
+  =eb75a78007c55ee7c6f9aa1338cba1b56e205dc9=. Its parents are =211e1ac=
+  (previous master) and =cc6121c= (exact reviewed head). All five P2/P3
+  implementation, simplification and repair commits remain in the history;
+  no check/protection bypass, squash/rebase or branch deletion was used.
+- Hosted results: repair-head [[https://github.com/aceross/emacs/actions/runs/39416400971][push CI]] and [[https://github.com/aceross/emacs/actions/runs/39416406567][PR CI]] both pass;
+  [[https://github.com/aceross/emacs/actions/runs/39423092295][post-merge master CI]] passes on =eb75a78=. The jobs include 27 safety,
+  31 Python runner and 31 focused adapter tests plus snapshot validation.
+  The inspected head-job runtime is Git 2.55.0, GNU Emacs 29.3 and Python
+  3.12.3. Real Quarto/graphical acceptance remains separate, as recorded in
+  the preceding repair checkpoint; hosted success does not expand that scope.
+- Local synchronization: refreshed remote =emacs/master=, switched the clean
+  checkout from =codex/p3-manuscript-checkpoints= to =master= and fast-forwarded
+  from =211e1ac= to =eb75a78=. Local master and its upstream now match.
+  The reviewed head is an ancestor of the merge and their file trees match.
+  Existing P2/P3 branches are retained. Only this roadmap and the handoff are
+  edited by the synchronization task. These changes were initially left local
+  and uncommitted; the user subsequently authorized their commit and push.
+  No implementation edit is included.
+- Documentation publication: the two-file follow-up has parent =eb75a78=
+  and subject =Record merged P2/P3 baseline and handoff=, on =master= tracking
+  =emacs/master=. It records the completed merge/sync and preserves the
+  earlier acceptance and historical handoff edits. P4 remains deferred.
+- Validation for this documentation-only sync: verified merged PR metadata,
+  exact remote/local refs, ancestry, identical reviewed/merged trees, passing
+  hosted results, Org parsing and whitespace checks. No new full/core,
+  external, graphical, live manuscript/library or device/sync run is claimed.
+  Prior local evidence remains 31 runner, 14 P3/17 P2 focused ERT, 193 core
+  ERT and every core stage, 27 safety, 134 clean pins and real/private graphical
+  acceptance with its recorded limits. Disposable evidence may expire; the
+  checked-in tests, guides and hosted logs are durable references.
+- Scope/next: P2/P3 and their reviewed simplifications are merged. P4 remains
+  PLANNED and explicitly deferred, as does shared GUI-harness extraction.
+  This merge/sync does not start a new evidence, feedback or LLM milestone.
+  Preserve P0/P1, pins, explicit execution, provenance/staleness, immutable
+  checkpoints and owned cleanup. Earlier draft/unpublished/no-merge statements
+  are historical; this checkpoint and the current handoff supersede them.
+- Rollback: any implementation rollback requires a separately reviewed inverse
+  commit/revert of the merged work, preserving manuscript sources, adopted
+  configuration, outputs, runtime/manual records, every frozen checkpoint and
+  private state. Do not reset or rewrite the published merge. Documentation
+  corrections should retain this acceptance/publication history. No package
+  or project environment rollback is needed for this synchronization.
 
 * Planning baseline (earlier assessment, reconciled)
 

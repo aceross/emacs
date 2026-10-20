@@ -1,7 +1,46 @@
-#+TITLE: Next-session handoff: P2/P3 draft PR review fixes
+#+TITLE: Next-session handoff: merged P2/P3 baseline
 #+DATE: 2026-10-20
 
 * Current handoff
+
+[[https://github.com/aceross/emacs/pull/9][PR #9]] is MERGED into =master=. Final review found no further blockers;
+the user authorized merging after review. The merge commit is
+=eb75a78007c55ee7c6f9aa1338cba1b56e205dc9=, created on
+=2026-10-20 12:32:46 UTC=. It preserves the reviewed head =cc6121c= and all
+five P2/P3 implementation/simplification/repair commits. The earlier draft
+and no-merge instructions below are historical and superseded by this record.
+
+- Git: local =master= was fast-forwarded from =211e1ac= to =eb75a78= and
+  tracks =emacs/master=. The user subsequently authorized committing and
+  pushing only the roadmap/handoff updates. This documentation checkpoint
+  has parent =eb75a78= and subject
+  =Record merged P2/P3 baseline and handoff=.
+  It adds no implementation change. The P2/P3 branches are retained; no
+  history was rewritten or branch deleted. Verify actual HEAD/upstream
+  before subsequent work.
+- Hosted CI: the repaired head passes both [[https://github.com/aceross/emacs/actions/runs/39416400971][push]] and
+  [[https://github.com/aceross/emacs/actions/runs/39416406567][PR]] runs; the [[https://github.com/aceross/emacs/actions/runs/39423092295][post-merge master run]] also passes on =eb75a78=.
+  These include 27 safety, 31 Python runner and 31 focused Emacs tests plus
+  snapshot validation. The inspected repair-head runtime is Git 2.55.0,
+  Emacs 29.3 and Python 3.12.3.
+- Local acceptance remains the recorded 31 Python, 14 P3/17 P2 focused ERT,
+  193 core ERT plus every core integration stage, 27 safety and 134 clean
+  source pins; real P2/P3 and private graphical acceptance passed. The merge
+  tree matches the reviewed head. This sync adds documentation only and
+  does not claim a fresh full/core/external/graphical acceptance run.
+- Read the [[file:development-roadmap.org][20 October merge/synchronization checkpoint]],
+  [[file:academic-writing-qa.org][writing QA guide]] and [[file:manuscript-checkpoints.org][manuscript guide]] for evidence, limits and
+  rollback. Preserve explicit execution, unsaved-buffer guards, provenance/
+  staleness, immutable checkpoints, owned cleanup and all P0/P1/package pins.
+  The runner update intentionally invalidates earlier checks/manual reviews;
+  rerun/review explicitly while retaining every old frozen manifest.
+- Next: continue from this synchronized =master= and inspect actual Git state
+  before editing. P4 and shared GUI-harness extraction remain deferred; no
+  evidence/LLM milestone is started or authorized by this handoff. Existing
+  live-editorial, all-day, full-external and physical second-device limits
+  remain open.
+
+* Previous PR review repair handoff (historical)
 
 Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] combines P2/P3 and the writing-workflow simplifications against
 =master=. The user authorized fixing all three review findings, adding
