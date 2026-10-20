@@ -1,5 +1,5 @@
 #+TITLE: Emacs development roadmap
-#+DATE: 2026-10-19
+#+DATE: 2026-10-20
 #+TODO: PLANNED IN_PROGRESS BLOCKED | IMPLEMENTED VALIDATED DEFERRED
 #+OPTIONS: toc:2
 
@@ -62,9 +62,12 @@ The P2/P3 review first consolidated manuscript review handling. Two subsequent
 bounded batches add runner-owned expanded command plans and consistent writing
 report actions. Their findings, acceptance and limits are recorded in the
 checkpoints below. P4 and GUI-harness extraction remain deferred for this pass.
+Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] publishes the combined work. Its follow-up review found passive
+Git execution, path-alias overlap and mode-change cancellation gaps; the
+20 October repair checkpoint below records the fixes and fresh acceptance.
 See [[file:next-session-handoff.org][the current handoff prompt]].
 
-* Current prioritized plan — 19 October 2026
+* Current prioritized plan — 20 October 2026
 
 The intended workflow is discover → read/annotate → organize → question →
 analyze → write → verify → revise → validate → submit → archive. Reliability,
@@ -1361,6 +1364,104 @@ P3/P4/LLM expansion remains outside the next milestone.
   Preserve adopted rules, source edits, configuration, outputs, runtime records,
   every prior checkpoint and private state. Record any rollback in the guides
   without erasing validation history. No package/environment rollback is needed.
+
+* P2/P3 draft PR review repairs — 20 October 2026
+
+- Scope/Git: the four prior local commits through =608d83c= were pushed to
+  =emacs/codex/p3-manuscript-checkpoints= and published as draft
+  [[https://github.com/aceross/emacs/pull/9][PR #9]], targeting =master=. Both initial hosted safety jobs passed.
+  Review then reproduced three gaps using disposable projects. The user
+  authorized all three fixes, regression tests, fresh validation, documentation,
+  commit and push to this same draft. The repair commit has parent =608d83c=
+  and subject =Fix passive manuscript provenance and writing checker cleanup=.
+  P4, shared harness extraction, package changes and merging remain outside
+  this pass; auto-merge remains disabled. This 12-file repair checkpoint
+  includes the runner/adapter, regression and acceptance fixtures, lightweight
+  CI and four documentation files. New hosted jobs are pending at the time
+  of this committed record; inspect PR #9's latest head after its push.
+- Passive Git: ordinary =git status= could execute configured fsmonitor and
+  clean/process filters before confirmation, and could refresh the index.
+  P3 now reads HEAD/index entries through read-only plumbing with fsmonitor,
+  hooks, optional writes and lazy fetch disabled. Raw blob/executable-bit
+  comparisons retain staged, unstaged, untracked and unresolved-conflict
+  markers without invoking worktree conversion. Git must support
+  =--no-lazy-fetch=; unsupported Git or missing objects report provenance
+  unavailable. Independent SHA-256 input hashing remains unchanged. Raw
+  markers deliberately ignore clean/newline conversion and cached clean
+  flags, so they can differ from ordinary Git status.
+- Path overlap: normalized project-relative output and word-count file names
+  are used consistently for membership, plans and artifact checks. A declared
+  output such as =./paper.qmd= cannot evade overlap with input =paper.qmd= or
+  the automatically hashed configuration. Valid nonoverlapping aliases still
+  work. Source files, configuration and runtime records are untouched when
+  overlap is rejected; schema version and project argv stay unchanged.
+- Owned cleanup: P2 cancels a running checker before changing the source's
+  major mode clears local ownership. Both ordinary cancellation and the
+  timeout use one process-specific helper; the timeout no longer depends on
+  a surviving source-local reference or risks targeting a replacement job.
+  Existing report/source close, stale navigation and project isolation remain.
+- Focused QA: =31/31= Python and =31/31= Emacs (=14= P3, =17= P2) pass.
+  Before implementation the new tests reproduced unreviewed execution,
+  aliased overlap and lost cleanup. Further negative coverage proves missing
+  promised Git objects would launch a transport helper without the new fetch
+  guard. Positive controls prove the synthetic fsmonitor, clean, process and
+  local transport helpers really execute through the corresponding ordinary
+  Git paths. No network service is involved in those fixtures. Tests cover
+  unchanged index bytes, SHA-1/SHA-256, staged/unstaged/untracked/conflicted
+  inputs, nested roots/literal names and assume-unchanged flags, refusal
+  before execution, canonical valid aliases, mode reset and lost-reference
+  deadlines. Evidence: =/tmp/awc-pr9-fixes/= (before/final Python and ERT logs).
+- Shared QA: =193/193= core ERT and every core integration stage pass at
+  =/tmp/quarto-checks-_l3gj10j/logs/=. An initial sandbox-only core run at
+  =/tmp/quarto-checks-t8qcd94s/= failed solely when its local HTTP fixture
+  could not bind; the permitted rerun passed. Safety =27/27=, all =134=
+  package sources clean and adapter byte compilation warning-free
+  (=safety.log=, =pins.log= and =compile-final.log= under the evidence root).
+  Hosted CI is extended to run the independent Python and P2/P3 ERT suites
+  with distribution Emacs/Git/Python, without installing editor packages or
+  performing heavy Quarto/GUI acceptance there.
+- Real P3 acceptance passes at =/tmp/emacs-paper-qa-3po8ndil/=: fresh private
+  Git repository, HTML/PDF/citations/supplement, defined 20-word count,
+  failed/ready immutable checkpoints, moved copy, stale inputs/manual review,
+  full plan and CLI/configured-Emacs token parity. This pass executes no live
+  manuscript/library code and installs no project dependencies.
+- Complete P3 acceptance including Wayland PASSED separately at
+  =/tmp/emacs-paper-qa-zom16m08/=: all real/configured stages, ten native
+  prompt submissions, exact saved reviewer/note/label, reviewed expanded plan,
+  ready/stale/cancelled states and owned-helper/socket cleanup. All four
+  native PNGs pass binary validation and visual inspection, with no warnings.
+- Final P2 acceptance PASSED at =/tmp/emacs-writing-qa-l911f3jx/=: unchanged
+  real corpus (28 useful, zero extras, three known misses), configured modes,
+  native report actions, 31 exact ranges and three mode-reset cancellations.
+  The full unsaved source text, modified flag and disk bytes survive; timers,
+  helpers and socket checks are clean, with no Lisp warnings. All six native
+  PNGs pass binary validation and visual inspection. Vale 3.24.0 was downloaded
+  only under =/tmp/awc-pr9-fixes/vale/=; its release checksum is
+  =867534ddb678abca7f214bc4706ead0922bd5252ffe8035fc227013f66c8b214=.
+- P2 fixture failures are retained at =/tmp/emacs-writing-qa-3buia6wd/=
+  (outer timeout), =/tmp/emacs-writing-qa-b7924cn8/= and
+  =/tmp/emacs-writing-qa-y4be7vvn/= (watchdog/stack). Normal-mode cleanup
+  prompts about a modified Polymode indirect view. The diagnostic at
+  =/tmp/emacs-writing-qa-mo1e3s9h/= answered discard and observed the shared
+  modified flag clear; this is Polymode's existing discard behavior, not a
+  writing-process cleanup failure or a passing preservation result. The final
+  fixture answers two native prompts by declining discard, checks the base
+  source and disk bytes, and leaves confirmation semantics intact. A phase/
+  prompt/stack/frame watchdog makes future failures inspectable. No prompts
+  or matching/validation functions are stubbed. No Polymode/package code is
+  changed. These earlier attempts are not counted as graphical passes.
+- Limits: Linux Git 2.53.0/Emacs 31.1/Python 3.14.4 acceptance; no live
+  editorial/journal validation, all-day soak, full external Jupyter/renv
+  rerun, physical second device/sync or other-platform claim. Existing Vale
+  acronym/markup and P3 declared-input, transitive-environment and source-count
+  limits remain. Updating the runner deliberately invalidates old checks and
+  manual reviews; no prior frozen manifest is changed.
+- Rollback: use a new reviewed inverse commit on the published branch, or
+  selectively restore these implementation/acceptance files from =608d83c=
+  in a separate recovery checkout. Preserve source edits, adopted rules,
+  configuration, runtime records, outputs, all frozen manifests and private
+  state. Save buffers/restart after switching code, then explicitly rerun
+  affected checks/reviews. No package or live environment rollback is needed.
 
 * Planning baseline (earlier assessment, reconciled)
 

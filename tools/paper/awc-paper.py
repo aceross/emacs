@@ -124,10 +124,15 @@ def load_config(path):
             raise PaperError('A check timeout must be in (0, 3600] seconds')
         if not isinstance(check.get('env', {}), dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in check.get('env', {}).items()):
             raise PaperError('env must map names to strings')
-        for name in check.get('outputs', []) + check.get('files', []):
-            local(root, name)
-            if Path(name).parts[0] in {STATE, '.git'}:
-                raise PaperError('Outputs/documents must be outside internal state')
+        for key in ('outputs', 'files'):
+            if key not in check:
+                continue
+            if not isinstance(check[key], list):
+                raise PaperError(f'{key} must be an array of project-relative file paths')
+            names = [local(root, name).relative_to(root).as_posix() for name in check[key]]
+            if any(name == '.' or Path(name).parts[0] in {STATE, '.git'} for name in names):
+                raise PaperError('Outputs/documents must be files outside internal state')
+            check[key] = names
         if kind == 'command' and check.get('success') not in {'exit-code', 'fresh-outputs'}:
             raise PaperError('Each command needs an explicit success contract')
         if check.get('success') == 'fresh-outputs' and not check.get('outputs'):
@@ -163,6 +168,65 @@ def executable(root, command, extra_env=None):
     return {'command': name, 'available': True, 'path': str(path), 'sha256': sha(path)}
 
 
+def git_provenance(root, files):
+    """Read HEAD/index only; never refresh a worktree or run hooks/filters.
+
+    Dirty input markers compare raw blob bytes and executable bits, without
+    Git's clean filters, text conversion, or assume-unchanged shortcuts.
+    """
+    command = ['git', '--no-lazy-fetch', '--no-optional-locks', '--literal-pathspecs',
+               '-c', 'core.fsmonitor=false', '-c', 'core.hooksPath=/dev/null']
+    def git(*args, check=True):
+        return subprocess.run(command + list(args), cwd=root, capture_output=True,
+                              text=True, timeout=5, check=check)
+    try:
+        revision = git('rev-parse', '--show-object-format', 'HEAD', check=False)
+        if revision.returncode:
+            if revision.returncode != 128:
+                revision.check_returncode()
+            return {'head': None, 'status': 'unversioned'}
+        algorithm, head = revision.stdout.splitlines()
+        if algorithm not in {'sha1', 'sha256'}:
+            raise PaperError(f'Unsupported Git object format: {algorithm}')
+        names = sorted(files)
+        index, conflicts, tree = {}, set(), {}
+        for entry in git('ls-files', '--stage', '-z', '--', *names).stdout.split('\0')[:-1]:
+            meta, name = entry.split('\t', 1)
+            mode, oid, stage = meta.split()
+            if stage != '0':
+                conflicts.add(name)
+            else:
+                index[name] = (mode, oid)
+        for entry in git('ls-tree', '-r', '-z', 'HEAD', '--', *names).stdout.split('\0')[:-1]:
+            meta, name = entry.split('\t', 1)
+            mode, _kind, oid = meta.split()
+            tree[name] = (mode, oid)
+        dirty = []
+        for name in names:
+            if name in conflicts:
+                dirty.append('UU ' + name)
+                continue
+            if name not in index:
+                if name in tree:
+                    dirty.append('D  ' + name)
+                dirty.append('?? ' + name)
+                continue
+            path = local(root, name)
+            stat = path.stat()
+            blob = hashlib.new(algorithm, f'blob {stat.st_size}\0'.encode())
+            with path.open('rb') as stream:
+                while chunk := stream.read(1024 * 1024):
+                    blob.update(chunk)
+            worktree = ('100755' if stat.st_mode & 0o111 else '100644', blob.hexdigest())
+            staged = 'A' if name not in tree else ('M' if index[name] != tree[name] else ' ')
+            unstaged = 'M' if worktree != index[name] else ' '
+            if staged + unstaged != '  ':
+                dirty.append(staged + unstaged + ' ' + name)
+        return {'head': head, 'input_status': dirty, 'comparison': 'raw-bytes-and-executable-bit'}
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        return {'head': None, 'status': 'unavailable', 'detail': str(error)}
+
+
 def snapshot(root, config_path, cfg):
     files = {config_path.name: sha(config_path)}
     missing = []
@@ -184,15 +248,7 @@ def snapshot(root, config_path, cfg):
             raise PaperError('Word-count sources must also be declared inputs')
     tools = {check['id']: executable(root, check['argv'], check.get('env')) for check in cfg.get('checks', [])}
     tools.update({'version:' + name: executable(root, cmd) for name, cmd in cfg.get('tools', {}).items()})
-    try:
-        head = subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root, capture_output=True, text=True, timeout=5)
-        if head.returncode:
-            git = {'head': None, 'status': 'unversioned'}
-        else:
-            dirty = subprocess.run(['git', 'status', '--porcelain=v1', '-z', '--untracked-files=all', '--', *sorted(files)], cwd=root, capture_output=True, text=True, timeout=5, check=True)
-            git = {'head': head.stdout.strip(), 'input_status': dirty.stdout.split('\0')[:-1]}
-    except (OSError, subprocess.SubprocessError) as error:
-        git = {'head': None, 'status': 'unavailable', 'detail': str(error)}
+    git = git_provenance(root, files)
     value = {'files': files, 'missing': missing, 'git': git, 'executables': tools, 'runner_sha256': sha(Path(__file__).resolve())}
     value['id'] = digest(value)
     return value

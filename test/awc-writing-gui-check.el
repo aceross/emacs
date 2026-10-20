@@ -10,16 +10,52 @@
 (defvar awc-writing-gui-expected nil)
 (defvar awc-writing-gui-ranges 0)
 (defvar awc-writing-gui-report-actions 0)
+(defvar awc-writing-gui-mode-cancellations 0)
+(defvar awc-writing-gui-mode-prompt-answers 0)
+(defvar awc-writing-gui-phase 'starting)
 (defvar awc-writing-gui-rechecked nil)
 (defvar awc-writing-gui-deadline (+ (float-time) 60))
 (setq awc-writing-program (getenv "AWC_WRITING_VALE"))
 
+(defun awc-writing-gui-phase (phase)
+  (setq awc-writing-gui-phase phase)
+  (with-temp-file (expand-file-name "phase.txt" awc-gui-root)
+    (insert (symbol-name phase))))
+
 (defun awc-writing-gui-finish (status &optional error)
+  (when error
+    (let ((coding-system-for-write 'no-conversion))
+      (write-region (x-export-frames nil 'png) nil (expand-file-name "failure.png" awc-gui-root) nil 'silent))
+    (with-temp-file (expand-file-name "backtrace.txt" awc-gui-root) (insert (backtrace-to-string))))
   (with-temp-file (expand-file-name "result.json" awc-gui-root)
     (insert (json-encode `((status . ,status) (ranges . ,awc-writing-gui-ranges)
+                          (phase . ,(symbol-name awc-writing-gui-phase))
                           (report_actions . ,awc-writing-gui-report-actions)
+                          (mode_cancellations . ,awc-writing-gui-mode-cancellations)
+                          (mode_prompt_answers . ,awc-writing-gui-mode-prompt-answers)
+                          (pending_prompt . ,(when-let* ((window (active-minibuffer-window)))
+                                               (with-current-buffer (window-buffer window) (minibuffer-prompt))))
                           (warnings . ,(vconcat awc-gui-warnings)) (error . ,error)))))
   (kill-emacs (if (equal status "passed") 0 1)))
+
+(defun awc-writing-gui-answer-mode-prompt ()
+  "Keep a modified indirect source through Polymode's native cleanup prompt."
+  (when (eq awc-writing-gui-phase 'mode-change-reset)
+    (condition-case problem
+        (progn
+          (when-let* ((window (active-minibuffer-window)))
+            (with-current-buffer (window-buffer window)
+              (let ((prompt (minibuffer-prompt)))
+                (should (string-match "\\`Buffer \\(.+\\) modified; kill anyway?" prompt))
+                (should (eq (buffer-base-buffer (get-buffer (match-string 1 prompt))) awc-writing-gui-source)))
+              (delete-minibuffer-contents)
+              (insert "no")
+              (setq unread-command-events
+                    (append (if (eq (key-binding (kbd "M-RET")) #'vertico-exit-input)
+                                (append (kbd "M-RET") nil) (list ?\r)) unread-command-events)))
+            (cl-incf awc-writing-gui-mode-prompt-answers))
+          (run-at-time 0.1 nil #'awc-writing-gui-answer-mode-prompt))
+      (error (awc-writing-gui-finish "failed" (error-message-string problem))))))
 
 (defun awc-writing-gui-step ()
   (condition-case problem
@@ -59,6 +95,7 @@
        (awc-writing-gui-source
         (let* ((source awc-writing-gui-source)
                (results (buffer-local-value 'awc-writing--results source))
+               (file (buffer-file-name source))
                (next-error-highlight t))
           (should (with-current-buffer results
                     (string-match-p (format "Writing QA: %d findings" (length awc-writing-gui-expected)) (buffer-string))))
@@ -89,6 +126,34 @@
               (write-region (x-export-frames nil 'png) nil
                             (expand-file-name (concat (file-name-extension (buffer-file-name source)) ".png") awc-gui-root)
                             nil 'silent)))
+          ;; Re-enter the ordinary file mode while a new native menu check is
+          ;; running.  The mode hook must cancel before its locals disappear.
+          (awc-writing-gui-phase 'mode-change-check)
+          (execute-kbd-macro (kbd "C-c w W c"))
+          (let ((owned (buffer-local-value 'awc-writing--process source))
+                (unsaved (with-current-buffer source (save-restriction (widen) (buffer-string))))
+                (disk (with-temp-buffer (insert-file-contents-literally file) (buffer-string))))
+            (should (process-live-p owned))
+            (awc-writing-gui-phase 'mode-change-reset)
+            (run-at-time 0.1 nil #'awc-writing-gui-answer-mode-prompt)
+            (with-current-buffer source (normal-mode))
+            (awc-writing-gui-phase 'mode-change-finished)
+            (should (buffer-modified-p source))
+            (should (equal unsaved (with-current-buffer source (save-restriction (widen) (buffer-string)))))
+            (should (equal disk (with-temp-buffer (insert-file-contents-literally file) (buffer-string))))
+            (should-not (process-live-p owned))
+            (should-not (buffer-live-p (process-buffer owned)))
+            (should-not (buffer-live-p (process-get owned 'stderr)))
+            (should-not (memq (process-get owned 'timer) timer-list))
+            (should-not (buffer-local-value 'awc-writing--process source))
+            (switch-to-buffer results)
+            (should (string-match-p "Writing QA cancelled" (buffer-string)))
+            (redisplay t)
+            (let ((coding-system-for-write 'no-conversion))
+              (write-region (x-export-frames nil 'png) nil
+                            (expand-file-name (concat "mode-cancelled-" (file-name-extension file) ".png") awc-gui-root)
+                            nil 'silent))
+            (cl-incf awc-writing-gui-mode-cancellations))
           (setq awc-writing-gui-source nil awc-writing-gui-rechecked nil)
           (run-at-time 0.1 nil #'awc-writing-gui-step)))
        (awc-writing-gui-queue
@@ -106,11 +171,14 @@
           (run-at-time 0.1 nil #'awc-writing-gui-step)))
        (t
         (should (= awc-writing-gui-report-actions 3))
+        (should (= awc-writing-gui-mode-cancellations 3))
         (should (= awc-writing-gui-ranges 31))
         (should-not awc-gui-warnings)
         (should-not (cl-some (lambda (process) (string-prefix-p "writing-qa" (process-name process))) (process-list)))
         (awc-writing-gui-finish "passed")))
-    (error (awc-writing-gui-finish "failed" (error-message-string problem)))))
+    (error (awc-writing-gui-finish "failed" (error-message-string problem)))
+    (quit (awc-writing-gui-finish "failed" "Unexpected quit in graphical writing acceptance"))))
 
+(run-at-time 65 nil (lambda () (awc-writing-gui-finish "failed" "Graphical writing watchdog expired")))
 (run-at-time 1 nil #'awc-writing-gui-step)
 ;;; awc-writing-gui-check.el ends here

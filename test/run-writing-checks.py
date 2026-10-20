@@ -228,6 +228,7 @@ def main():
                 assert gui_report['status'] == 'passed', gui_report
                 for extension in ('md', 'qmd', 'org'):
                     validate_png(gui / f'{extension}.png')
+                    validate_png(gui / f'mode-cancelled-{extension}.png')
                 assert not helpers.owned_helpers(gui), 'Graphical helpers survived exit'
                 assert not (gui / 'server/disposable-gui').exists(), 'GUI socket survived exit'
             finally:

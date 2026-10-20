@@ -1,5 +1,5 @@
 #+TITLE: Manuscript checks and reviewed checkpoints
-#+DATE: 2026-10-19
+#+DATE: 2026-10-20
 
 * Workflow
 
@@ -77,7 +77,9 @@ The small version-1 configuration has five responsibilities:
 
 Paths cannot escape the project or traverse symlinked components. Input globs
 must exclude =.git/=, =.awc-paper/= and generated outputs; missing matches are
-reported. Word-count documents must also be declared inputs. This is explicit
+reported. Output and word-count file paths are normalized before comparison,
+so =./paper.qmd= and =paper.qmd= cannot bypass the input/output overlap guard.
+Word-count documents must also be declared inputs. This is explicit
 coverage, not a parser that discovers every dependency of arbitrary scripts.
 
 Native [[https://quarto.org/docs/reference/projects/options.html][Quarto project options]] continue to own render targets, output directories,
@@ -136,6 +138,17 @@ resolved command/version-probe executables, plus Git HEAD and the declared
 inputs' dirty/untracked status. Unversioned projects remain explicitly
 unversioned and are identified by their content hashes. It never creates a
 commit to manufacture a revision.
+
+Git provenance reads HEAD and the index through plumbing commands; it does
+not run worktree status, refresh the index, invoke fsmonitor/clean/process
+filters or fetch missing objects. Git must support =--no-lazy-fetch=; an
+unsupported option or missing object reports Git provenance unavailable.
+Acceptance uses Git 2.53.0, including SHA-1 and SHA-256 repositories. Dirty
+markers compare raw file bytes and executable bits with index/HEAD objects,
+without clean filters, newline conversion or assume-unchanged shortcuts.
+They can therefore differ from ordinary Git status in projects using such
+normalization. =UU= summarizes an unresolved index conflict. All matched
+inputs still retain their independent SHA-256 hashes.
 
 Status rehashes inputs and checked outputs. Source, bibliography, rule, script,
 configuration, executable, Git revision and input-glob changes invalidate the
@@ -196,6 +209,16 @@ and =2= means an action/configuration error. A successful status or freeze
 operation can describe an incomplete manuscript; inspect its states.
 
 * Reproduce acceptance and roll back
+
+The 20 October review repairs pass 31 Python cases and 14 focused P3 ERT
+cases, plus 193 core ERT cases and all core integration stages. The real
+acceptance fixture now starts as a private committed Git project. A complete
+CLI/configured/Wayland run passes real HTML/PDF/citation/supplement checks,
+20 source words, stale/review/freeze behavior, all ten native prompt answers,
+four validated/visually inspected captures and owned helper/socket cleanup
+without Lisp warnings. Hosted CI also runs the dependency-free runner and
+adapter suites; real Quarto/GUI acceptance remains separate. The roadmap
+records exact evidence and limits.
 
 #+begin_src sh
 PYTHONDONTWRITEBYTECODE=1 python3 test/test_paper_runner.py

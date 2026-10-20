@@ -187,6 +187,37 @@
       (should-not (memq (process-get process 'timer) timer-list))
       (should (string-match-p "timed out" (awc-writing-test--report))))))
 
+(ert-deftest awc-writing-mode-change-cancels-before-local-ownership-is-cleared ()
+  (awc-writing-test--fixture
+    (awc-writing-check)
+    (let ((owned awc-writing--process) (report awc-writing--results))
+      (unwind-protect
+          (progn
+            (text-mode)
+            (should-not (process-live-p owned))
+            (should-not awc-writing--process)
+            (should-not (buffer-live-p (process-buffer owned)))
+            (should-not (buffer-live-p (process-get owned 'stderr)))
+            (should-not (memq (process-get owned 'timer) timer-list))
+            (should (with-current-buffer report (string-match-p "cancelled" (buffer-string)))))
+        (when (process-live-p owned) (process-put owned 'cancelled t) (delete-process owned))))))
+
+(ert-deftest awc-writing-timeout-targets-owned-process-after-local-reference-is-lost ()
+  (awc-writing-test--fixture
+    (let ((awc-writing-timeout 0.01)) (awc-writing-check))
+    (let ((owned awc-writing--process) (report awc-writing--results))
+      (unwind-protect
+          (progn
+            (kill-local-variable 'awc-writing--process)
+            (let ((deadline (+ (float-time) 0.06)))
+              (while (< (float-time) deadline) (accept-process-output nil 0.01)))
+            (should-not (process-live-p owned))
+            (should-not (buffer-live-p (process-buffer owned)))
+            (should-not (buffer-live-p (process-get owned 'stderr)))
+            (should-not (memq (process-get owned 'timer) timer-list))
+            (should (with-current-buffer report (string-match-p "timed out" (buffer-string)))))
+        (when (process-live-p owned) (process-put owned 'cancelled t) (delete-process owned))))))
+
 (ert-deftest awc-writing-results-close-and-recheck-cancel-owned-processes ()
   (awc-writing-test--fixture
     (awc-writing-check)

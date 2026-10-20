@@ -1,5 +1,5 @@
 #+TITLE: Explicit project academic writing QA
-#+DATE: 2026-10-19
+#+DATE: 2026-10-20
 
 * Use the writing menu
 
@@ -36,7 +36,14 @@ its output. Recheck after editing. Reports are buffer snapshots, not durable
 revision-bound evidence; changes to rules or dictionaries also require a
 recheck. A source/report close, explicit cancellation or the default 30-second
 deadline stops only that document's process and releases its timer/output
-buffers. The ordinary editing session starts no Vale process on file open.
+buffers. Changing the source's major mode cancels before buffer-local
+ownership is cleared. The deadline targets the captured owned process even
+if its source-local reference has disappeared. The ordinary editing session
+starts no Vale process on file open.
+
+Polymode may separately ask whether to discard a modified indirect chunk
+when reinitializing a mode. Declining that discard retains the unsaved source;
+the writing adapter does not change Polymode's confirmation behavior.
 
 * Install dependencies explicitly; adopt project rules deliberately
 
@@ -132,6 +139,18 @@ may be absent/disabled and asks for review. It never labels this a validation
 pass. Re-run after fixing dependencies, rules or exceptions.
 
 * Evaluation and reproducible QA
+
+The 20 October PR review repairs pass 17 focused P2 ERT cases, including
+mode-change cancellation and a timeout after losing the local process
+reference. Fresh real/configured/private Wayland acceptance retains 28 useful
+findings, zero extras and three known acronym misses. The GUI checks 31 exact
+ranges, three report action sequences and three mode-reset cancellations,
+answers two native Polymode prompts by retaining modified indirect views,
+and preserves the full unsaved source text, modified flag and disk bytes.
+All six native captures pass binary validation and visual inspection; helpers
+and timers are cleaned up with no Lisp warnings. See the roadmap for exact
+evidence, failed fixture attempts and limits. Lightweight hosted CI now runs
+the independent P2/P3 ERT and Python runner suites as well as safety checks.
 
 Run the independent adapter tests without Vale or third-party Emacs packages:
 

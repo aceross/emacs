@@ -55,6 +55,14 @@ assert Path('paper.pdf').read_bytes().startswith(b'%PDF')
 assert 'Additional evidence' in Path('supplement.html').read_text()
 print('PASS: rendered citation, PDF signature, and supplement')
 ''')
+    # Exercise passive Git provenance throughout real CLI/Emacs/GUI acceptance,
+    # with private repository configuration and no user hooks or signing.
+    git = ['git', '-c', 'core.hooksPath=/dev/null', '-c', 'core.fsmonitor=false',
+           '-c', 'commit.gpgsign=false', '-c', 'user.name=Synthetic QA',
+           '-c', 'user.email=fixture@example.invalid']
+    for args in (['init', '-q'], ['add', '.'], ['commit', '-qm', 'Synthetic manuscript baseline']):
+        subprocess.run(git + args, cwd=project, check=True, capture_output=True,
+                       env={**os.environ, 'GIT_CONFIG_GLOBAL': os.devnull, 'GIT_CONFIG_NOSYSTEM': '1'})
     return project
 
 
@@ -90,6 +98,7 @@ def main():
         start = time.monotonic()
         initial = call('status')
         assert initial['state'] == 'incomplete' and not (project / '.awc-paper').exists()
+        assert initial['snapshot']['git']['head'] and not initial['snapshot']['git']['input_status']
         assert initial['plan']['checks'][-1]['commands'] == [
             ['quarto', 'pandoc', '--from=markdown', '--to=json', name]
             for name in ('paper.qmd', 'supplement.qmd')]

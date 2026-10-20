@@ -1,5 +1,51 @@
-#+TITLE: Next-session handoff: P3 command plans and P2 report actions
-#+DATE: 2026-10-19
+#+TITLE: Next-session handoff: P2/P3 draft PR review fixes
+#+DATE: 2026-10-20
+
+* Current handoff
+
+Draft [[https://github.com/aceross/emacs/pull/9][PR #9]] combines P2/P3 and the writing-workflow simplifications against
+=master=. The user authorized fixing all three review findings, adding
+regressions, validating, updating these records, committing and pushing to
+that draft. Keep P4 and shared GUI-harness extraction deferred. Do not merge
+or enable auto-merge.
+
+- Git baseline: clean =codex/p3-manuscript-checkpoints= at =608d83c=,
+  tracking =emacs/codex/p3-manuscript-checkpoints= at that same commit.
+  The four prior P2/P3 commits are published in PR #9. The PR's two safety
+  checks passed before these repairs; those results cover the prior head.
+  The repair commit's subject is =Fix passive manuscript provenance and
+  writing checker cleanup=, with parent =608d83c=. It includes 12 files:
+  implementation, focused/acceptance fixtures, CI and four guides/records.
+  Publication pushes this same branch to PR #9; verify the actual HEAD and
+  CI on GitHub. New hosted results are necessarily pending in this committed
+  record; the earlier green jobs do not cover these repairs. No merge is
+  authorized and auto-merge remains disabled.
+- Fixes: P3 reads Git HEAD/index objects without worktree refresh, hooks,
+  filters, lazy fetch or index writes; raw file bytes/executable bits supply
+  dirty markers. Unsupported =--no-lazy-fetch= or missing objects report Git
+  provenance unavailable. Output/word-count paths are normalized, preventing
+  =./paper.qmd= from bypassing overlap checks. P2 cancels before a mode change
+  clears ownership; timeouts target the captured process directly.
+- Preserved: reviewed commands/tokens, unsaved-buffer guards, independent
+  SHA-256 provenance/staleness, honest incomplete states, immutable prior
+  checkpoints and owned cleanup. P0/P1, package pins and environments are
+  unchanged. The runner hash intentionally makes prior checks/reviews stale;
+  rerun/review explicitly, retaining every old frozen manifest.
+- Fresh QA: 31 Python cases; 14 P3 plus 17 P2 focused ERT; 193 core ERT and
+  every integration stage; 27 safety; 134 clean source pins; warning-free
+  adapter byte compilation. Real Git-backed P3 acceptance passes. Final
+  full P3 CLI/configured/graphical acceptance passes all ten prompt answers.
+  P2 real/configured/graphical acceptance passes 31 diagnostic ranges and
+  three mode resets, preserving unsaved text, modified flags and disk bytes
+  through two native Polymode prompts. All ten P2/P3 native captures were
+  validated/visually inspected; no Lisp warnings or owned helper/socket leaks.
+  CI now runs the dependency-free P2/P3 suites alongside safety.
+  See the 20 October repair checkpoint in [[file:development-roadmap.org][the roadmap]] for evidence,
+  failures, coverage limits and rollback.
+- Next: review the updated draft and latest hosted jobs after this authorized
+  commit/push. No further product milestone is implied; keep P4 deferred.
+
+* Previous command-plan/report-action handoff (historical)
 
 Two approved follow-up batches make the P3 command plan explicit and P2
 report actions consistent. P4 and shared-harness extraction remain deferred.
@@ -7,7 +53,7 @@ The current record supersedes the previous committed checkpoint and original
 review brief retained below. Disposable QA directories may expire; the guides,
 tests and roadmap are durable evidence.
 
-* Current handoff
+** Historical handoff details
 
 Read the [[file:development-roadmap.org][P3 command-plan and P2 report-action follow-up checkpoint]],
 [[file:manuscript-checkpoints.org][manuscript guide]] and [[file:academic-writing-qa.org][writing QA guide]].

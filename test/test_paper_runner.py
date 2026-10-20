@@ -49,6 +49,139 @@ class PaperRunnerTests(unittest.TestCase):
         self.write()
         return self.cli('check', '--execute', code=code)
 
+    def git(self, *args):
+        return subprocess.run(['git', '-c', 'core.hooksPath=/dev/null', '-c', 'commit.gpgsign=false',
+                               '-c', 'user.name=Fixture QA', '-c', 'user.email=fixture@example.invalid', *args],
+                              cwd=self.root, capture_output=True, text=True, check=True).stdout
+
+    def test_status_and_freeze_never_run_git_hooks_or_filters(self):
+        helper = self.root / 'git-helper'
+        marker = self.root / 'git-helper-ran'
+        for mechanism in ('fsmonitor', 'clean', 'process'):
+            with self.subTest(mechanism=mechanism):
+                if (self.root / '.git').exists():
+                    shutil.rmtree(self.root / '.git')
+                self.git('init', '-q')
+                self.git('add', 'paper.qmd', paper.CONFIG, 'build.py', 'rules.txt')
+                self.git('commit', '-qm', 'Synthetic baseline')
+                helper.write_text('#!/bin/sh\nprintf "executed\\n" >> git-helper-ran\n'
+                                  + {'fsmonitor': 'printf "fixture-token\\0"\n',
+                                     'clean': 'cat\n', 'process': 'exit 1\n'}[mechanism])
+                helper.chmod(0o700)
+                key = 'core.fsmonitor' if mechanism == 'fsmonitor' else f'filter.fixture.{mechanism}'
+                self.git('config', key, str(helper))
+                if mechanism != 'fsmonitor':
+                    (self.root / '.gitattributes').write_text('paper.qmd filter=fixture\n')
+                source = self.root / 'paper.qmd'
+                source.write_text(('X' if mechanism != 'clean' else 'Y') * (source.stat().st_size - 1) + '\n')
+                index = (self.root / '.git/index').read_bytes()
+                try:
+                    status = self.cli('status')
+                    frozen = self.cli('--expect', status['review_token'], 'freeze', '--label', 'Passive Git review')
+                    self.assertFalse(marker.exists(), f'{mechanism} executed without --execute')
+                    self.assertEqual((self.root / '.git/index').read_bytes(), index)
+                    self.assertEqual(frozen['snapshot']['git']['head'], self.git('rev-parse', 'HEAD').strip())
+                    self.assertTrue(frozen['snapshot']['git']['input_status'])
+                    self.assertFalse((self.root / 'paper.html').exists())
+                    # A positive control proves each configured helper would
+                    # actually run through native worktree status.
+                    subprocess.run(['git', 'status', '--porcelain'], cwd=self.root,
+                                   capture_output=True, timeout=5)
+                    self.assertTrue(marker.exists(), f'{mechanism} fixture did not exercise Git execution')
+                finally:
+                    self.git('config', '--unset', key)
+                    marker.unlink(missing_ok=True)
+
+    def test_git_provenance_retains_staged_unstaged_untracked_and_conflicted_inputs(self):
+        # Raw object comparison must support both Git object formats.
+        for algorithm in ('sha1', 'sha256'):
+            with self.subTest(algorithm=algorithm):
+                gitdir = self.root / '.git'
+                if gitdir.exists():
+                    shutil.rmtree(gitdir)
+                self.git('init', '-q', f'--object-format={algorithm}')
+                (self.root / 'paper.qmd').write_text('Committed manuscript.\n')
+                self.git('add', '.')
+                self.git('commit', '-qm', 'Synthetic baseline')
+                self.assertFalse(self.cli('status')['snapshot']['git']['input_status'])
+                (self.root / 'paper.qmd').write_text('Staged manuscript.\n')
+                self.git('add', 'paper.qmd')
+                staged = self.cli('status')['snapshot']['git']['input_status']
+                self.assertIn('M  paper.qmd', staged)
+                (self.root / 'paper.qmd').write_text('Further unsaved-to-index manuscript.\n')
+                (self.root / 'new.py').write_text('# Declared untracked helper\n')
+                dirty = self.cli('status')['snapshot']['git']['input_status']
+                self.assertIn('MM paper.qmd', dirty)
+                self.assertIn('?? new.py', dirty)
+                self.git('update-index', '--chmod=+x', 'build.py')
+                self.assertIn('MM build.py', self.cli('status')['snapshot']['git']['input_status'])
+                blob = self.git('rev-parse', ':paper.qmd').strip()
+                self.git('update-index', '--force-remove', 'paper.qmd')
+                subprocess.run(['git', 'update-index', '--index-info'], cwd=self.root, text=True,
+                               input=f'100644 {blob} 1\tpaper.qmd\n100644 {blob} 2\tpaper.qmd\n', check=True)
+                self.assertIn('UU paper.qmd', self.cli('status')['snapshot']['git']['input_status'])
+                (self.root / 'new.py').unlink()
+
+    def test_nested_git_inputs_use_literal_names_and_ignore_cached_clean_flags(self):
+        nested = self.root / 'nested project'
+        nested.mkdir()
+        source = nested / 'literal[1].qmd'
+        source.write_text('Synthetic literal source.\n')
+        config = nested / paper.CONFIG
+        config.write_text(json.dumps({'version': 1, 'inputs': [source.name.replace('[', '[[]')]}))
+        self.git('init', '-q')
+        self.git('add', '.')
+        self.git('commit', '-qm', 'Nested project baseline')
+        root, cfg = paper.load_config(config)
+        self.assertFalse(paper.status(root, config, cfg)['snapshot']['git']['input_status'])
+        self.git('--literal-pathspecs', 'update-index', '--assume-unchanged', str(source.relative_to(self.root)))
+        source.write_text('Changed literal source.\n')
+        (nested / 'literal1.qmd').write_text('Unrelated pathspec candidate.\n')
+        self.assertEqual(paper.status(root, config, cfg)['snapshot']['git']['input_status'], [' M literal[1].qmd'])
+
+    def test_git_provenance_never_fetches_missing_promised_objects(self):
+        self.git('init', '-q')
+        self.git('add', '.')
+        self.git('commit', '-qm', 'Synthetic partial-clone baseline')
+        tree = self.git('rev-parse', 'HEAD^{tree}').strip()
+        (self.root / '.git/objects' / tree[:2] / tree[2:]).rename(self.root / 'missing-tree')
+        helper = self.root / 'remote-helper'
+        marker = self.root / 'remote-helper-ran'
+        helper.write_text('#!/bin/sh\nprintf "executed\\n" >> remote-helper-ran\nexit 1\n')
+        helper.chmod(0o700)
+        for key, value in (('core.repositoryformatversion', '1'), ('extensions.partialclone', 'fixture'),
+                           ('remote.fixture.url', 'ext::' + str(helper)), ('remote.fixture.promisor', 'true'),
+                           ('protocol.ext.allow', 'always')):
+            self.git('config', key, value)
+        result = self.cli('status')['snapshot']['git']
+        self.assertFalse(marker.exists(), 'Passive provenance launched a remote helper')
+        self.assertEqual(result['status'], 'unavailable')
+        # The explicit control is local: its transport only writes a marker.
+        subprocess.run(['git', 'ls-tree', 'HEAD'], cwd=self.root, capture_output=True, timeout=5)
+        self.assertTrue(marker.exists())
+
+    def test_output_aliases_are_refused_before_source_or_config_can_be_overwritten(self):
+        for alias in ('./paper.qmd', './/paper.qmd', './.awc-paper.json'):
+            with self.subTest(alias=alias):
+                self.cfg['checks'][0].update(outputs=[alias], argv=[sys.executable, '-c',
+                    "from pathlib import Path;Path('paper.qmd').write_text('Overwritten')"])
+                self.write()
+                original = (self.root / 'paper.qmd').read_bytes()
+                self.assertIn('overlap', self.cli('status', code=2)['error'])
+                self.assertIn('overlap', self.cli('check', '--execute', code=2)['error'])
+                self.assertEqual((self.root / 'paper.qmd').read_bytes(), original)
+                self.assertFalse((self.root / paper.STATE / 'latest.json').exists())
+
+    def test_nonoverlapping_output_and_word_source_aliases_are_canonical(self):
+        self.cfg['checks'][0]['outputs'] = ['./paper.html']
+        self.cfg['checks'].append({'id': 'words', 'type': 'word-count', 'files': ['./paper.qmd'],
+                                  'argv': [sys.executable, '-c', "print('{\"blocks\":[]}')"]})
+        result = self.run_checks()
+        self.assertTrue(result['ready'])
+        self.assertEqual(result['plan']['checks'][0]['outputs'], ['paper.html'])
+        self.assertEqual(result['plan']['checks'][1]['files'], ['paper.qmd'])
+        self.assertEqual(result['checks'][1]['commands'][0][-1], 'paper.qmd')
+
     def test_status_never_executes_project_code_or_creates_state(self):
         self.cli('status')
         self.assertFalse((self.root / paper.STATE).exists())

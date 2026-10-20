@@ -187,16 +187,21 @@ Return rendered compilation lines and a finding count."
         (when (buffer-live-p out) (kill-buffer out))
         (when (buffer-live-p err) (kill-buffer err))))))
 
+(defun awc-writing--cancel-process (process &optional explanation)
+  "Cancel owned PROCESS directly, even after source-local state is cleared."
+  (when (processp process)
+    (process-put process 'cancelled t)
+    (awc-writing--write (process-get process 'results)
+                        (or explanation "Writing QA cancelled. Check again when ready.\n"))
+    (delete-process process)))
+
 (defun awc-writing-cancel ()
   "Cancel this source/result buffer's check without touching other jobs."
   (interactive)
   (let ((source (or awc-writing--source (awc-writing--base))))
     (when (buffer-live-p source)
       (with-current-buffer source
-        (when (processp awc-writing--process)
-          (process-put awc-writing--process 'cancelled t)
-          (awc-writing--write awc-writing--results "Writing QA cancelled. Check again when ready.\n")
-          (delete-process awc-writing--process))))))
+        (awc-writing--cancel-process awc-writing--process)))))
 
 ;;;###autoload
 (defun awc-writing-check ()
@@ -225,6 +230,7 @@ Check unsaved text through stdin; do not save or rewrite the document."
       (awc-writing-cancel)
       (setq awc-writing--results results)
       (add-hook 'kill-buffer-hook #'awc-writing-cancel nil t)
+      (add-hook 'change-major-mode-hook #'awc-writing-cancel nil t)
       (setenv "VALE_CONFIG_PATH" nil)
       (setenv "VALE_STYLES_PATH" nil)
       (with-current-buffer results
@@ -256,8 +262,8 @@ Check unsaved text through stdin; do not save or rewrite the document."
                          (run-at-time awc-writing-timeout nil
                                       (lambda ()
                                         (when (process-live-p process)
-                                          (with-current-buffer source (awc-writing-cancel))
-                                          (awc-writing--write results "Writing QA timed out. Check project rules, or increase awc-writing-timeout.\n")))))
+                                          (awc-writing--cancel-process
+                                           process "Writing QA timed out. Check project rules, or increase awc-writing-timeout.\n")))))
             (process-send-string process text)
             (process-send-eof process)
             (display-buffer results))
